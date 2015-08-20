@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_MAGICGALLERY_VIEW_SLIDEGALLERY_TITLE">
+        <message>
+            <![CDATA[COM_MAGICGALLERY_VIEW_SLIDEGALLERY_DESC]]>
+        </message>
+    </layout>
+
+    <!-- Add fields to the request variables for the layout. -->
+    <fields name="request">
+        <fieldset name="request">
+            
+            <field name="id" type="category"
+               label="COM_MAGICGALLERY_CATEGORY"
+               description="COM_MAGICGALLERY_VIEW_SELECT_CATEGORY_DESC"
+               extension="com_magicgallery"
+               required="true"
+           />
+           
+        </fieldset>
+    </fields>
+
+    <!-- Add fields to the parameters object for the layout. -->
+    <fields name="params">
+        <fieldset name="basic">
+            <field name="effect" type="list" default="fade" label="COM_MAGICGALLERY_EFFECT" description="COM_MAGICGALLERY_SLIDEGALLERY_EFFECT_DESC" >
+	            <option value="slide">COM_MAGICGALLERY_SLIDE</option>
+	            <option value="fade">COM_MAGICGALLERY_FADE</option>
+	            <option value="fade-crossfade">COM_MAGICGALLERY_FADE_CROSSFADE</option>
+	        </field>
+	        <field name="speed" type="text" default="200" label="COM_MAGICGALLERY_SPEED" description="COM_MAGICGALLERY_SPEED_DESC" />
+	        
+	        <field name="width" type="text" default="600" label="COM_MAGICGALLERY_WIDTH" description="COM_MAGICGALLERY_SLIDEGALLERY_WIDTH_DESC" />
+	        <field name="height" type="text" default="400" label="COM_MAGICGALLERY_HEIGHT" description="COM_MAGICGALLERY_SLIDEGALLERY_HEIGHT_DESC" />
+	        
+	        <field name="start" type="text" default="1" label="COM_MAGICGALLERY_START" description="COM_MAGICGALLERY_SLIDEGALLERY_START_DESC" />
+	        
+	        <field name="navigation" type="radio" default="0" label="COM_MAGICGALLERY_NAVIGATION" description="COM_MAGICGALLERY_SLIDEGALLERY_NAVIGATION_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+            <field name="pagination" type="radio" default="1" label="COM_MAGICGALLERY_PAGINATION" description="COM_MAGICGALLERY_SLIDEGALLERY_PAGINATION_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+
+            <field name="play" type="radio" default="0" label="COM_MAGICGALLERY_PLAY" description="COM_MAGICGALLERY_SLIDEGALLERY_PLAY_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+            <field name="interval" type="text" default="5000" label="COM_MAGICGALLERY_INTERVAL" description="COM_MAGICGALLERY_SLIDEGALLERY_INTERVAL_DESC" />
+            <field name="autoplay" type="radio" default="0" label="COM_MAGICGALLERY_AUTOPLAY" description="COM_MAGICGALLERY_SLIDEGALLERY_AUTOPLAY_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+            <field name="swap" type="radio" default="1" label="COM_MAGICGALLERY_SWAP" description="COM_MAGICGALLERY_SLIDEGALLERY_SWAP_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+            <field name="pause" type="radio" default="0" label="COM_MAGICGALLERY_PAUSE" description="COM_MAGICGALLERY_SLIDEGALLERY_PAUSE_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+            <field name="restart" type="text" default="2500" label="COM_MAGICGALLERY_RESTART" description="COM_MAGICGALLERY_SLIDEGALLERY_RESTART_DESC" />
+        </fieldset>
+    </fields>
+</metadata>

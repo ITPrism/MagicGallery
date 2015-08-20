@@ -1,0 +1,14 @@
+Magic Gallery for Joomla!
+==========================
+( Version 1.0 )
+- - - 
+
+This is a Joomla! extension that provides functionality for creating and managing interactive galleries and portfolio views. 
+
+##Documentation
+You can find documentation on the following pages.
+
+[Documentation and FAQ] (http://itprism.com/help/28-magicgallery-documentation-faq)
+
+##Download
+You can [download Magic Gallery package] (http://itprism.com/free-joomla-extensions/others/portfolio-presentation-gallery) and from the website of ITPrism.

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="images" label="COM_MAGICGALLERY_MEDIA" description="COM_MAGICGALLERY_MEDIA_PARAMS">
+        <field name="media_folder" type="text" default="images/magicgallery" size="50" label="COM_MAGICGALLERY_MEDIA_DIRECTORY" description="COM_MAGICGALLERY_MEDIA_DIRECTORY_DESC" />
+	</fieldset>
+</config>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_MAGICGALLERY_PROJECTS_VIEW_DEFAULT_TITLE">
+        <message>
+            <![CDATA[COM_MAGICGALLERY_PROJECTS_VIEW_DEFAULT_DESC]]>
+        </message>
+    </layout>
+
+    <!-- Add fields to the request variables for the layout. -->
+    <fields name="request">
+        <fieldset name="request" >
+        
+            <field name="id" type="category"
+                label="COM_MAGICGALLERY_CATEGORY"
+                description="COM_MAGICGALLERY_VIEW_SELECT_CATEGORY_DESC"
+                extension="com_magicgallery"
+                required="true"
+            />
+            
+        </fieldset>
+    </fields>
+    
+    <!-- Add fields to the parameters object for the layout. -->
+    <fields name="params">
+        <fieldset name="basic">
+	        <field name="modal" type="list" default="0"  label="COM_MAGICGALLERY_MODAL_WINDOW" description="COM_MAGICGALLERY_MODAL_WINDOW_DESC" >
+	           <option value="">COM_MAGICGALLERY_NONE</option>
+	           <option value="nivo">COM_MAGICGALLERY_LIGHTBOX_NIVO</option>
+	           <option value="fancybox">COM_MAGICGALLERY_LIGHTBOX_FANCYBOX</option>
+	        </field>
+	        <field name="display_title" type="radio" default="0"  label="COM_MAGICGALLERY_DISPLAY_TITLE" description="COM_MAGICGALLERY_DISPLAY_TITLE_DESC" class="btn-group">
+	            <option value="0">JNO</option>
+	            <option value="1">JYES</option>
+	        </field>
+	        <field name="title_linkable" type="radio" default="0" label="COM_MAGICGALLERY_TITLE_LINK" description="COM_MAGICGALLERY_TITLE_LINK_DESC" class="btn-group" >
+	            <option value="0">JNO</option>
+	            <option value="1">JYES</option>
+	        </field>
+	         <field name="open_link" type="list" default="_self"  label="COM_MAGICGALLERY_OPEN_LINK" description="COM_MAGICGALLERY_OPEN_LINK_DESC" >
+	            <option value="_self">COM_MAGICGALLERY_SAME_TAB</option>
+	            <option value="_blank">COM_MAGICGALLERY_NEW_TAB</option>
+	        </field>
+	        <field name="image_linkable" type="radio" default="0"  label="COM_MAGICGALLERY_IMAGE_LINK" description="COM_MAGICGALLERY_IMAGE_LINK_DESC" class="btn-group">
+	            <option value="0">JNO</option>
+	            <option value="1">JYES</option>
+	        </field>
+	        <field name="pp_page" type="text" default="6" label="COM_MAGICGALLERY_PP_PAGE" description="COM_MAGICGALLERY_PP_PAGE_DESC" />
+	        
+	        <field name="thumb_width" type="text" default="200" label="COM_MAGICGALLERY_THUMB_WIDTH" description="COM_MAGICGALLERY_THUMB_WIDTH_DESC" />
+	        <field name="thumb_height" type="text" default="200" label="COM_MAGICGALLERY_THUMB_HEIGHT" description="COM_MAGICGALLERY_THUMB_HEIGHT_DESC" />
+	        
+	        <field name="display_additional_images" type="radio" default="0"  label="COM_MAGICGALLERY_DISPLAY_ADDITIONAL_IMAGE" description="COM_MAGICGALLERY_DISPLAY_ADDITIONAL_IMAGE_DESC" class="btn-group">
+	            <option value="0">JNO</option>
+	            <option value="1">JYES</option>
+	        </field>
+	        <field name="additional_images_thumb_width" type="text" default="50" label="COM_MAGICGALLERY_ADDITIONAL_THUMB_WIDTH" description="COM_MAGICGALLERY_ADDITIONAL_THUMB_WIDTH_OPTION_DESC" />
+	        <field name="additional_images_thumb_height" type="text" default="50" label="COM_MAGICGALLERY_ADDITIONAL_THUMB_HEIGHT" description="COM_MAGICGALLERY_ADDITIONAL_THUMB_HEIGHT_OPTION_DESC" />
+	        <field name="additional_images_number" type="text" default="3" label="COM_MAGICGALLERY_ADDITIONAL_IMAGE_NUMBER" description="COM_MAGICGALLERY_ADDITIONAL_IMAGE_NUMBER_DESC" />
+
+            <field name="category_breadcrumbs" type="radio" default="0"  label="COM_MAGICGALLERY_CATEGORY_BREADCRUMBS" description="COM_MAGICGALLERY_CATEGORY_BREADCRUMBS_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+            <field name="display_category_description" type="radio" default="0"  label="COM_MAGICGALLERY_CATEGORY_DESCRIPTION" description="COM_MAGICGALLERY_CATEGORY_DESCRIPTION_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+
+            <field
+                    name="show_pagination"
+                    type="list"
+                    description="JGLOBAL_PAGINATION_DESC"
+                    label="JGLOBAL_PAGINATION_LABEL"
+                    >
+                <option value="">JGLOBAL_USE_GLOBAL</option>
+                <option value="0">JHIDE</option>
+                <option value="1">JSHOW</option>
+                <option value="2">JGLOBAL_AUTO</option>
+            </field>
+
+            <field
+                    name="show_pagination_results"
+                    type="list"
+                    label="JGLOBAL_PAGINATION_RESULTS_LABEL"
+                    description="JGLOBAL_PAGINATION_RESULTS_DESC"
+                    >
+                <option value="">JGLOBAL_USE_GLOBAL</option>
+                <option value="0">JHIDE</option>
+                <option value="1">JSHOW</option>
+            </field>
+       </fieldset>
+    </fields>
+</metadata>

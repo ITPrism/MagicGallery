@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="package" version="3.4" method="upgrade">
+	<name>Magic Gallery Package</name>
+	<packagename>magicgallery</packagename>
+	<author>Todor Iliev</author>
+	<authorEmail>todor@itprism.com</authorEmail>
+	<authorUrl>http://itprism.com</authorUrl>
+	<copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com )</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html</license>
+	<version>1.0</version>
+	<creationDate>19 August, 2015</creationDate>
+	<url>http://itprism.com</url>
+	<packager>Todor Iliev</packager>
+	<packagerurl>http://itprism.com</packagerurl>
+	<description><![CDATA[
+	<p><a href="http://extensions.joomla.org/extensions/extension/directory-a-documentation/portfolio/vip-portfolio" target="_blank">Magic Gallery</a> helps you to create your portfolio ang galleries easily. It is a good way to show your work, and excellent way to sell your skills.</p>
+	<p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
+	<p>Please, <a href="http://extensions.joomla.org/extensions/directory-a-documentation/portfolio/7863" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
+    ]]></description>
+    
+	<files folder="packages">
+		<file type="component" 	id="com_magicgallery" >com_magicgallery.zip</file>
+		<file type="library"    id="lib_magicgallery" >lib_magicgallery.zip</file>
+	</files>
+	
+	<scriptfile>install.php</scriptfile>
+</extension>

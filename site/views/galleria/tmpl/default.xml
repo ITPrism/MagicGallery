@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_MAGICGALLERY_PROJECTS_VIEW_GALLERIA_TITLE">
+        <message>
+            <![CDATA[COM_MAGICGALLERY_PROJECTS_VIEW_GALLERIA_DESC]]>
+        </message>
+    </layout>
+
+    <!-- Add fields to the request variables for the layout. -->
+    <fields name="request">
+        <fieldset name="request" >
+        
+           <field name="id" type="category"
+               label="COM_MAGICGALLERY_CATEGORY"
+               description="COM_MAGICGALLERY_VIEW_SELECT_CATEGORY_DESC"
+               extension="com_magicgallery"
+               required="true"
+           />
+            
+        </fieldset>
+    </fields>
+
+    <!-- Add fields to the parameters object for the layout. -->
+    <fields name="params">
+        <fieldset name="basic">
+        
+            <field name="renderer" type="list" default="thumbs_images" label="COM_MAGICGALLERY_DISPLAY_IMAGES" description="COM_MAGICGALLERY_DISPLAY_IMAGES_DESC" >
+                <option value="thumbs_images">COM_MAGICGALLERY_THUMB_AND_IMAGES</option>
+                <option value="images">COM_MAGICGALLERY_ONLY_IMAGES</option>
+            </field>
+
+            <field name="autoplay" type="radio" default="0" label="COM_MAGICGALLERY_AUTOPLAY" description="COM_MAGICGALLERY_AUTOPLAY_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+
+            <field name="carousel" type="radio" default="1" label="COM_MAGICGALLERY_CAROUSEL" description="COM_MAGICGALLERY_CAROUSEL_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+
+            <field name="carousel_speed" type="text" default="200" label="COM_MAGICGALLERY_CAROUSEL_SPEED" description="COM_MAGICGALLERY_CAROUSEL_SPEED_DESC" />
+            <field name="carousel_steps" type="text" default="2" label="COM_MAGICGALLERY_CAROUSEL_STEPS" description="COM_MAGICGALLERY_CAROUSEL_STEPS_DESC" />
+
+            <field name="responsive" type="radio" default="1" label="COM_MAGICGALLERY_RESPONSIVE" description="COM_MAGICGALLERY_RESPONSIVE_DESC" class="btn-group">
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
+
+            <field name="height" type="text" default="0.5625" label="COM_MAGICGALLERY_HEIGHT" description="COM_MAGICGALLERY_HEIGHT_DESC" />
+
+        </fieldset>
+    </fields>
+</metadata>
