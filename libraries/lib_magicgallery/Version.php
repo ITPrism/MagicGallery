@@ -59,14 +59,14 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '07 August, 2015';
+    public $releaseDate = '19 August, 2015';
 
     /**
      * License
      *
      * @var string
      */
-    public $license = '<a href="http://www.gnu.org/copyleft/gpl.html" target="_blank">GNU/GPL</a>';
+    public $license = '<a href="http://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU/GPLv3</a>';
 
     /**
      * Copyright Text

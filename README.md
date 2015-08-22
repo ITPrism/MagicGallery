@@ -12,3 +12,6 @@ You can find documentation on the following pages.
 
 ##Download
 You can [download Magic Gallery package] (http://itprism.com/free-joomla-extensions/others/portfolio-presentation-gallery) and from the website of ITPrism.
+
+##License
+Magic Gallery is under GPLv3 [license] (https://raw.githubusercontent.com/ITPrism/MagicGallery/master/LICENSE.txt).
