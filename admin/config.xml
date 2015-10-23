@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 	<fieldset name="images" label="COM_MAGICGALLERY_MEDIA" description="COM_MAGICGALLERY_MEDIA_PARAMS">
-        <field name="media_folder" type="text" default="images/magicgallery" size="50" label="COM_MAGICGALLERY_MEDIA_DIRECTORY" description="COM_MAGICGALLERY_MEDIA_DIRECTORY_DESC" />
+        <field name="media_folder" type="text" default="images/magicgallery" class="input-xxlarge" 
+               label="COM_MAGICGALLERY_MEDIA_DIRECTORY" 
+               description="COM_MAGICGALLERY_MEDIA_DIRECTORY_DESC" />
+        <field name="legal_extensions" type="text" default="bmp, gif, jpg, jpeg, png" class="input-xxlarge"
+               label="COM_MAGICGALLERY_LEGAL_EXTENSIONS" 
+               description="COM_MAGICGALLERY_LEGAL_EXTENSIONS_DESC"
+               />
+
+        <field name="legal_types" type="textarea" default="image/jpeg, image/gif, image/png, image/bmp" class="input-xxlarge"
+               label="COM_MAGICGALLERY_LEGAL_MIME_TYPES" 
+               description="COM_MAGICGALLERY_LEGAL_MIME_TYPES_DESC"
+               />
+
+        <field name="max_size" type="text" default="5" class="input-mini"
+               label="COM_MAGICGALLERY_MAX_SIZE_MB" 
+               description="COM_MAGICGALLERY_MAX_SIZE_MB_DESC"
+               />
 	</fieldset>
 </config>

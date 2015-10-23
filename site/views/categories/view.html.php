@@ -25,12 +25,12 @@ class MagicGalleryViewCategories extends JViewLegacy
     /**
      * @var Joomla\Registry\Registry
      */
-    protected $state = null;
+    protected $state;
 
-    protected $items = null;
-    protected $pagination = null;
+    protected $items;
+    protected $pagination;
 
-    protected $event = null;
+    protected $event;
     protected $option;
 
     protected $category;
@@ -40,16 +40,12 @@ class MagicGalleryViewCategories extends JViewLegacy
 
     protected $pageclass_sfx;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
+
+        $this->option     = $app->input->get('option');
 
         // Initialise variables
         $this->state      = $this->get('State');
@@ -57,13 +53,13 @@ class MagicGalleryViewCategories extends JViewLegacy
         $this->pagination = $this->get('Pagination');
         $this->params     = $this->state->params;
 
-        $this->projectsView = $app->input->getString("projects_view", "categories");
+        $this->projectsView = $app->input->getString('projects_view', 'categories');
 
         // Parse parameters
-        if (!empty($this->items)) {
+        if ($this->items !== null and count($this->items) > 0) {
             foreach ($this->items as $item) {
                 $item->params = json_decode($item->params);
-                if (!empty($item->params->image)) {
+                if (($item->params !== null) and isset($item->params->image) and ($item->params->image !== '')) {
                     $item->image = $item->params->image;
                 }
             }
@@ -78,7 +74,7 @@ class MagicGalleryViewCategories extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getCategoriesViewRoute("categories");
+        $item->link        = MagicGalleryHelperRoute::getCategoriesViewRoute('categories');
         $item->image_intro = MagicGalleryHelper::getCategoryImage($this->items);
 
         $this->event                         = new stdClass();
@@ -113,7 +109,7 @@ class MagicGalleryViewCategories extends JViewLegacy
 
         // Set page title
         $title = $this->params->get('page_title', '');
-        if (empty($title)) {
+        if ($title !== '') {
             $title = $app->get('sitename');
         } elseif ($app->get('sitename_pagetitles', 0)) {
             $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
@@ -127,7 +123,7 @@ class MagicGalleryViewCategories extends JViewLegacy
 
         // Meta keywords
         if ($this->params->get('menu-meta_keywords')) {
-            $this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+            $this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
         }
     }
 }

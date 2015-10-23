@@ -25,12 +25,12 @@ class MagicGalleryViewTabbed extends JViewLegacy
     /**
      * @var Joomla\Registry\Registry
      */
-    protected $state = null;
+    protected $state;
 
-    protected $items = null;
-    protected $pagination = null;
+    protected $items;
+    protected $pagination;
 
-    protected $event = null;
+    protected $event;
     protected $option;
     protected $pageclass_sfx;
 
@@ -39,35 +39,29 @@ class MagicGalleryViewTabbed extends JViewLegacy
     protected $galleries;
     protected $mediaUrl;
     protected $activeTab;
-    protected $displayCaption;
     protected $openLink;
     protected $modal;
     protected $modalClass;
     protected $projectsView;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
+    
     public function display($tpl = null)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        // Initialise variables
+        $this->option = $app->input->get('option');
+        
         $this->state  = $this->get('State');
         $this->items  = $this->get('Items');
         $this->params = $this->state->params;
 
-        $this->projectsView = $app->input->get("projects_view", "tabbed", "string");
+        $this->projectsView = $app->input->get('projects_view', 'tabbed', 'string');
 
         // Parse parameters and collect categories ids in array
         $categoriesIds = array();
         foreach ($this->items as &$item) {
             $item->params = json_decode($item->params);
-            if (!empty($item->params->image)) {
+            if ($item->params !== null and isset($item->params->image) and ($item->params->image !== '')) {
                 $item->image = $item->params->image;
             }
 
@@ -77,13 +71,13 @@ class MagicGalleryViewTabbed extends JViewLegacy
         unset($item);
 
         $options  = array(
-            "category_id"    => $categoriesIds,
-            "gallery_state"  => Prism\Constants::PUBLISHED,
-            "load_resources" => true,
-            "resource_state" => Prism\Constants::PUBLISHED
+            'category_id'    => $categoriesIds,
+            'gallery_state'  => Prism\Constants::PUBLISHED,
+            'load_resources' => true,
+            'resource_state' => Prism\Constants::PUBLISHED
         );
 
-        $galleries_  = new MagicGallery\Gallery\Galleries(JFactory::getDbo());
+        $galleries_  = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
         $galleries_->load($options);
 
         $galleries = array();
@@ -93,12 +87,11 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
         $this->galleries = $galleries;
 
-        $this->mediaUrl       = JURI::root() . $this->params->get("media_folder", "images/magicgallery");
-        $this->activeTab      = $this->params->get("active_tab");
-        $this->displayCaption = false;
+        $this->mediaUrl       = JURI::root() . $this->params->get('media_folder', 'images/magicgallery');
+        $this->activeTab      = $this->params->get('active_tab');
 
         // Open link target
-        $this->openLink = 'target="' . $this->params->get("open_link", "_self") . '"';
+        $this->openLink = 'target="' . $this->params->get('open_link', '_self') . '"';
 
         $this->prepareLightBox();
         $this->prepareDocument();
@@ -108,7 +101,7 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getCategoriesViewRoute("tabbed");
+        $item->link        = MagicGalleryHelperRoute::getCategoriesViewRoute('tabbed');
         $item->image_intro = MagicGalleryHelper::getCategoryImage($this->items);
 
         JPluginHelper::importPlugin('content');
@@ -126,17 +119,17 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
     protected function prepareLightBox()
     {
-        $this->modal      = $this->params->get("modal");
+        $this->modal      = $this->params->get('modal');
         $this->modalClass = MagicGalleryHelper::getModalClass($this->modal);
 
         $this->setLayout($this->modal);
 
         switch ($this->modal) {
 
-            case "fancybox":
+            case 'fancybox':
 
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxFancyBox');
+                JHtml::_('MagicGallery.lightboxFancybox');
 
                 // Initialize lightbox
                 $js = 'jQuery(document).ready(function(){
@@ -146,7 +139,7 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
                 break;
 
-            case "nivo": // Joomla! native
+            case 'nivo': // Joomla! native
 
                 JHtml::_('jquery.framework');
                 JHtml::_('MagicGallery.lightboxNivo');
@@ -183,7 +176,7 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
         // Set page title
         $title = $this->params->get('page_title', '');
-        if (empty($title)) {
+        if ($title !== '') {
             $title = $app->get('sitename');
         } elseif ($app->get('sitename_pagetitles', 0)) {
             $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
@@ -197,28 +190,14 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
         // Meta keywords
         if ($this->params->get('menu-meta_keywords')) {
-            $this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+            $this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
         }
-
 
         // Scripts
         JHtml::_('jquery.framework');
 
-        if ($this->params->get("display_tip", 0)) {
+        if ($this->params->get('display_tip', 0)) {
             JHtml::_('bootstrap.tooltip');
-        }
-
-        if ($this->params->get("caption_title", 0) or $this->params->get("caption_desc", 0) or $this->params->get("caption_url", 0)) {
-            $this->displayCaption = true;
-        }
-
-        // Load captionjs script.
-        if ($this->displayCaption) {
-            JHtml::_('vipportfolio.jsquares');
-
-            $js = '';
-
-            $this->document->addScriptDeclaration($js);
         }
 
     }

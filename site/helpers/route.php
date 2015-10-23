@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('MagicGallery.init');
+jimport('Magicgallery.init');
 
 /**
  * Component Route Helper that help to find a menu item.
@@ -60,7 +60,7 @@ abstract class MagicGalleryHelperRoute
             } else { // Continue to search and deep inside
 
                 // Create the link
-                $link = 'index.php?option=com_magicgallery&view=' . $view . '&catid=' . $id . "&id=".$galleryId;
+                $link = 'index.php?option=com_magicgallery&view=' . $view . '&catid=' . $id . '&id='.$galleryId;
 
                 if ($category) {
                     $catids = array_reverse($category->getPath());
@@ -79,8 +79,8 @@ abstract class MagicGalleryHelperRoute
             }
         }
 
-        if (!is_null($offset)) {
-            $link .= "&start=" . (int)$offset;
+        if ($offset !== null) {
+            $link .= '&start=' . (int)$offset;
         }
 
         return $link;
@@ -198,7 +198,7 @@ abstract class MagicGalleryHelperRoute
 
             if ($items) {
                 foreach ($items as $item) {
-                    if (isset($item->query) && isset($item->query['view'])) {
+                    if (isset($item->query) and isset($item->query['view'])) {
                         $view = $item->query['view'];
 
                         if (!isset(self::$lookup[$view])) {
@@ -258,7 +258,7 @@ abstract class MagicGalleryHelperRoute
             $menuCategoryId = 0;
         }
 
-        $categories = MagicGallery\Category\Categories::getInstance('MagicGallery');
+        $categories = Magicgallery\Category\Categories::getInstance('MagicGallery');
         $category   = $categories->get($categoryId);
 
         if (!$category) {
@@ -275,7 +275,7 @@ abstract class MagicGalleryHelperRoute
         foreach ($path as $id) {
 
             // Is an ID match with an ID in a menu item?
-            if ((int)$id == (int)$menuCategoryId) {
+            if ((int)$id === (int)$menuCategoryId) {
                 break;
             }
 
@@ -283,7 +283,7 @@ abstract class MagicGalleryHelperRoute
             /*list($tmp, $id) = explode(':', $id, 2);
             $array[] = $id;*/
 
-            $array[] = str_replace(":", "-", $id);
+            $array[] = str_replace(':', '-', $id);
         }
 
         $array = array_reverse($array);

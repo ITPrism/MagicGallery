@@ -83,7 +83,7 @@ class pkg_magicGalleryInstallerScript
         jimport('joomla.filesystem.folder');
         jimport('joomla.filesystem.file');
         jimport('Prism.init');
-        jimport('MagicGallery.init');
+        jimport('Magicgallery.init');
 
         $params             = JComponentHelper::getParams("com_magicgallery");
         $this->imagesFolder = JFolder::makeSafe($params->get("media_folder", "images/magicgallery"));

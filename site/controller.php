@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 
 class MagicGalleryController extends JControllerLegacy
 {
-    protected $cacheableViews = array("categorylist", "tabbed", "list", "lineal", "galleria", "camera", "slidegallery");
+    protected $cacheableViews = array('categorylist', 'tabbed', 'list', 'lineal', 'galleria', 'camera', 'slidegallery');
 
     /**
      * Method to display a view.
@@ -31,10 +31,10 @@ class MagicGalleryController extends JControllerLegacy
         $viewName = $this->input->getCmd('view', 'categorylist');
         $this->input->set('view', $viewName);
 
-        JHtml::stylesheet("com_magicgallery/frontend.style.css", false, true, false);
+        JHtml::stylesheet('com_magicgallery/frontend.style.css', false, true, false);
 
         // Cache some views.
-        if (in_array($viewName, $this->cacheableViews)) {
+        if (in_array($viewName, $this->cacheableViews, true)) {
             $cachable = true;
         }
 

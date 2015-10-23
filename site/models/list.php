@@ -55,7 +55,7 @@ class MagicGalleryModelList extends JModelList
 
         $this->setState($this->context . '.filter.catid', $app->input->getInt('id'));
 
-        $value = $params->get("pp_page", 0);
+        $value = $params->get('pp_page', 0);
         if (!$value) {
             $value = $app->input->getInt('limit', $app->get('list_limit', 20));
         }
@@ -111,8 +111,8 @@ class MagicGalleryModelList extends JModelList
         $query->from($db->quoteName('#__magicgallery_galleries', 'a'));
 
         // Filter by category
-        $categoryId = $this->getState($this->context.'.filter.catid');
-        if (!empty($categoryId)) {
+        $categoryId = (int)$this->getState($this->context.'.filter.catid');
+        if ($categoryId > 0) {
             $query->where('a.catid = ' . (int)$categoryId);
         }
 
@@ -149,10 +149,10 @@ class MagicGalleryModelList extends JModelList
             )
         );
 
-        $query->from($db->quoteName('#__magicgallery_resources', 'a'));
-        $query->where('a.gallery_id IN (' . implode(",", $ids).")");
+        $query->from($db->quoteName('#__magicgallery_entities', 'a'));
+        $query->where('a.gallery_id IN (' . implode(',', $ids).')');
         $query->where('a.published = '.(int)Prism\Constants::PUBLISHED);
-        $query->order("a.ordering");
+        $query->order('a.ordering');
 
         $db->setQuery($query);
 
@@ -160,17 +160,17 @@ class MagicGalleryModelList extends JModelList
 
         $images = array();
         foreach ($results as $value) {
-            $images[$value["gallery_id"]][] = $value;
+            $images[$value['gallery_id']][] = $value;
         }
 
         foreach ($images as $key_ => &$images_) {
             $defaultImage = null;
 
             foreach ($images_ as $key => $image) {
-                if ($image["home"]) {
+                if ($image['home']) {
                     
                     $defaultImage = $image;
-                    $images_["default"] = $defaultImage;
+                    $images_['default'] = $defaultImage;
                     unset($images_[$key]);
                     
                     break 1;
@@ -178,7 +178,7 @@ class MagicGalleryModelList extends JModelList
             }
 
             if (!$defaultImage) {
-                $images_["default"] = array_shift($images_);
+                $images_['default'] = array_shift($images_);
             }
         }
         

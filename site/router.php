@@ -9,7 +9,7 @@
 
 defined('_JEXEC') or die;
 
-jimport("MagicGallery.init");
+jimport('Magicgallery.init');
 
 /**
  * Method to build Route
@@ -36,7 +36,7 @@ function MagicGalleryBuildRoute(&$query)
     }
 
     // Check again
-    if ($menuItemGiven and isset($menuItem) and strcmp("com_magicgallery", $menuItem->component) != 0) {
+    if ($menuItemGiven and isset($menuItem) and strcmp('com_magicgallery', $menuItem->component) !== 0) {
         $menuItemGiven = false;
         unset($query['Itemid']);
     }
@@ -77,11 +77,11 @@ function MagicGalleryBuildRoute(&$query)
         switch ($view) {
 
             // Category views.
-            case "camera":
-            case "galleria":
-            case "slidegallery":
-            case "list":
-            case "lineal":
+            case 'camera':
+            case 'galleria':
+            case 'slidegallery':
+            case 'list':
+            case 'lineal':
 
                 if (!$menuItemGiven) {
                     $segments[] = $view;
@@ -100,7 +100,7 @@ function MagicGalleryBuildRoute(&$query)
 
                 break;
 
-            case "categories":
+            case 'categories':
                 if (isset($query['view'])) {
                     unset($query['view']);
                 }
@@ -120,11 +120,11 @@ function MagicGalleryBuildRoute(&$query)
     // Layout
     if (isset($query['layout'])) {
         if ($menuItemGiven and isset($menuItem->query['layout'])) {
-            if ($query['layout'] == $menuItem->query['layout']) {
+            if ($query['layout'] === $menuItem->query['layout']) {
                 unset($query['layout']);
             }
         } else {
-            if ($query['layout'] == 'default') {
+            if ($query['layout'] === 'default') {
                 unset($query['layout']);
             }
         }
@@ -173,11 +173,11 @@ function MagicGalleryParseRoute($segments)
     }
 
     list($id, $alias) = explode(':', $segments[0], 2);
-    $alias = str_replace(":", "-", $alias);
+    $alias = str_replace(':', '-', $alias);
 
     // First we check if it is a category
     $category = JCategories::getInstance('Magicgallery')->get($id);
-    if ($category && $category->alias == $alias) {
+    if ($category && $category->alias === $alias) {
 
         // Get the category id from the menu item
         if (isset($menuItem->query['projects_view'])) {

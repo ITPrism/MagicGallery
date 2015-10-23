@@ -19,7 +19,7 @@ defined('_JEXEC') or die;
  */
 abstract class JHtmlMagicGallery
 {
-    protected static $extension = "com_magicgallery";
+    protected static $extension = 'com_magicgallery';
 
     /**
      * @var   array   array containing information for loaded files
@@ -54,43 +54,17 @@ abstract class JHtmlMagicGallery
     }
 
     /**
-     * Include jQuery Duncan's Light Box library.
-     *
-     * <code>
-     * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
-     *
-     * JHtml::_('MagicGallery.lightboxDuncan');
-     * </code>
-     *
-     * @link https://github.com/duncanmcdougall/Responsive-Lightbox
-     */
-    public static function lightboxDuncan()
-    {
-        // Only load once
-        if (!empty(self::$loaded[__METHOD__])) {
-            return;
-        }
-
-        $document = JFactory::getDocument();
-
-        $document->addStylesheet(JUri::root() . 'media/' . self::$extension . '/js/duncan/jquery.lightbox.min.css');
-        $document->addScript(JUri::root() . 'media/' . self::$extension . '/js/duncan/jquery.lightbox.min.js');
-
-        self::$loaded[__METHOD__] = true;
-    }
-
-    /**
      * Include jQuery FancyBox library.
      *
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('MagicGallery.ui.lightboxFancyBox');
+     * JHtml::_('MagicGallery.ui.lightboxFancybox');
      * </code>
      *
      * @link http://fancyapps.com/fancybox/ FancyBox documentation
      */
-    public static function lightboxFancyBox()
+    public static function lightboxFancybox()
     {
         // Only load once
         if (!empty(self::$loaded[__METHOD__])) {
@@ -228,21 +202,21 @@ abstract class JHtmlMagicGallery
      */
     public static function fileSize($params)
     {
-        $result = "";
-        $value  = (!empty($params["filesize"])) ? abs($params["filesize"]) : 0;
+        $result = '';
+        $value  = (!empty($params['filesize'])) ? abs($params['filesize']) : 0;
 
         if ($value > 0) {
-            $value = $value / 1000;
+            $value /= 1000;
 
             if ($value > 1000) {
-                $value = $value / 1000;
+                $value /= 1000;
 
                 $result  = '<div class="small">';
-                $result .= JText::sprintf("COM_MAGICGALLERY_FILESIZE_MB_D", $value);
+                $result .= JText::sprintf('COM_MAGICGALLERY_FILESIZE_MB_D', $value);
                 $result .= '</div>';
             } else {
                 $result  = '<div class="small">';
-                $result .= JText::sprintf("COM_MAGICGALLERY_FILESIZE_KB_D", $value);
+                $result .= JText::sprintf('COM_MAGICGALLERY_FILESIZE_KB_D', $value);
                 $result .= '</div>';
             }
         }
@@ -265,14 +239,14 @@ abstract class JHtmlMagicGallery
      */
     public static function imageSize($params)
     {
-        $result = "";
+        $result = '';
 
-        $width   = (!empty($params["width"])) ? abs($params["width"]) : 0;
-        $height  = (!empty($params["height"])) ? abs($params["height"]) : 0;
+        $width   = (!empty($params['width'])) ? (int)abs($params['width']) : 0;
+        $height  = (!empty($params['height'])) ? (int)abs($params['height']) : 0;
 
-        if (!empty($width) and !empty($height)) {
+        if ($width > 0 and $height > 0) {
             $result  = '<div class="small">';
-            $result .= JText::sprintf("COM_MAGICGALLERY_IMAGE_SIZE_S", $width ."x". $height);
+            $result .= JText::sprintf('COM_MAGICGALLERY_IMAGE_SIZE_S', $width .'x'. $height);
             $result .= '</div>';
         }
 
@@ -294,10 +268,10 @@ abstract class JHtmlMagicGallery
      */
     public static function mimeType($params)
     {
-        $result = "";
+        $result = '';
 
-        if (!empty($params["mime_type"])) {
-            $result  = '<i class="icon-info btn btn-mini hasTooltip" title="'.JText::sprintf("COM_MAGICGALLERY_MIMETYPE_S", htmlentities($params["mime_type"], ENT_QUOTES, "UTF-8")) .'"></i>';
+        if (!empty($params['mime_type'])) {
+            $result  = '<i class="icon-info btn btn-mini hasTooltip" title="'.JText::sprintf('COM_MAGICGALLERY_MIMETYPE_S', htmlentities($params['mime_type'], ENT_QUOTES, 'UTF-8')) .'"></i>';
         }
 
         return $result;
@@ -318,38 +292,38 @@ abstract class JHtmlMagicGallery
      */
     public static function fileInfo($params)
     {
-        $result = "";
+        $result = '';
         $title = array();
 
         // Image mime type.
-        if (!empty($params["mime_type"])) {
-            $title[] = JText::sprintf("COM_MAGICGALLERY_MIMETYPE_S", htmlentities($params["mime_type"], ENT_QUOTES, "UTF-8"));
+        if (!empty($params['mime_type'])) {
+            $title[] = JText::sprintf('COM_MAGICGALLERY_MIMETYPE_S', htmlentities($params['mime_type'], ENT_QUOTES, 'UTF-8'));
         }
 
         // Image size.
-        $width   = (!empty($params["width"])) ? abs($params["width"]) : 0;
-        $height  = (!empty($params["height"])) ? abs($params["height"]) : 0;
+        $width   = (!empty($params['width'])) ? (int)abs($params['width']) : 0;
+        $height  = (!empty($params['height'])) ? (int)abs($params['height']) : 0;
 
-        if (!empty($width) and !empty($height)) {
-            $title[] = JText::sprintf("COM_MAGICGALLERY_IMAGE_SIZE_S", $width ."x". $height);
+        if ($width > 0 and $height > 0) {
+            $title[] = JText::sprintf('COM_MAGICGALLERY_IMAGE_SIZE_S', $width .'x'. $height);
         }
 
         // Filesize
-        $value  = (!empty($params["filesize"])) ? abs($params["filesize"]) : 0;
+        $value  = (!empty($params['filesize'])) ? abs($params['filesize']) : 0;
 
         if ($value > 0) {
-            $value = $value / 1000;
+            $value /= 1000;
 
             if ($value > 1000) {
-                $value = $value / 1000;
+                $value /= 1000;
 
-                $title[] = JText::sprintf("COM_MAGICGALLERY_FILESIZE_MB_D", $value);
+                $title[] = JText::sprintf('COM_MAGICGALLERY_FILESIZE_MB_D', $value);
             } else {
-                $title[]= JText::sprintf("COM_MAGICGALLERY_FILESIZE_KB_D", $value);
+                $title[]= JText::sprintf('COM_MAGICGALLERY_FILESIZE_KB_D', $value);
             }
         }
 
-        if (!empty($title)) {
+        if (count($title) > 0) {
             $result = ' <i class="icon-info btn btn-mini hasTooltip" title="'.implode('<br />', $title).'"></i>';
         }
 

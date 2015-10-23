@@ -7,7 +7,7 @@
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
-namespace MagicGallery\Gallery;
+namespace Magicgallery\Gallery;
 
 use Joomla\Registry\Registry;
 
@@ -39,7 +39,7 @@ abstract class GalleryAbstract
      * Initialize the object.
      *
      * <code>
-     * $gallery = new MagicGallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\SlideGallery($items, $params);
      * </code>
      *
      * @param Galleries $items
@@ -57,7 +57,7 @@ abstract class GalleryAbstract
      * Set the element selector.
      *
      * <code>
-     * $gallery = new MagicGallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\SlideGallery($items, $params);
      * $gallery->setSelector("#js-selector");
      * </code>
      *
@@ -78,7 +78,7 @@ abstract class GalleryAbstract
      * <code>
      * $mediaPath = "../.../..../";
      *
-     * $gallery = new MagicGallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\SlideGallery($items, $params);
      * $gallery->setImagesPath($mediaPath);
      * </code>
      *
@@ -97,7 +97,7 @@ abstract class GalleryAbstract
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new MagicGallery\SlideGallery($items, $params, /JFactory::getDocument());
+     * $gallery = new Magicgallery\SlideGallery($items, $params, /JFactory::getDocument());
      * $gallery->addScriptDeclaration();
      * </code>
      *
@@ -109,7 +109,7 @@ abstract class GalleryAbstract
      * Generate HTML code displaying thumbnails and images.
      *
      * <code>
-     * $gallery = new MagicGallery\SlideGallery($items, $options, /JFactory::getDocument());
+     * $gallery = new Magicgallery\SlideGallery($items, $options, /JFactory::getDocument());
      * $gallery->setSelector("#vp-com-galleria");
      * $gallery->render();
      * </code>

@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<form action="<?php echo JRoute::_('index.php?option=com_magicgallery&view=resources&gid='.(int)$this->galleryId); ?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo JRoute::_('index.php?option=com_magicgallery&view=entities&gid='.(int)$this->galleryId); ?>" method="post" name="adminForm" id="adminForm">
     <?php if(!empty( $this->sidebar)): ?>
 	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>
@@ -24,7 +24,7 @@ defined('_JEXEC') or die;
         echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this));
         ?>
 
-        <table class="table table-striped" id="resourcesList">
+        <table class="table table-striped" id="entitiesList">
            <thead><?php echo $this->loadTemplate('head');?></thead>
     	   <tfoot><?php echo $this->loadTemplate('foot');?></tfoot>
     	   <tbody><?php echo $this->loadTemplate('body');?></tbody>
@@ -32,6 +32,7 @@ defined('_JEXEC') or die;
     
         <input type="hidden" name="boxchecked" value="0" />
         <input type="hidden" name="task" value="" />
+        <input type="hidden" name="gid" value="<?php echo (int)$this->galleryId; ?>" />
         <?php echo JHtml::_('form.token'); ?>
         
     </div>

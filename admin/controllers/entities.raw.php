@@ -11,14 +11,14 @@
 defined('_JEXEC') or die;
 
 /**
- * Resources controller
+ * Entities controller
  *
  * @package     MagicGallery
  * @subpackage  Components
  */
-class MagicGalleryControllerResources extends JControllerAdmin
+class MagicGalleryControllerEntities extends JControllerAdmin
 {
-    public function getModel($name = 'Resource', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Entity', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 
@@ -55,10 +55,10 @@ class MagicGalleryControllerResources extends JControllerAdmin
         }
 
         $response = array(
-            "success" => true,
-            "title"   => JText::_('COM_MAGICGALLERY_SUCCESS'),
-            "text"    => JText::_('JLIB_APPLICATION_SUCCESS_ORDERING_SAVED'),
-            "data"    => array()
+            'success' => true,
+            'title'   => JText::_('COM_MAGICGALLERY_SUCCESS'),
+            'text'    => JText::_('JLIB_APPLICATION_SUCCESS_ORDERING_SAVED'),
+            'data'    => array()
         );
 
         echo json_encode($response);

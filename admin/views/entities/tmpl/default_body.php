@@ -11,7 +11,7 @@
 defined('_JEXEC') or die;
 ?>
 <?php foreach ($this->items as $i => $item) {
-	    $ordering  = ($this->listOrder == 'a.ordering');
+	    $ordering  = ($this->listOrder === 'a.ordering');
 	    
         $disableClassName = '';
 		$disabledLabel	  = '';
@@ -34,36 +34,36 @@ defined('_JEXEC') or die;
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td class="center">
-            <?php echo JHtml::_('jgrid.published', $item->published, $i, "resources."); ?>
+            <?php echo JHtml::_('jgrid.published', $item->published, $i, 'entities.'); ?>
         </td>
 		<td class="title">
-			<a href="<?php echo JRoute::_("index.php?option=com_magicgallery&view=resource&layout=edit&id=".(int)$item->id); ?>" >
+			<a href="<?php echo JRoute::_('index.php?option=com_magicgallery&view=entity&layout=edit&id='.(int)$item->id); ?>" >
                 <?php echo $item->title; ?>
             </a>
         </td>
         <td class="nowrap hidden-phone">
             <?php if(!empty($previewImage)) { ?>
-            <a href="<?php echo "../" . $this->params->get("media_folder", "images/magicgallery") . "/". $item->image; ?>" title="<?php echo $this->escape($item->title); ?>" class="lightbox" data-lightbox-gallery="gallery<?php echo (int)$item->gallery_id; ?>">
-                <img src="<?php echo "../" . $this->params->get("media_folder", "images/magicgallery") . "/". $previewImage; ?>" width="50" height="50"/>
+            <a href="<?php echo $this->mediaUri . $item->image; ?>" title="<?php echo $this->escape($item->title); ?>" class="lightbox" data-lightbox-gallery="gallery<?php echo (int)$item->gallery_id; ?>">
+                <img src="<?php echo $this->mediaUri . $previewImage; ?>" width="50" height="50"/>
             </a>
             <?php } ?>
         </td>
         <td class="nowrap hidden-phone">
             <?php
             echo $this->escape($item->image);
-            $imageParams = (!empty($itemParams["image"])) ? $itemParams["image"] : array();
-            echo JHtml::_('MagicGallery.fileInfo', $imageParams);
+            $imageParams = (!empty($itemParams['image'])) ? $itemParams['image'] : array();
+            echo JHtml::_('Magicgallery.fileInfo', $imageParams);
             ?>
         </td>
         <td class="nowrap hidden-phone">
             <?php
             echo $this->escape($item->thumbnail);
-            $imageParams = (!empty($itemParams["thumbnail"])) ? $itemParams["thumbnail"] : array();
-            echo JHtml::_('MagicGallery.fileInfo', $imageParams);
+            $imageParams = (!empty($itemParams['thumbnail'])) ? $itemParams['thumbnail'] : array();
+            echo JHtml::_('Magicgallery.fileInfo', $imageParams);
             ?>
         </td>
         <td class="nowrap center hidden-phone">
-            <?php echo JHtml::_('jgrid.isdefault', $item->home, $i, 'resources.');?>
+            <?php echo JHtml::_('jgrid.isdefault', $item->home, $i, 'entities.');?>
         </td>
         <td class="center hidden-phone"><?php echo (int)$item->id;?></td>
 	</tr>

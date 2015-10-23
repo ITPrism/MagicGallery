@@ -45,7 +45,7 @@ class MagicGalleryViewGalleries extends JViewLegacy
     public function __construct($config)
     {
         parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
+        $this->option = JFactory::getApplication()->input->get('option');
     }
 
     public function display($tpl = null)
@@ -61,8 +61,8 @@ class MagicGalleryViewGalleries extends JViewLegacy
             }
 
             Joomla\Utilities\ArrayHelper::toInteger($ids);
-            $galleries = new MagicGallery\Gallery\Galleries(JFactory::getDbo());
-            $this->numberOfResources = $galleries->countResources($ids);
+            $galleries = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
+            $this->numberOfResources = $galleries->countEntities($ids);
         }
 
         // Prepare sorting data
@@ -84,7 +84,7 @@ class MagicGalleryViewGalleries extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         if ($this->saveOrder) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
@@ -115,12 +115,12 @@ class MagicGalleryViewGalleries extends JViewLegacy
         JToolBarHelper::addNew('gallery.add');
         JToolBarHelper::editList('gallery.edit');
         JToolBarHelper::divider();
-        JToolBarHelper::publishList("galleries.publish");
-        JToolBarHelper::unpublishList("galleries.unpublish");
+        JToolBarHelper::publishList('galleries.publish');
+        JToolBarHelper::unpublishList('galleries.unpublish');
         JToolBarHelper::divider();
-        JToolBarHelper::deleteList(JText::_("COM_MAGICGALLERY_DELETE_ITEMS_QUESTION"), "galleries.delete");
+        JToolBarHelper::deleteList(JText::_('COM_MAGICGALLERY_DELETE_ITEMS_QUESTION'), 'galleries.delete');
         JToolBarHelper::divider();
-        JToolBarHelper::custom('galleries.backToDashboard', "dashboard", "", JText::_("COM_MAGICGALLERY_DASHBOARD"), false);
+        JToolBarHelper::custom('galleries.backToDashboard', 'dashboard', '', JText::_('COM_MAGICGALLERY_DASHBOARD'), false);
     }
 
     /**

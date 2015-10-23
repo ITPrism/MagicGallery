@@ -37,7 +37,7 @@ class MagicGalleryViewDashboard extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->version = new MagicGallery\Version();
+        $this->version = new Magicgallery\Version();
 
         // Load ITPrism library version
         if (!class_exists("Prism\\Version")) {

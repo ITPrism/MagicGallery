@@ -64,7 +64,7 @@ class MagicGalleryModelTabbed extends JModelList
         $this->setState('list.direction', 'ASC');
 
         // Get categories IDs
-        $value = $app->input->get("categories_ids", array(), "array");
+        $value = $app->input->get('categories_ids', array(), 'array');
         $this->setState('categories_ids', $value);
     }
 
@@ -83,7 +83,7 @@ class MagicGalleryModelTabbed extends JModelList
     protected function getStoreId($id = '')
     {
         $categoriesIds = (array)$this->getState('categories_ids');
-        $id .= ':' . implode(",", $categoriesIds);
+        $id .= ':' . implode(',', $categoriesIds);
 
         return parent::getStoreId($id);
     }
@@ -110,12 +110,12 @@ class MagicGalleryModelTabbed extends JModelList
             )
         );
 
-        $query->from($db->quoteName('#__categories') . ' AS a');
+        $query->from($db->quoteName('#__categories', 'a'));
 
         // Get categories
-        $categoriesIds = $this->getState("categories_ids");
-        if (!empty($categoriesIds)) {
-            $query->where("a.id IN (" . implode(",", $categoriesIds) . ")");
+        $categoriesIds = (array)$this->getState('categories_ids');
+        if (count($categoriesIds) > 0) {
+            $query->where('a.id IN (' . implode(',', $categoriesIds) . ')');
         }
 
         // Filter by state

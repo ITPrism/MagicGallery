@@ -7,8 +7,9 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace MagicGallery\Category;
+namespace Magicgallery\Category;
 
+use Joomla\Registry\Registry;
 use Prism;
 
 defined('JPATH_PLATFORM') or die;
@@ -27,7 +28,6 @@ class Category extends Prism\Database\TableImmutable
     protected $slug;
     protected $description;
     protected $published;
-    protected $params;
     protected $metadesc;
     protected $metakey;
     protected $image;
@@ -38,7 +38,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      * </code>
      *
@@ -51,32 +51,33 @@ class Category extends Prism\Database\TableImmutable
 
         $query
             ->select(
-                "a.id, a.title, a.alias, a.description, a.published, a.params, a.metadesc, a.metakey, " .
-                $query->concatenate(array("id", "alias"), ":") . " AS slug"
+                'a.id, a.title, a.alias, a.description, a.published, ' .
+                'a.params, a.metadesc, a.metakey, ' .
+                $query->concatenate(array('id', 'alias'), ':') . ' AS slug'
             )
-            ->from($this->db->quoteName("#__categories", "a"));
+            ->from($this->db->quoteName('#__categories', 'a'));
 
         if (is_array($keys)) {
             foreach ($keys as $key => $value) {
-                $query->where($this->db->quoteName($key) ." = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
 
         // Decode params and set the image.
-        if (!empty($result["params"])) {
-            $this->params = json_decode($result["params"], true);
+        if (!empty($result['params'])) {
+            $this->params->loadString($result['params']);
 
-            if (!empty($this->params["image"])) {
-                $this->image = $this->params["image"];
+            if ($this->params->get('image')) {
+                $this->image = $this->params->get('image');
             }
         }
 
-        $this->bind($result, array("params"));
+        $this->bind($result, array('params'));
     }
 
     /**
@@ -85,7 +86,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId  = 1;
      *
-     * $category    = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category    = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($typeId);
      *
      * if (!$category->getId()) {
@@ -97,7 +98,7 @@ class Category extends Prism\Database\TableImmutable
      */
     public function getId()
     {
-        return $this->id;
+        return (int)$this->id;
     }
 
     /**
@@ -106,7 +107,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * $title = $category->getTitle();
@@ -125,7 +126,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * $description = $category->getDescription();
@@ -144,7 +145,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * $alias = $category->getAlias();
@@ -163,7 +164,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * $slug = $category->getSlug();
@@ -182,7 +183,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * echo $category->getMetaDescription();
@@ -201,7 +202,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * echo $category->getMetaKeywords();
@@ -220,7 +221,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * $image = $category->getImage();
@@ -239,7 +240,7 @@ class Category extends Prism\Database\TableImmutable
      * <code>
      * $categoryId = 1;
      *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
+     * $category   = new Magicgallery\Category\Category(\JFactory::getDbo());
      * $category->load($categoryId);
      *
      * if ($category->isPublished()) {
@@ -251,32 +252,6 @@ class Category extends Prism\Database\TableImmutable
      */
     public function isPublished()
     {
-        return (!$this->published) ? false : true;
-    }
-
-    /**
-     * Return category parameter.
-     *
-     * <code>
-     * $categoryId = 1;
-     *
-     * $category   = new MagicGallery\Category\Category(\JFactory::getDbo());
-     * $category->load($categoryId);
-     *
-     * echo $category->getParam("image");
-     * </code>
-     *
-     * @param string $key
-     * @param mixed $default
-     *
-     * @return mixed
-     */
-    public function getParam($key, $default = null)
-    {
-        if (isset($this->params[$key])) {
-            return $this->params[$key];
-        }
-
-        return $default;
+        return (bool)((int)$this->published === (int)Prism\Constants::PUBLISHED);
     }
 }

@@ -10,11 +10,13 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
+<form enctype="multipart/form-data" action="<?php echo JRoute::_('index.php?option=com_magicgallery'); ?>" method="post" name="adminForm" id="gallery-form" class="form-validate" >
+    <div class="form-horizontal">
+        
+        <?php echo JHtml::_('bootstrap.startTabSet', 'myTab', array('active' => 'details')); ?>
 
-<div class="row-fluid">
-    <div class="span12">
-        <form enctype="multipart/form-data" action="<?php echo JRoute::_('index.php?option=com_magicgallery'); ?>" method="post" name="adminForm" id="project-form" class="form-validate form-horizontal" >
-
+        <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'details', JText::_('COM_MAGICGALLERY_CONTENT')); ?>
+        <div class="row-fluid">
             <?php echo $this->form->getControlGroup('title'); ?>
             <?php echo $this->form->getControlGroup('alias'); ?>
             <?php echo $this->form->getControlGroup('catid'); ?>
@@ -23,10 +25,19 @@ defined('_JEXEC') or die;
             <?php echo $this->form->getControlGroup('user_id'); ?>
             <?php echo $this->form->getControlGroup('id'); ?>
             <?php echo $this->form->getControlGroup('description'); ?>
+        </div>
 
-            <input type="hidden" name="task" value="" />
-            <?php echo JHtml::_('form.token'); ?>
+        <?php echo JHtml::_('bootstrap.endTab'); ?>
+        <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'options', JText::_('COM_MAGICGALLERY_OPTIONS')); ?>
 
-        </form>
+        <div class="row-fluid">
+            <?php echo $this->loadTemplate('options');?>
+        </div>
+
+        <?php echo JHtml::_('bootstrap.endTab'); ?>
+        <?php echo JHtml::_('bootstrap.endTabSet'); ?>
+
+        <input type="hidden" name="task" value="" />
+        <?php echo JHtml::_('form.token'); ?>
     </div>
-</div>
+</form>

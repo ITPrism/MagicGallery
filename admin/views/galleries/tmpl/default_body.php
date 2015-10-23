@@ -42,8 +42,8 @@ defined('_JEXEC') or die;
                 <?php echo JText::sprintf("COM_MAGICGALLERY_ALIAS_S", $this->escape($item->alias)); ?>
             </div>
             <div class="small">
-                <a href="<?php echo JRoute::_("index.php?option=com_magicgallery&view=resources&gid=".(int)$item->id); ?>">
-                <?php echo JText::sprintf("COM_MAGICGALLERY_RESOURCES_S", (isset($this->numberOfResources[$item->id])) ? (int)$this->numberOfResources[$item->id]['number'] : 0); ?>
+                <a href="<?php echo JRoute::_("index.php?option=com_magicgallery&view=entities&gid=".(int)$item->id); ?>">
+                <?php echo JText::sprintf("COM_MAGICGALLERY_ENTITIES_S", (isset($this->numberOfResources[$item->id])) ? (int)$this->numberOfResources[$item->id]['number'] : 0); ?>
                 </a>
             </div>
         </td>

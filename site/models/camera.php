@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-JLoader::register("MagicGalleryModelList", MAGICGALLERY_PATH_COMPONENT_SITE . "/models/list.php");
+JLoader::register('MagicGalleryModelList', MAGICGALLERY_PATH_COMPONENT_SITE . '/models/list.php');
 
 class MagicGalleryModelCamera extends MagicGalleryModelList
 {
@@ -57,6 +57,6 @@ class MagicGalleryModelCamera extends MagicGalleryModelList
         $params = $app->getParams();
         $this->setState('params', $params);
 
-        parent::populateState("a.ordering", "desc");
+        parent::populateState('a.ordering', 'desc');
     }
 }

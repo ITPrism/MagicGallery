@@ -15,21 +15,21 @@ defined('_JEXEC') or die;
 <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
 <?php } ?>
 
-<?php echo (!empty($this->event->onContentBeforeDisplay) ) ? $this->event->onContentBeforeDisplay : "";?>
+<?php echo (!empty($this->event->onContentBeforeDisplay) ) ? $this->event->onContentBeforeDisplay : '';?>
 
 <?php
 switch($this->modal) {
-    case "fancybox":
-        echo $this->loadTemplate("fancybox");
+    case 'fancybox':
+        echo $this->loadTemplate('fancybox');
         break;
 
-    case "nivo": // Nivo modal
-        echo $this->loadTemplate("nivo");
+    case 'nivo': // Nivo modal
+        echo $this->loadTemplate('nivo');
         break;
 
     default:
-        echo $this->loadTemplate("nomodal");
+        echo $this->loadTemplate('nomodal');
         break;
 }
 
-echo (!empty($this->event->onContentAfterDisplay) ) ? $this->event->onContentAfterDisplay : "";
+echo (!empty($this->event->onContentAfterDisplay) ) ? $this->event->onContentAfterDisplay : '';

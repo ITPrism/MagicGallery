@@ -6,8 +6,8 @@
 	<authorUrl>http://itprism.com</authorUrl>
 	<copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html</license>
-	<version>1.0</version>
-	<creationDate>19 August, 2015</creationDate>
+	<version>1.1</version>
+	<creationDate>31 October, 2015</creationDate>
 	<description><![CDATA[
     <p><a href="http://extensions.joomla.org/extensions/extension/directory-a-documentation/portfolio/vip-portfolio" target="_blank">Magic Gallery</a> helps you to create your portfolio ang galleries easily. It is a good way to show your work, and excellent way to sell your skills.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
@@ -41,6 +41,7 @@
 	
 	<!-- Site Main File Copy Section -->
 	<files folder="site">
+        <folder>controllers</folder>
 	    <folder>helpers</folder>
 	    <folder>language</folder>
         <folder>models</folder>

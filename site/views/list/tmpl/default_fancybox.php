@@ -15,39 +15,39 @@ defined('_JEXEC') or die;?>
     $defaultImage = array();
 
     if (!empty($images)) {
-        $defaultImage = JArrayHelper::getValue($images, "default");
-        unset($images["default"]);
+        $defaultImage = JArrayHelper::getValue($images, 'default');
+        unset($images['default']);
     }
     ?>
     <div class="row">
         <?php if ($defaultImage) { ?>
             <div class="col-md-3" style="width: <?php echo $this->params->get('thumb_width', 200); ?>; height: <?php echo $this->params->get('thumb_height', 200); ?>;">
-                <?php if ($this->params->get("image_linkable")) { ?>
-                <a href="<?php echo $this->mediaUrl . "/". $defaultImage["image"]; ?>" <?php echo $this->openLink; ?> class="<?php echo $this->modalClass;?>" rel="js-com-group<?php echo $item->id;?>">
+                <?php if ($this->params->get('image_linkable')) { ?>
+                <a href="<?php echo $this->mediaUrl . '/'. $defaultImage['image']; ?>" <?php echo $this->openLink; ?> class="<?php echo $this->modalClass;?>" rel="js-com-group<?php echo $item->id;?>">
                     <?php } ?>
                     <img
                         width="<?php echo $this->params->get('thumb_width', 200); ?>"
                         height="<?php echo $this->params->get('thumb_height', 200); ?>"
-                        src="<?php echo $this->mediaUrl . "/". $defaultImage["thumbnail"]; ?>"
+                        src="<?php echo $this->mediaUrl . '/'. $defaultImage['thumbnail']; ?>"
                         alt="<?php echo $this->escape($item->title); ?>"
                         title="<?php echo $this->escape($item->title); ?>"
                         class="thumbnail"
                         />
-                    <?php if ($this->params->get("image_linkable")) { ?>
+                    <?php if ($this->params->get('image_linkable')) { ?>
                 </a>
             <?php } ?>
 
-                <?php if ($this->params->get("display_additional_images", 0) and !empty($images)) {?>
+                <?php if ($this->params->get('display_additional_images', 0) and !empty($images)) {?>
                     <div class="mg-additional-images">
                         <?php
                         $i = 0;
                         foreach ($images as $image) {
                             ?>
-                            <a href="<?php echo $this->mediaUrl . "/". $image['image'];?>" <?php echo $this->openLink;?> class="<?php echo $this->modalClass;?>" rel="js-com-group<?php echo $item->id;?>">
+                            <a href="<?php echo $this->mediaUrl . '/'. $image['image'];?>" <?php echo $this->openLink;?> class="<?php echo $this->modalClass;?>" rel="js-com-group<?php echo $item->id;?>">
                                 <img
                                     width="<?php echo $this->params->get('additional_images_thumb_width', 50); ?>"
                                     height="<?php echo $this->params->get('additional_images_thumb_height', 50); ?>"
-                                    src="<?php echo $this->mediaUrl . "/". $image['thumbnail'];?>"
+                                    src="<?php echo $this->mediaUrl . '/'. $image['thumbnail'];?>"
                                     alt=""
                                     title=""
                                     />
@@ -55,7 +55,7 @@ defined('_JEXEC') or die;?>
 
                             <?php
                             $i++;
-                            if ($i == $this->params->get("additional_images_number", 3)) {
+                            if ($i == $this->params->get('additional_images_number', 3)) {
                                 break;
                             }
                         }

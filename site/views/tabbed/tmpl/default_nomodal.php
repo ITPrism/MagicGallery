@@ -16,16 +16,16 @@ if ($this->params->get("display_tip", 0)) {
     $classes[] = "hasTooltip";
 }
 
-echo JHtml::_('Prism.ui.bootstrap3startTabSet', 'js-mg-com-tabbed', array('active' => $this->activeTab));
+echo JHtml::_('Prism.ui.bootstrap3StartTabSet', 'js-mg-com-tabbed', array('active' => $this->activeTab));
 $i = 1;
 foreach ($this->items as $item) {
 
     if (isset($this->galleries[$item->id])) {
-        echo JHtml::_('Prism.ui.bootstrap3addTab', "js-mg-com-tabbed", $item->alias, $item->title);
+        echo JHtml::_('Prism.ui.bootstrap3AddTab', "js-mg-com-tabbed", $item->alias, $item->title);
         ?>
         <div class="row">
             <?php
-            /** @var MagicGallery\Gallery\Gallery $gallery */
+            /** @var Magicgallery\Gallery\Gallery $gallery */
             foreach ($this->galleries[$item->id] as $gallery) {
                 $projectDescriptionClean = Joomla\String\String::trim(strip_tags($gallery->getDescription()));
 
@@ -38,7 +38,7 @@ foreach ($this->items as $item) {
                     $titleClean = JHtmlString::truncate($titleClean, $this->params->get("title_max_charts"));
                 }
 
-                $defaultResource = $gallery->getDefaultResource();
+                $defaultResource = $gallery->getDefaultItem();
                 ?>
 
                 <?php if ($defaultResource and $defaultResource->getThumbnail()) { ?>
@@ -76,9 +76,9 @@ foreach ($this->items as $item) {
             <?php } // foreach ($this->projects[$item->id] ... ?>
 
         </div>
-        <?php echo JHtml::_('Prism.ui.bootstrap3endTab'); ?>
+        <?php echo JHtml::_('Prism.ui.bootstrap3EndTab'); ?>
 
     <?php } // if (isset($this->projects[$item->id])) { ?>
 
 <?php } ?>
-<?php echo JHtml::_('Prism.ui.bootstrap3endTabSet'); ?>
+<?php echo JHtml::_('Prism.ui.bootstrap3EndTabSet'); ?>

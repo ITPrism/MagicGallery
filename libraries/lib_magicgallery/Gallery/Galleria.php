@@ -7,7 +7,9 @@
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
-namespace MagicGallery\Gallery;
+namespace Magicgallery\Gallery;
+
+use MagicGallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -23,7 +25,7 @@ class Galleria extends GalleryAbstract
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new MagicGallery\Gallery\Galleria($items, $params, \JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\Galleria($items, $params, \JFactory::getDocument());
      * $gallery->addScriptDeclaration($document);
      * </code>
      *
@@ -37,12 +39,12 @@ class Galleria extends GalleryAbstract
         $js = '
         jQuery(document).ready(function() {
             Galleria.run("#' . $this->selector . '", {
-                autoplay: '.$this->options->get("autoplay", 0).',
-                carousel: '.$this->options->get("carousel", 1).',
-                carouselSpeed: '.$this->options->get("carousel_speed", 200).',
-                carouselSteps: '.$this->options->get("carousel_steps", 2).',
-                responsive: '.$this->options->get("responsive", 1).',
-                height: '.$this->options->get("height", 1).',
+                autoplay: '.$this->options->get('autoplay', 0).',
+                carousel: '.$this->options->get('carousel', 1).',
+                carouselSpeed: '.$this->options->get('carousel_speed', 200).',
+                carouselSteps: '.$this->options->get('carousel_steps', 2).',
+                responsive: '.$this->options->get('responsive', 1).',
+                height: '.$this->options->get('height', 1).',
             });
         });';
 
@@ -55,7 +57,7 @@ class Galleria extends GalleryAbstract
      * Generate HTML code displaying thumbnails and images.
      *
      * <code>
-     * $gallery = new MagicGallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
      * $gallery->setSelector("js-mg-com-galleria");
      * echo $gallery->render();
      * </code>
@@ -66,7 +68,7 @@ class Galleria extends GalleryAbstract
     {
         $html = array();
 
-        if (!empty($this->items)) {
+        if (count($this->items) > 0) {
 
             $html[] = '<div id="' . $this->selector . '">';
 
@@ -77,11 +79,11 @@ class Galleria extends GalleryAbstract
                     continue;
                 }
 
-                $media = $item->getDefaultResource($item->getId());
-                /** @var Resource $media */
+                $media = $item->getDefaultEntity($item->getId());
+                /** @var Entity $media */
 
-                if (!empty($media)) {
-                    $html[] = '<a href="' . $this->mediaPath . "/" . $media->getImage() . '"><img src="' . $this->mediaPath . "/" . $media->getThumbnail() . '" width="200" height="200" /></a>';
+                if ($media !== null and ($media instanceof Entity)) {
+                    $html[] = '<a href="' . $this->mediaPath . '/' . $media->getImage() . '"><img src="' . $this->mediaPath . '/' . $media->getThumbnail() . '" width="200" height="200" /></a>';
                 }
             }
 
@@ -95,7 +97,7 @@ class Galleria extends GalleryAbstract
      * Generate HTML code displaying only images.
      *
      * <code>
-     * $gallery = new MagicGallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
      * $gallery->setSelector("js-mg-com-galleria");
      *
      * echo $gallery->renderOnlyImages();
@@ -107,7 +109,7 @@ class Galleria extends GalleryAbstract
     {
         $html = array();
 
-        if (!empty($this->items)) {
+        if (count($this->items) > 0) {
 
             $html[] = '<div id="' . $this->selector . '">';
 
@@ -117,9 +119,12 @@ class Galleria extends GalleryAbstract
                     continue;
                 }
 
-                $media = $item->getDefaultResource($item->getId());
+                $media = $item->getDefaultEntity($item->getId());
+                /** @var Entity $media */
 
-                $html[] = '<img src="' . $this->mediaPath . "/". $media->getImage() . '" />';
+                if ($media !== null and ($media instanceof Entity)) {
+                    $html[] = '<img src="' . $this->mediaPath . '/' . $media->getImage() . '" />';
+                }
             }
 
             $html[] = '</div>';

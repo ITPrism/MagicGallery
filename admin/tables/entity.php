@@ -10,7 +10,7 @@
 // No direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryTableResource extends JTable
+class MagicGalleryTableEntity extends JTable
 {
     /**
      * Initialize the object.
@@ -19,6 +19,6 @@ class MagicGalleryTableResource extends JTable
      */
     public function __construct($db)
     {
-        parent::__construct('#__magicgallery_resources', 'id', $db);
+        parent::__construct('#__magicgallery_entities', 'id', $db);
     }
 }

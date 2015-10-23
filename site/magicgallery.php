@@ -10,8 +10,8 @@
 // No direct access.
 defined('_JEXEC') or die;
 
-jimport("Prism.init");
-jimport("MagicGallery.init");
+jimport('Prism.init');
+jimport('Magicgallery.init');
 
 $controller = JControllerLegacy::getInstance('MagicGallery');
 $controller->execute(JFactory::getApplication()->input->getCmd('task'));

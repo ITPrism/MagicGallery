@@ -10,23 +10,23 @@
 // no direct access
 defined('_JEXEC') or die;
 
-if (!defined("MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR")) {
-    define("MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR", JPATH_ADMINISTRATOR . "/components/com_magicgallery");
+if (!defined('MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR')) {
+    define('MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR . '/components/com_magicgallery');
 }
 
-if (!defined("MAGICGALLERY_PATH_COMPONENT_SITE")) {
-    define("MAGICGALLERY_PATH_COMPONENT_SITE", JPATH_SITE . "/components/com_magicgallery");
+if (!defined('MAGICGALLERY_PATH_COMPONENT_SITE')) {
+    define('MAGICGALLERY_PATH_COMPONENT_SITE', JPATH_SITE . '/components/com_magicgallery');
 }
 
-if (!defined("MAGICGALLERY_PATH_LIBRARY")) {
-    define("MAGICGALLERY_PATH_LIBRARY", JPATH_LIBRARIES . "/MagicGallery");
+if (!defined('MAGICGALLERY_PATH_LIBRARY')) {
+    define('MAGICGALLERY_PATH_LIBRARY', JPATH_LIBRARIES . '/Magicgallery');
 }
 
-JLoader::registerNamespace('MagicGallery', JPATH_LIBRARIES);
+JLoader::registerNamespace('Magicgallery', JPATH_LIBRARIES);
 
 // Register libraries and helpers
-JLoader::register("MagicGalleryHelper", MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR . "/helpers/magicgallery.php");
-JLoader::register("MagicGalleryHelperRoute", MAGICGALLERY_PATH_COMPONENT_SITE . "/helpers/route.php");
+JLoader::register('MagicGalleryHelper', MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR . '/helpers/magicgallery.php');
+JLoader::register('MagicGalleryHelperRoute', MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/route.php');
 
 // Register some helpers
 JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
@@ -36,4 +36,4 @@ $lang = JFactory::getLanguage();
 $lang->load('lib_magicgallery', MAGICGALLERY_PATH_LIBRARY);
 
 // Register class aliases.
-JLoader::registerAlias('MagicgalleryCategories', '\\MagicGallery\\Category\\Categories');
+JLoader::registerAlias('MagicgalleryCategories', '\\Magicgallery\\Category\\Categories');

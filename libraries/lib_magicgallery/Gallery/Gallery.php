@@ -7,12 +7,12 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace MagicGallery\Gallery;
+namespace Magicgallery\Gallery;
 
 use Prism;
 use Joomla\Utilities\ArrayHelper;
-use MagicGallery\Resource\Resources;
-use MagicGallery\Resource\Resource;
+use Magicgallery\Entity;
+use Joomla\Registry\Registry;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -22,23 +22,23 @@ defined('JPATH_PLATFORM') or die;
  * @package      MagicGallery
  * @subpackage   Galleries
  */
-class Gallery extends Prism\Database\TableImmutable
+class Gallery extends Prism\Database\Table
 {
     protected $id;
     protected $title;
     protected $alias;
     protected $description;
     protected $url;
-    protected $catid;
-    protected $extension;
-    protected $object_id;
-    protected $published;
-    protected $ordering;
-    protected $user_id;
+    protected $catid = 0;
+    protected $extension = '';
+    protected $object_id = 0;
+    protected $published = 0;
+    protected $ordering = 0;
+    protected $user_id = 0;
     protected $slug;
     protected $catslug;
 
-    protected $resources;
+    protected $entities;
 
     /**
      * Load gallery data from database.
@@ -47,11 +47,11 @@ class Gallery extends Prism\Database\TableImmutable
      * $galleryId = 1;
      *
      * $options = array(
-     *     "load_resources" => true,
-     *     "resource_state" => Prism\Constants::PUBLISHED
+     *     "load_entities" => true,
+     *     "entity_state" => Prism\Constants::PUBLISHED
      * );
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      * </code>
      *
@@ -64,20 +64,20 @@ class Gallery extends Prism\Database\TableImmutable
 
         $query
             ->select(
-                "a.id, a.title, a.alias, a.description, a.url, a.catid, " .
-                "a.extension, a.object_id, a.published, a.ordering, a.user_id, " .
-                $query->concatenate(array("a.id", "a.alias"), ":") . " AS slug," .
-                $query->concatenate(array("b.id", "b.alias"), ":") . " AS catslug"
+                'a.id, a.title, a.alias, a.description, a.url, a.catid, a.extension, ' .
+                'a.params, a.object_id, a.published, a.ordering, a.user_id, ' .
+                $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug,' .
+                $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug'
             )
-            ->from($this->db->quoteName("#__magicgallery_galleries", "a"))
-            ->leftJoin($this->db->quoteName("#__categories", "b") . " ON a.catid = b.id");
+            ->from($this->db->quoteName('#__magicgallery_galleries', 'a'))
+            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id');
 
         if (is_array($keys)) {
             foreach ($keys as $key => $value) {
-                $query->where($this->db->quoteName($key) ." = " . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
             }
         } else {
-            $query->where("a.id = " . (int)$keys);
+            $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
@@ -85,20 +85,121 @@ class Gallery extends Prism\Database\TableImmutable
 
         $this->bind($result);
 
-        // Load the resources.
-        $loadResources = ArrayHelper::getValue($options, "load_resources", false, "bool");
-        if ($loadResources) {
-
-            $resourceState = ArrayHelper::getValue($options, "resource_state", Prism\Constants::PUBLISHED, "int");
+        // Load the items.
+        $loadEntities = ArrayHelper::getValue($options, 'load_entities', false, 'bool');
+        if ($loadEntities) {
+            $itemState = ArrayHelper::getValue($options, 'entity_state', Prism\Constants::PUBLISHED, 'int');
 
             $option = array(
-                "gallery_id" => (int)$this->id,
-                "published"  => $resourceState
+                'gallery_id' => (int)$this->id,
+                'published'  => $itemState
             );
 
-            $this->resources = new Resources(\JFactory::getDbo());
-            $this->resources->load($option);
+            $this->entities = new Entity\Entities(\JFactory::getDbo());
+            $this->entities->load($option);
         }
+    }
+
+    /**
+     * Store data to database.
+     *
+     * <code>
+     * $data = array(
+     *     "title" => "Title...",
+     *     "description" => "Description..."
+     * );
+     *
+     * $gallery    = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     * $gallery->bind($data);
+     * $gallery->store();
+     * </code>
+     */
+    public function store()
+    {
+        if (!$this->id) { // Insert
+            $this->insertObject();
+        } else { // Update
+            $this->updateObject();
+        }
+    }
+
+    protected function updateObject()
+    {
+        // Prepare extra data value.
+        $description = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
+        $url         = (!$this->url) ? 'NULL' : $this->db->quote($this->url);
+
+        $params      = 'NULL';
+        if (($this->params !== null) and ($this->params instanceof Registry) and ($this->params->count() > 0)) {
+            $params  = $this->db->quote($this->params->toString());
+        }
+
+        $query = $this->db->getQuery(true);
+
+        $query
+            ->update($this->db->quoteName('#__magicgallery_galleries'))
+            ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('alias') . '=' . $this->db->quote($this->alias))
+            ->set($this->db->quoteName('description') . '=' . $description)
+            ->set($this->db->quoteName('url') . '=' . $url)
+            ->set($this->db->quoteName('catid') . '=' . (int)$this->catid)
+            ->set($this->db->quoteName('extension') . '=' . $this->db->quote($this->extension))
+            ->set($this->db->quoteName('object_id') . '=' . (int)$this->object_id)
+            ->set($this->db->quoteName('published') . '=' . (int)$this->published)
+            ->set($this->db->quoteName('ordering') . '=' . (int)$this->ordering)
+            ->set($this->db->quoteName('user_id') . '=' . (int)$this->user_id)
+            ->set($this->db->quoteName('params') . '=' . $params);
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+    }
+
+    protected function insertObject()
+    {
+        // Prepare extra data value.
+        $description = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
+        $url         = (!$this->url) ? 'NULL' : $this->db->quote($this->url);
+
+        $params      = 'NULL';
+        if (($this->params !== null) and ($this->params instanceof Registry) and ($this->params->count() > 0)) {
+            $params  = $this->db->quote($this->params->toString());
+        }
+
+        if (!$this->alias) {
+            $this->alias = \JApplicationHelper::stringURLSafe($this->title);
+        }
+
+        // Get last number of the ordering.
+        $query = $this->db->getQuery(true);
+        $query
+            ->select('MAX('.$this->db->quoteName('ordering').')')
+            ->from($this->db->quoteName('#__magicgallery_galleries'));
+
+        $this->db->setQuery($query, 0, 1);
+        $max = (int)$this->db->loadResult();
+        $this->ordering = $max + 1;
+
+        // Store the record
+        $query = $this->db->getQuery(true);
+
+        $query
+            ->insert($this->db->quoteName('#__magicgallery_galleries'))
+            ->set($this->db->quoteName('title') . '=' . $this->db->quote($this->title))
+            ->set($this->db->quoteName('alias') . '=' . $this->db->quote($this->alias))
+            ->set($this->db->quoteName('description') . '=' . $description)
+            ->set($this->db->quoteName('url') . '=' . $url)
+            ->set($this->db->quoteName('catid') . '=' . (int)$this->catid)
+            ->set($this->db->quoteName('extension') . '=' . $this->db->quote($this->extension))
+            ->set($this->db->quoteName('object_id') . '=' . (int)$this->object_id)
+            ->set($this->db->quoteName('published') . '=' . (int)$this->published)
+            ->set($this->db->quoteName('ordering') . '=' . (int)$this->ordering)
+            ->set($this->db->quoteName('user_id') . '=' . (int)$this->user_id)
+            ->set($this->db->quoteName('params') . '=' . $params);
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+
+        $this->id = $this->db->insertid();
     }
 
     /**
@@ -110,7 +211,7 @@ class Gallery extends Prism\Database\TableImmutable
      *     "object_id" => 1
      * );
      *
-     * $gallery    = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery    = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($keys);
      *
      * if (!$gallery->getId()) {
@@ -122,7 +223,7 @@ class Gallery extends Prism\Database\TableImmutable
      */
     public function getId()
     {
-        return $this->id;
+        return (int)$this->id;
     }
 
     /**
@@ -134,7 +235,7 @@ class Gallery extends Prism\Database\TableImmutable
      *    "object_id" => 1
      * );
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($keys);
      *
      * echo  $gallery->getTitle();
@@ -148,12 +249,32 @@ class Gallery extends Prism\Database\TableImmutable
     }
 
     /**
+     * Set gallery title.
+     *
+     * <code>
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setTitle("Title...");
+     * </code>
+     *
+     * @param string $title
+     *
+     * @return self
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
      * Return gallery alias.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * echo $gallery->getAlias();
@@ -172,7 +293,7 @@ class Gallery extends Prism\Database\TableImmutable
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * echo $gallery->getSlug();
@@ -191,7 +312,7 @@ class Gallery extends Prism\Database\TableImmutable
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * echo $gallery->getCatSlug();
@@ -210,7 +331,7 @@ class Gallery extends Prism\Database\TableImmutable
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * echo $gallery->getDescription();
@@ -224,12 +345,32 @@ class Gallery extends Prism\Database\TableImmutable
     }
 
     /**
+     * Set gallery description.
+     *
+     * <code>
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setDescription("Description...");
+     * </code>
+     *
+     * @param string $description
+     *
+     * @return self
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
      * Return URL.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * $url = $gallery->getUrl();
@@ -251,17 +392,39 @@ class Gallery extends Prism\Database\TableImmutable
      *    "object_id" => 1
      * );
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($keys);
      *
      * $categoryId = $gallery->getCategoryId();
      * </code>
      *
-     * @return string
+     * @return int
      */
     public function getCategoryId()
     {
-        return $this->catid;
+        return (int)$this->catid;
+    }
+
+    /**
+     * Set gallery description.
+     *
+     * <code>
+     * $categoryId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setCategoryId($categoryId);
+     * </code>
+     *
+     * @param int $categoryId
+     *
+     * @return self
+     */
+    public function setCategoryId($categoryId)
+    {
+        $this->catid = (int)$categoryId;
+
+        return $this;
     }
 
     /**
@@ -270,7 +433,7 @@ class Gallery extends Prism\Database\TableImmutable
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * echo $gallery->getExtension();
@@ -284,12 +447,32 @@ class Gallery extends Prism\Database\TableImmutable
     }
 
     /**
+     * Set the extension option to which the gallery is assigned.
+     *
+     * <code>
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setExtension("com_crowdfunding");
+     * </code>
+     *
+     * @param string $extension
+     *
+     * @return self
+     */
+    public function setExtension($extension)
+    {
+        $this->extension = $extension;
+
+        return $this;
+    }
+
+    /**
      * Return object ID.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * $objectId = $gallery->getObjectId();
@@ -303,12 +486,34 @@ class Gallery extends Prism\Database\TableImmutable
     }
 
     /**
+     * Set the object ID where the gallery is assigned.
+     *
+     * <code>
+     * $objectId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setObjectId($objectId);
+     * </code>
+     *
+     * @param int $objectId
+     *
+     * @return self
+     */
+    public function setObjectId($objectId)
+    {
+        $this->object_id = (int)$objectId;
+
+        return $this;
+    }
+
+    /**
      * Return user ID.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * $userId = $gallery->getUserId();
@@ -322,12 +527,34 @@ class Gallery extends Prism\Database\TableImmutable
     }
 
     /**
+     * Set the user ID.
+     *
+     * <code>
+     * $userId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setUserId($userId);
+     * </code>
+     *
+     * @param int $userId
+     *
+     * @return self
+     */
+    public function setUserId($userId)
+    {
+        $this->user_id = (int)$userId;
+
+        return $this;
+    }
+
+    /**
      * Return ordering number.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * $ordering = $gallery->getOrdering();
@@ -341,12 +568,32 @@ class Gallery extends Prism\Database\TableImmutable
     }
 
     /**
+     * Set the status of the gallery.
+     *
+     * <code>
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     *
+     * $gallery->setStatus(Prism\Constants::PUBLISHED);
+     * </code>
+     *
+     * @param int $status The status : 1 - published; 0 - unpublished.
+     *
+     * @return self
+     */
+    public function setStatus($status)
+    {
+        $this->published = (int)$status;
+
+        return $this;
+    }
+
+    /**
      * Check if the item is published.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Image(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Image(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * if ($gallery->isPublished()) {
@@ -358,87 +605,87 @@ class Gallery extends Prism\Database\TableImmutable
      */
     public function isPublished()
     {
-        return ($this->published == Prism\Constants::PUBLISHED) ? true : false;
+        return (bool)($this->published === Prism\Constants::PUBLISHED);
     }
 
     /**
-     * Return default resource.
+     * Return default item.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
-     * $image = $gallery->getDefaultResource();
+     * $image = $gallery->getDefaultEntity();
      * </code>
      *
-     * @return Resource
+     * @return Entity\Entities
      */
-    public function getDefaultResource()
+    public function getDefaultEntity()
     {
-        if (is_null($this->resources)) {
+        if ($this->entities === null) {
             $option = array(
-                "gallery_id" => (int)$this->id,
-                "published"  => Prism\Constants::PUBLISHED
+                'gallery_id' => (int)$this->id,
+                'published'  => Prism\Constants::PUBLISHED
             );
 
-            $this->resources = new Resources(\JFactory::getDbo());
-            $this->resources->load($option);
+            $this->entities = new Entity\Entities(\JFactory::getDbo());
+            $this->entities->load($option);
         }
 
-        return $this->resources->getDefaultResource();
+        return $this->entities->getDefaultEntity();
     }
 
     /**
-     * Return the resources provided by the gallery.
+     * Return the items provided by the gallery.
      *
      * <code>
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
-     * $resources = $gallery->getResources();
+     * $items = $gallery->getEntities();
      * </code>
      *
-     * @return Resources
+     * @return Entity\Entities
      */
-    public function getResources()
+    public function getEntities()
     {
-        if (is_null($this->resources)) {
-            $option = array(
-                "gallery_id" => (int)$this->id,
-                "published"  => Prism\Constants::PUBLISHED
+        if ($this->entities === null) {
+            $options = array(
+                'gallery_id' => (int)$this->id,
+                'published'  => Prism\Constants::PUBLISHED
             );
 
-            $this->resources = new Resources(\JFactory::getDbo());
-            $this->resources->load($option);
+            $this->entities = new Entity\Entities(\JFactory::getDbo());
+            $this->entities->load($options);
         }
 
-        return $this->resources;
+        return $this->entities;
     }
 
     /**
-     * Set the resources to the gallery.
+     * Set the entities to the gallery.
      *
      * <code>
-     * $resources = array(...);
+     * $items = array(...);
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
-     * $gallery->setResources($resources);
+     * $gallery->setEntities($items);
      * </code>
      *
-     * @param Resources $resources
+     * @param Entity\Entities $entities
      *
      * @return self
      */
-    public function setResources(Resources $resources)
+    public function setEntities(Entity\Entities $entities)
     {
-        $this->resources = $resources;
+        $this->entities = $entities;
 
         return $this;
     }
@@ -447,10 +694,9 @@ class Gallery extends Prism\Database\TableImmutable
      * Return the object properties as array.
      *
      * <code>
-     * $resources = array(...);
      * $galleryId = 1;
      *
-     * $gallery   = new MagicGallery\Gallery(\JFactory::getDbo());
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      *
      * $galleryAsArray = $gallery->toArray();
@@ -462,14 +708,14 @@ class Gallery extends Prism\Database\TableImmutable
     {
         $gallery = $this->getProperties();
 
-        $resources = array();
+        $items = array();
 
-        /** @var Resource $resource */
-        foreach ($this->resources as $resource) {
-            $resources[] = $resource->toArray();
+        /** @var Entity\Entity $item */
+        foreach ($this->entities as $item) {
+            $items[] = $item->getProperties();
         }
 
-        $gallery["resources"] = $resources;
+        $gallery['items'] = $items;
 
         return $gallery;
     }

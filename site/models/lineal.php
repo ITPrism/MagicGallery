@@ -105,8 +105,8 @@ class MagicGalleryModelLineal extends JModelList
         $query->from($db->quoteName('#__magicgallery_galleries', 'a'));
 
         // Filter by a single or group of categories
-        $categoryId = $this->getState($this->context.'.filter.catid');
-        if (!empty($categoryId)) {
+        $categoryId = (int)$this->getState($this->context.'.filter.catid');
+        if ($categoryId > 0) {
             $query->where('a.catid = ' . (int)$categoryId);
         }
 

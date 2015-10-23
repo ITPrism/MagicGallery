@@ -11,7 +11,7 @@
 defined('_JEXEC') or die;
 
 jimport("Prism.init");
-jimport("MagicGallery.init");
+jimport("Magicgallery.init");
 
 // Get an instance of the controller
 $controller = JControllerLegacy::getInstance("MagicGallery");

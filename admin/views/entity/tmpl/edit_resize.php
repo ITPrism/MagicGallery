@@ -11,7 +11,7 @@
 defined('_JEXEC') or die;
 ?>
 <div class="panel panel-default">
-    <div class="panel-heading"><?php echo JText::_("COM_MAGICGALLERY_RESIZE_OPTIONS"); ?></div>
+    <div class="panel-heading"><?php echo JText::_('COM_MAGICGALLERY_RESIZE_OPTIONS'); ?></div>
     <div class="panel-body">
         <?php foreach ($this->form->getGroup('resize') as $field) { ?>
             <div class="control-group">

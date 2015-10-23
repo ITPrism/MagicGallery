@@ -34,7 +34,7 @@ class MagicGalleryViewGallery extends JViewLegacy
     public function __construct($config)
     {
         parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
+        $this->option = JFactory::getApplication()->input->get('option');
     }
 
     public function display($tpl = null)
@@ -43,7 +43,7 @@ class MagicGalleryViewGallery extends JViewLegacy
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        $this->params = $this->state->get("params");
+        $this->params = $this->state->get('params');
 
         $this->addToolbar();
         $this->setDocument();
@@ -55,7 +55,7 @@ class MagicGalleryViewGallery extends JViewLegacy
     {
         JFactory::getApplication()->input->set('hidemainmenu', true);
 
-        $isNew               = ($this->item->id == 0);
+        $isNew               = ($this->item->id === 0);
         $this->documentTitle = $isNew ? JText::_('COM_MAGICGALLERY_GALLERY_ADD') : JText::_('COM_MAGICGALLERY_GALLERY_EDIT');
 
         JToolBarHelper::title($this->documentTitle);
@@ -88,6 +88,5 @@ class MagicGalleryViewGallery extends JViewLegacy
         JHtml::_('formbehavior.chosen', 'select');
 
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . Joomla\String\String::strtolower($this->getName()) . '.js');
-
     }
 }

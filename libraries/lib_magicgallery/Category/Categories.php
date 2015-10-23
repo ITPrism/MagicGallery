@@ -7,9 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace MagicGallery\Category;
-
-use Joomla\String\String;
+namespace Magicgallery\Category;
 
 defined('_JEXEC') or die;
 
@@ -39,7 +37,7 @@ class Categories extends \JCategories
      * Initialize the object.
      *
      * <code>
-     * $categories = new MagicGallery\Category\Categories($options);
+     * $categories = new Magicgallery\Category\Categories($options);
      * </code>
      *
      * @param array  $options
@@ -55,7 +53,7 @@ class Categories extends \JCategories
      * Set database object.
      *
      * <code>
-     * $categories   = new MagicGallery\Category\Categories();
+     * $categories   = new Magicgallery\Category\Categories();
      * $categories->setDb(\JFactory::getDbo());
      * </code>
      *
@@ -82,46 +80,46 @@ class Categories extends \JCategories
      *    "order_dir" => "DESC",
      * );
      *
-     * $categories   = new MagicGallery\Category\Categories();
+     * $categories   = new Magicgallery\Category\Categories();
      * $categories->setDb(\JFactory::getDbo());
      *
      * $categories->load($parentId);
      * </code>
      *
-     * @param null|int $parentId Parent ID or "root".
      * @param array $options
      */
-    public function load($parentId = null, $options = array())
+    public function load(array $options = array())
     {
-        $offset    = (isset($options["offset"])) ? $options["offset"] : 0;
-        $limit     = (isset($options["limit"])) ? $options["limit"] : 0;
-        $orderBy   = (isset($options["order_by"])) ? $options["order_by"] : "a.title";
-        $orderDir  = (isset($options["order_dir"])) ? $options["order_dir"] : "ASC";
+        $offset    = (array_key_exists('offset', $options)) ? (int)$options['offset'] : 0;
+        $limit     = (array_key_exists('limit', $options)) ? (int)$options['limit'] : 0;
+        $orderBy   = (array_key_exists('order_by', $options)) ? $options['order_by'] : 'a.title';
+        $orderDir  = (array_key_exists('order_dir', $options)) ? $options['order_dir'] : 'ASC';
+        $parentId  = (array_key_exists('parent_id', $options)) ? (int)$options['parent_id'] : 0;
 
-        $orderDir = String::strtoupper($orderDir);
+        $orderDir = \JString::strtoupper($orderDir);
 
-        if (!in_array($orderDir, array("ASC", "DESC"))) {
-            $orderDir = "ASC";
+        if (!in_array($orderDir, array('ASC', 'DESC'), true)) {
+            $orderDir = 'ASC';
         }
 
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                "a.id, a.title, a.alias, a.description, a.params, " .
-                $query->concatenate(array("a.id", "a.alias"), ":") . " AS slug"
+                'a.id, a.title, a.alias, a.description, a.params, ' .
+                $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug'
             )
-            ->from($this->db->quoteName("#__categories", "a"))
-            ->where("a.extension = ". $this->db->quote($this->_extension));
+            ->from($this->db->quoteName('#__categories', 'a'))
+            ->where('a.extension = '. $this->db->quote($this->_extension));
 
-        if (!is_null($parentId)) {
-            $query->where("a.parent_id = ". (int)$parentId);
+        if ($parentId > 0) {
+            $query->where('a.parent_id = '. (int)$parentId);
         }
 
-        $query->order($this->db->quoteName($orderBy) . " " . $orderDir);
+        $query->order($this->db->quoteName($orderBy) . ' ' . $orderDir);
 
         $this->db->setQuery($query, (int)$offset, (int)$limit);
 
-        $this->data = (array)$this->db->loadAssocList("id");
+        $this->data = (array)$this->db->loadAssocList('id');
     }
 
     /**

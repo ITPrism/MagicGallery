@@ -11,12 +11,12 @@
 defined('_JEXEC') or die;
 
 /**
- * Magic Gallery Resources Controller
+ * Magic Gallery Entities Controller
  *
  * @package     MagicGallery
  * @subpackage  Components
  */
-class MagicGalleryControllerResources extends Prism\Controller\Admin
+class MagicGalleryControllerEntities extends Prism\Controller\Admin
 {
     public function __construct($config = array())
     {
@@ -24,7 +24,7 @@ class MagicGalleryControllerResources extends Prism\Controller\Admin
         $this->registerTask('unsetDefault',	'setDefault');
     }
 
-    public function getModel($name = 'Resource', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Entity', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 
@@ -56,13 +56,13 @@ class MagicGalleryControllerResources extends Prism\Controller\Admin
 
         // Redirect options
         $redirectOptions = array(
-            "view" => "resources",
-            "gid"  => $this->input->getInt('gid')
+            'view' => 'entities',
+            'gid'  => $this->input->getInt('gid')
         );
 
         try {
 
-            $image = new MagicGallery\Resource\Resource(JFactory::getDbo());
+            $image = new Magicgallery\Entity\Entity(JFactory::getDbo());
             $image->load($itemId);
 
             if ($image->getId()) {

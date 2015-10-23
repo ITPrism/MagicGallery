@@ -22,7 +22,7 @@ class MagicGalleryModelGallery extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  MagicGalleryTableGallery  A database object
      * @since   1.6
      */
     public function getTable($type = 'Gallery', $prefix = 'MagicGalleryTable', $config = array())
@@ -63,13 +63,14 @@ class MagicGalleryModelGallery extends JModelAdmin
         // Check the session for previously entered form data.
         $data = $app->getUserState($this->option . '.edit.gallery.data', array());
 
-        if (empty($data)) {
+        if ($data === null or (is_array($data) and count($data) === 0)) {
             $data = $this->getItem();
 
             // Prepare selected category.
-            if ($this->getState($this->getName() . '.id') == 0) {
+            if ((int)$this->getState($this->getName() . '.id') === 0) {
                 $data->set('catid', $app->input->getInt('catid', $app->getUserState($this->option . '.galleries.filter.category_id')));
             }
+
         }
 
         return $data;
@@ -84,20 +85,20 @@ class MagicGalleryModelGallery extends JModelAdmin
      */
     public function save($data)
     {
-        $title       = Joomla\Utilities\ArrayHelper::getValue($data, "title");
-        $alias       = Joomla\Utilities\ArrayHelper::getValue($data, "alias");
-        $id          = Joomla\Utilities\ArrayHelper::getValue($data, "id");
-        $catid       = Joomla\Utilities\ArrayHelper::getValue($data, "catid");
-        $url         = Joomla\Utilities\ArrayHelper::getValue($data, "url");
-        $published   = Joomla\Utilities\ArrayHelper::getValue($data, "published");
-        $description = Joomla\Utilities\ArrayHelper::getValue($data, "description");
-        $userId      = Joomla\Utilities\ArrayHelper::getValue($data, "user_id", 0, "int");
+        $title       = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
+        $alias       = Joomla\Utilities\ArrayHelper::getValue($data, 'alias');
+        $id          = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
+        $catid       = Joomla\Utilities\ArrayHelper::getValue($data, 'catid');
+        $url         = Joomla\Utilities\ArrayHelper::getValue($data, 'url');
+        $published   = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
+        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+        $userId      = Joomla\Utilities\ArrayHelper::getValue($data, 'user_id', 0, 'int');
 
-        if (!$description) {
+        if (JString::strlen($description) === 0) {
             $description = null;
         }
 
-        if (!$url) {
+        if (JString::strlen($url) === 0) {
             $url = null;
         }
 
@@ -105,20 +106,26 @@ class MagicGalleryModelGallery extends JModelAdmin
         $row = $this->getTable();
         $row->load($id);
 
-        $row->set("title", $title);
-        $row->set("alias", $alias);
-        $row->set("description", $description);
-        $row->set("url", $url);
-        $row->set("catid", $catid);
-        $row->set("user_id", $userId);
-        $row->set("published", $published);
+        $row->set('title', $title);
+        $row->set('alias', $alias);
+        $row->set('description', $description);
+        $row->set('url', $url);
+        $row->set('catid', $catid);
+        $row->set('user_id', $userId);
+        $row->set('published', $published);
+        $row->set('params', null);
+
+        // Encode parameters.
+        if (array_key_exists('params', $data) and is_array($data['params']) and count($data) > 0) {
+            $row->set('params', json_encode($data['params']));
+        }
 
         // Prepare the row for saving
         $this->prepareTable($row);
 
         $row->store(true);
 
-        return $row->get("id");
+        return $row->get('id');
     }
 
     /**
@@ -131,36 +138,36 @@ class MagicGalleryModelGallery extends JModelAdmin
     protected function prepareTable($table)
     {
         // get maximum order number
-        if (!$table->get("id")) {
+        if (!$table->get('id')) {
 
             // Set ordering to the last item if not set
-            if (!$table->get("ordering")) {
+            if (!$table->get('ordering')) {
                 $db    = JFactory::getDbo();
                 $query = $db->getQuery(true);
                 $query
-                    ->select("MAX(ordering)")
-                    ->from("#__magicgallery_galleries");
+                    ->select('MAX(ordering)')
+                    ->from('#__magicgallery_galleries');
 
                 $db->setQuery($query, 0, 1);
                 $max = $db->loadResult();
 
-                $table->set("ordering", $max + 1);
+                $table->set('ordering', $max + 1);
             }
         }
 
         // Fix magic quotes.
         if (get_magic_quotes_gpc()) {
-            $table->set("title", stripcslashes($table->get("title")));
-            $table->set("description", stripcslashes($table->get("description")));
-            $table->set("url", stripcslashes($table->get("url")));
+            $table->set('title', stripcslashes($table->get('title')));
+            $table->set('description', stripcslashes($table->get('description')));
+            $table->set('url', stripcslashes($table->get('url')));
         }
 
         // If does not exist alias, I will generate the new one from the title
-        if (!$table->get("alias")) {
-            $table->set("alias", $table->get("alias"));
+        if (!$table->get('alias')) {
+            $table->set('alias', $table->get('title'));
         }
 
-        $table->set("alias", JApplicationHelper::stringURLSafe($table->get("alias")));
+        $table->set('alias', JApplicationHelper::stringURLSafe($table->get('alias')));
     }
 
     /**
@@ -174,7 +181,7 @@ class MagicGalleryModelGallery extends JModelAdmin
     protected function getReorderConditions($table)
     {
         $condition   = array();
-        $condition[] = 'catid = ' . (int)$table->get("catid");
+        $condition[] = 'catid = ' . (int)$table->get('catid');
 
         return $condition;
     }

@@ -106,18 +106,18 @@ class MagicGalleryModelGalleries extends JModelList
             )
         );
 
-        $query->from($db->quoteName('#__magicgallery_galleries', "a"));
-        $query->leftJoin($db->quoteName('#__categories', "b") . ' ON a.catid = b.id');
+        $query->from($db->quoteName('#__magicgallery_galleries', 'a'));
+        $query->leftJoin($db->quoteName('#__categories', 'b') . ' ON a.catid = b.id');
 
         // Filter by category
-        $categoryId = $this->getState('filter.category_id');
-        if (!empty($categoryId)) {
+        $categoryId = (int)$this->getState('filter.category_id');
+        if ($categoryId > 0) {
             $query->where('a.catid =' . (int)$categoryId);
         }
 
         // Filter by extension.
         $extension = $this->getState('filter.extension');
-        if (!empty($extension)) {
+        if (JString::strlen($extension) > 0) {
             $query->where('a.extension =' . $db->quote($extension));
         }
 
@@ -131,7 +131,7 @@ class MagicGalleryModelGalleries extends JModelList
 
         // Filter by search in title
         $search = $this->getState('filter.search');
-        if (!empty($search)) {
+        if (JString::strlen($search) > 0) {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } else {
@@ -151,7 +151,7 @@ class MagicGalleryModelGalleries extends JModelList
     {
         $orderCol  = $this->getState('list.ordering', 'a.id');
         $orderDirn = $this->getState('list.direction', 'asc');
-        if ($orderCol == 'a.ordering') {
+        if ($orderCol === 'a.ordering') {
             $orderCol = 'a.catid ' . $orderDirn . ', a.ordering';
         }
 

@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewResources extends JViewLegacy
+class MagicGalleryViewEntities extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -42,30 +42,34 @@ class MagicGalleryViewResources extends JViewLegacy
     protected $sidebar;
 
     protected $galleryId;
+    protected $mediaUri;
 
     /**
-     * @var MagicGallery\Category\Category
+     * @var Magicgallery\Category\Category
      */
     protected $gallery;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
         $this->params     = $this->state->get('params');
 
-        $this->galleryId  = (int)$this->state->get("filter.gallery_id");
+        $this->galleryId  = (int)$this->state->get('filter.gallery_id');
 
-        $this->gallery = new MagicGallery\Gallery\Gallery(JFactory::getDbo());
+        $this->gallery    = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
         $this->gallery->load($this->galleryId);
+
+        $this->mediaUri   = MagicGalleryHelper::getMediaUri($this->params, $this->gallery);
+        if (!$this->mediaUri) {
+            throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
+        }
+
+        $this->mediaUri = JUri::root() . $this->mediaUri . '/';
 
         // Prepare sorting data
         $this->prepareSorting();
@@ -86,7 +90,7 @@ class MagicGalleryViewResources extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         if ($this->saveOrder) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
@@ -113,16 +117,16 @@ class MagicGalleryViewResources extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::sprintf('COM_MAGICGALLERY_RESOURCES_TITLE_S', $this->gallery->getTitle()));
-        JToolBarHelper::addNew('resource.add');
-        JToolBarHelper::editList('resource.edit');
+        JToolBarHelper::title(JText::sprintf('COM_MAGICGALLERY_ENTITIES_TITLE_S', $this->gallery->getTitle()));
+        JToolBarHelper::addNew('entity.add');
+        JToolBarHelper::editList('entity.edit');
         JToolBarHelper::divider();
-        JToolBarHelper::publishList("resources.publish");
-        JToolBarHelper::unpublishList("resources.unpublish");
+        JToolBarHelper::publishList('entities.publish');
+        JToolBarHelper::unpublishList('entities.unpublish');
         JToolBarHelper::divider();
-        JToolBarHelper::deleteList(JText::_("COM_MAGICGALLERY_DELETE_ITEMS_QUESTION"), "resources.delete");
+        JToolBarHelper::deleteList(JText::_('COM_MAGICGALLERY_DELETE_ITEMS_QUESTION'), 'entities.delete');
         JToolBarHelper::divider();
-        JToolBarHelper::custom('resources.backToDashboard', "dashboard", "", JText::_("COM_MAGICGALLERY_DASHBOARD"), false);
+        JToolBarHelper::custom('entities.backToDashboard', 'dashboard', '', JText::_('COM_MAGICGALLERY_DASHBOARD'), false);
     }
 
     /**
@@ -131,7 +135,7 @@ class MagicGalleryViewResources extends JViewLegacy
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::sprintf('COM_MAGICGALLERY_RESOURCES_TITLE_S', $this->gallery->getTitle()));
+        $this->document->setTitle(JText::sprintf('COM_MAGICGALLERY_ENTITIES_TITLE_S', $this->gallery->getTitle()));
 
         // Scripts
         JHtml::_('bootstrap.tooltip');

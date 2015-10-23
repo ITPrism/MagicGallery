@@ -14,7 +14,7 @@ defined('_JEXEC') or die;
     <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
 <?php } ?>
 
-<?php echo (!empty($this->event->onContentBeforeDisplay)) ? $this->event->onContentBeforeDisplay : ""; ?>
+<?php echo (!empty($this->event->onContentBeforeDisplay)) ? $this->event->onContentBeforeDisplay : ''; ?>
 
 <div class="row">
 <?php if (!empty($this->items)) { ?>
@@ -32,7 +32,7 @@ defined('_JEXEC') or die;
 <?php } ?>
 
 </div>
-<?php echo (!empty($this->event->onContentAfterDisplay)) ? $this->event->onContentAfterDisplay : ""; ?>
+<?php echo (!empty($this->event->onContentAfterDisplay)) ? $this->event->onContentAfterDisplay : ''; ?>
 
 <?php if (($this->params->def('show_pagination', 1) == 1 || ($this->params->get('show_pagination') == 2)) && ($this->pagination->get('pages.total') > 1)) { ?>
     <div class="pagination">

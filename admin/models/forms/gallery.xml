@@ -56,4 +56,19 @@
         <field name="user_id" type="user" label="COM_MAGICGALLERY_FIELD_USER_ID_LABEL" description="COM_MAGICGALLERY_FIELD_USER_ID_DESC" />
 
 	</fieldset>
+
+    <fields name="params">
+        <fieldset name="paths" label="COM_MAGICGALLERY_PATHS_OPTIONS">
+            <field name="path"  type="text" class="input-xxlarge"
+                   label="COM_MAGICGALLERY_MEDIA_FOLDER"
+                   description="COM_MAGICGALLERY_GALLERY_FIELD_MEDIA_FOLDER_DESC"
+                    />
+
+            <field name="uri"  type="text" class="input-xxlarge"
+                   label="COM_MAGICGALLERY_URI"
+                   description="COM_MAGICGALLERY_GALLERY_FIELD_MEDIA_URI_DESC"
+                    />
+        </fieldset>
+    </fields>
+
 </form>

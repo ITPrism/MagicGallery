@@ -25,17 +25,17 @@ class MagicGalleryViewLineal extends JViewLegacy
     /**
      * @var Joomla\Registry\Registry
      */
-    protected $state = null;
+    protected $state;
 
-    protected $items = null;
-    protected $pagination = null;
+    protected $items;
+    protected $pagination;
 
-    protected $event = null;
+    protected $event;
     protected $option;
     protected $pageclass_sfx;
 
     /**
-     * @var MagicGallery\Category\Category
+     * @var Magicgallery\Category\Category
      */
     protected $category;
 
@@ -48,32 +48,28 @@ class MagicGalleryViewLineal extends JViewLegacy
     protected $modalClass;
 
     /**
-     * @var MagicGallery\Resource\Resource
+     * @var Magicgallery\Entity\Entity
      */
     protected $defaultImage;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
 
     public function display($tpl = null)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
+        $this->option = $app->input->get('option');
+        
         // Check for valid category
-        $this->categoryId = $app->input->getInt("id");
+        $this->categoryId = $app->input->getInt('id');
         $this->category   = null;
 
-        if (!empty($this->categoryId)) {
-            $this->category = new MagicGallery\Category\Category(JFactory::getDbo());
+        if ($this->categoryId > 0) {
+            $this->category = new Magicgallery\Category\Category(JFactory::getDbo());
             $this->category->load($this->categoryId);
 
             // Checking for published category
             if (!$this->category->getId() or !$this->category->isPublished()) {
-                throw new Exception(JText::_("COM_MAGICGALLERY_ERROR_CATEGORY_DOES_NOT_EXIST"));
+                throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_CATEGORY_DOES_NOT_EXIST'));
             }
         }
 
@@ -82,39 +78,39 @@ class MagicGalleryViewLineal extends JViewLegacy
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        $this->params     = $this->state->get("params");
+        $this->params     = $this->state->get('params');
         /** @var  $params Joomla\Registry\Registry */
 
         $this->item = array_shift($this->items);
 
         if (!$this->item) {
-            throw new Exception(JText::_("COM_MAGICGALLERY_ERROR_INVALID_GALLERY"));
+            throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_GALLERY'));
         }
 
         $options = array(
-            "gallery_id" => $this->item->id,
-            "published" => Prism\Constants::PUBLISHED
+            'gallery_id' => $this->item->id,
+            'published' => Prism\Constants::PUBLISHED
         );
-        $this->images = new MagicGallery\Resource\Resources(JFactory::getDbo());
+        $this->images = new Magicgallery\Entity\Entities(JFactory::getDbo());
         $this->images->load($options);
 
-        $this->defaultImage = $this->images->getDefaultResource();
+        $this->defaultImage = $this->images->getDefaultEntity();
 
         // Open link target
-        $this->openLink = 'target="' . $this->params->get("lineal_open_link", "_self") . '"';
+        $this->openLink = 'target="' . $this->params->get('lineal_open_link', '_self') . '"';
 
-        $this->mediaUrl = JUri::root() . $this->params->get("media_folder", "images/magicgallery") . "/";
+        $this->mediaUrl = JUri::root() . $this->params->get('media_folder', 'images/magicgallery') . '/';
 
         $this->prepareLightBox();
         $this->prepareDocument();
 
         // Events
-        $offset            = $this->state->get("list.start", null);
+        $offset            = $this->state->get('list.start', null);
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getGalleryViewRoute("lineal", $this->item->id, $this->categoryId, $offset);
-        $item->image_intro = (!empty($this->defaultImage)) ? $this->mediaUrl . $this->defaultImage->getThumbnail() : null;
+        $item->link        = MagicGalleryHelperRoute::getGalleryViewRoute('lineal', $this->item->id, $this->categoryId, $offset);
+        $item->image_intro = ($this->defaultImage instanceof Magicgallery\Entity\Entity) ? $this->mediaUrl . $this->defaultImage->getThumbnail() : null;
 
         JPluginHelper::importPlugin('content');
         $dispatcher  = JEventDispatcher::getInstance();
@@ -134,15 +130,15 @@ class MagicGalleryViewLineal extends JViewLegacy
 
     protected function prepareLightBox()
     {
-        $this->modal      = $this->params->get("modal");
+        $this->modal      = $this->params->get('modal');
         $this->modalClass = MagicGalleryHelper::getModalClass($this->modal);
 
         switch ($this->modal) {
 
-            case "fancybox":
+            case 'fancybox':
 
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxFancyBox');
+                JHtml::_('MagicGallery.lightboxFancybox');
 
                 $js = 'jQuery(document).ready(function(){
                         jQuery(".' . $this->modalClass . '").fancybox();
@@ -151,7 +147,7 @@ class MagicGalleryViewLineal extends JViewLegacy
 
                 break;
 
-            case "nivo": // Joomla! native
+            case 'nivo': // Joomla! native
 
                 JHtml::_('jquery.framework');
                 JHtml::_('MagicGallery.lightboxNivo');
@@ -163,7 +159,7 @@ class MagicGalleryViewLineal extends JViewLegacy
                 $this->document->addScriptDeclaration($js);
                 break;
 
-            case "magnific": // Joomla! native
+            case 'magnific': // Joomla! native
 
                 JHtml::_('jquery.framework');
                 JHtml::_('MagicGallery.lightboxMagnific');
@@ -201,8 +197,8 @@ class MagicGalleryViewLineal extends JViewLegacy
         $this->pageclass_sfx = htmlspecialchars($this->params->get('pageclass_sfx'));
 
         // Set page heading
-        if (!$this->params->get("page_heading")) {
-            if (!empty($this->item)) {
+        if (!$this->params->get('page_heading')) {
+            if ($this->item !== null) {
                 $this->params->def('page_heading', $this->item->title);
             } else {
                 if ($menu) {
@@ -216,7 +212,7 @@ class MagicGalleryViewLineal extends JViewLegacy
         // Set page title
         if (!$this->item) { // Uncategorised
             // Get title from the page title option
-            $title = $this->params->get("page_title");
+            $title = $this->params->get('page_title');
 
             if (!$title) {
                 $title = $app->get('sitename');
@@ -228,7 +224,7 @@ class MagicGalleryViewLineal extends JViewLegacy
 
             if (!$title) {
                 // Get title from the page title option
-                $title = $this->params->get("page_title");
+                $title = $this->params->get('page_title');
 
                 if (!$title) {
                     $title = $app->get('sitename');
@@ -241,8 +237,8 @@ class MagicGalleryViewLineal extends JViewLegacy
         }
 
         // Add category name to page title.
-        if ($this->params->get("category_in_title") and !empty($this->category)) {
-            $title .= " | " . $this->category->getTitle();
+        if ($this->params->get('category_in_title') and ($this->category !== null)) {
+            $title .= ' | ' . $this->category->getTitle();
         }
 
         $this->document->setTitle($title);
@@ -259,13 +255,13 @@ class MagicGalleryViewLineal extends JViewLegacy
         if (!$this->category) { // Uncategorised
             $this->document->setDescription($this->params->get('menu-meta_keywords'));
         } else {
-            $this->document->setMetadata('keywords', $this->category->getMetaKeywords());
+            $this->document->setMetaData('keywords', $this->category->getMetaKeywords());
         }
 
         // Add the category name into breadcrumbs
         $pathway = $app->getPathway();
-        if ($this->params->get('category_breadcrumbs') and !empty($this->category)) {
-            $categoryLink = JRoute::_(MagicGalleryHelperRoute::getCategoryViewRoute("lineal", $this->categoryId));
+        if ($this->params->get('category_breadcrumbs') and ($this->category !== null)) {
+            $categoryLink = JRoute::_(MagicGalleryHelperRoute::getCategoryViewRoute('lineal', $this->categoryId));
             $pathway->addItem($this->category->getTitle(), $categoryLink);
         }
         $pathway->addItem($this->item->title);

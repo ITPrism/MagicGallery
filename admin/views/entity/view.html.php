@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewResource extends JViewLegacy
+class MagicGalleryViewEntity extends JViewLegacy
 {
     /**
      * @var JApplicationAdministrator
@@ -35,24 +35,31 @@ class MagicGalleryViewResource extends JViewLegacy
     protected $option;
 
     protected $galleryId;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-
-        $this->app    = JFactory::getApplication();
-        $this->option = $this->app->input->get("option");
-    }
+    protected $gallery;
+    protected $mediaUri;
 
     public function display($tpl = null)
     {
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        $this->params = $this->state->get("params");
+        $this->params = $this->state->get('params');
 
-        $this->galleryId = (int)$this->app->getUserState("com_magicgallery.resources.filter.gallery_id");
+        $this->galleryId = (int)$this->app->getUserState('com_magicgallery.entities.filter.gallery_id');
+
+        $this->gallery    = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
+        $this->gallery->load($this->galleryId);
+
+        $this->mediaUri   = MagicGalleryHelper::getMediaUri($this->params, $this->gallery);
+        if (!$this->mediaUri) {
+            throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
+        }
+
+        $this->mediaUri = JUri::root() . $this->mediaUri . '/';
 
         $this->addToolbar();
         $this->setDocument();
@@ -69,19 +76,19 @@ class MagicGalleryViewResource extends JViewLegacy
     {
         $this->app->input->set('hidemainmenu', true);
 
-        $isNew               = ($this->item->id == 0);
-        $this->documentTitle = $isNew ? JText::_('COM_MAGICGALLERY_RESOURCE_ADD') : JText::_('COM_MAGICGALLERY_RESOURCE_EDIT');
+        $isNew               = ((int)$this->item->id === 0);
+        $this->documentTitle = $isNew ? JText::_('COM_MAGICGALLERY_ENTITY_ADD') : JText::_('COM_MAGICGALLERY_ENTITY_EDIT');
 
         JToolBarHelper::title($this->documentTitle);
 
-        JToolBarHelper::apply('resource.apply');
-        JToolBarHelper::save2new('resource.save2new');
-        JToolBarHelper::save('resource.save');
+        JToolBarHelper::apply('entity.apply');
+        JToolBarHelper::save2new('entity.save2new');
+        JToolBarHelper::save('entity.save');
 
         if (!$isNew) {
-            JToolBarHelper::cancel('resource.cancel', 'JTOOLBAR_CANCEL');
+            JToolBarHelper::cancel('entity.cancel', 'JTOOLBAR_CANCEL');
         } else {
-            JToolBarHelper::cancel('resource.cancel', 'JTOOLBAR_CLOSE');
+            JToolBarHelper::cancel('entity.cancel', 'JTOOLBAR_CLOSE');
         }
     }
 

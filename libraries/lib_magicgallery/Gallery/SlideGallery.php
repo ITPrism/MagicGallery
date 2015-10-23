@@ -7,7 +7,9 @@
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
-namespace MagicGallery\Gallery;
+namespace Magicgallery\Gallery;
+
+use MagicGallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -23,7 +25,7 @@ class SlideGallery extends GalleryAbstract
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new MagicGallery\Gallery\SlideGallery($items, $params, \JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params, \JFactory::getDocument());
      * $gallery->addScriptDeclaration();
      * </code>
      *
@@ -40,9 +42,9 @@ class SlideGallery extends GalleryAbstract
         $js = '
 jQuery(document).ready(function() {
 	jQuery("#' . $this->selector . '").slidesjs({
-        start: ' . $this->options->get("start", 1) . ',
-        width: ' . $this->options->get("width", 600) . ',
-        height: ' . $this->options->get("height", 400) . ',' .
+        start: ' . $this->options->get('start', 1) . ',
+        width: ' . $this->options->get('width', 600) . ',
+        height: ' . $this->options->get('height', 400) . ',' .
             $effects . $play . '
     });
 });';
@@ -55,7 +57,7 @@ jQuery(document).ready(function() {
      * Generate HTML code displaying thumbnails and images.
      *
      * <code>
-     * $gallery = new MagicGallery\Gallery\SlideGallery($items, $options, \JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $options, \JFactory::getDocument());
      * $gallery->setSelector("js-mg-com-galleria");
      *
      * echo $gallery->render();
@@ -67,7 +69,7 @@ jQuery(document).ready(function() {
     {
         $html = array();
 
-        if (!empty($this->items)) {
+        if (count($this->items) > 0) {
 
             $html[] = '<div id="' . $this->selector . '">';
 
@@ -78,16 +80,16 @@ jQuery(document).ready(function() {
                     continue;
                 }
 
-                $media = $item->getDefaultResource($item->getId());
-                /** @var Resource $media */
+                $media = $item->getDefaultEntity($item->getId());
+                /** @var Entity $media */
 
-                if (!empty($media)) {
-                    $html[] = '<img src="' . $this->mediaPath . "/" . $media->getImage() . '" />';
+                if ($media !== null and ($media instanceof Entity)) {
+                    $html[] = '<img src="' . $this->mediaPath . '/' . $media->getImage() . '" />';
                 }
             }
 
-            $html[] = '<a href="#" class="slidesjs-previous slidesjs-navigation"><i class="glyphicon glyphicon-chevron-left"></i></a>';
-            $html[] = '<a href="#" class="slidesjs-next slidesjs-navigation"><i class="glyphicon glyphicon-chevron-right"></i></a>';
+            $html[] = '<a href="#" class="slidesjs-previous slidesjs-navigation"><i class="fa fa-chevron-left"></i></a>';
+            $html[] = '<a href="#" class="slidesjs-next slidesjs-navigation"><i class="fa fa-chevron-right"></i></a>';
 
             $html[] = '</div>';
         }
@@ -97,14 +99,14 @@ jQuery(document).ready(function() {
 
     private function prepareEffects()
     {
-        $options = "";
-        $effect  = $this->options->get("effect", "fade");
-        $speed   = $this->options->get("speed", 200);
+        $options = '';
+        $effect  = $this->options->get('effect', 'fade');
+        $speed   = $this->options->get('speed', 200);
 
-        $navigation = $this->options->get("navigation", 0);
-        $pagination = $this->options->get("pagination", 1);
+        $navigation = $this->options->get('navigation', 0);
+        $pagination = $this->options->get('pagination', 1);
 
-        if (strcmp("slide", $effect) == 0) {
+        if (strcmp('slide', $effect) === 0) {
 
             $options = '
             	navigation: {
@@ -122,7 +124,7 @@ jQuery(document).ready(function() {
                 }
             ';
 
-        } elseif (strcmp("fade", $effect) == 0) {
+        } elseif (strcmp('fade', $effect) === 0) {
 
             $options = '
             	navigation: {
@@ -141,7 +143,7 @@ jQuery(document).ready(function() {
                 }
             ';
 
-        } elseif (strcmp("fade-crossfade", $effect) == 0) {
+        } elseif (strcmp('fade-crossfade', $effect) === 0) {
             $options = '
             	navigation: {
             		active: ' . $navigation . ',
@@ -165,16 +167,16 @@ jQuery(document).ready(function() {
 
     private function preparePlay()
     {
-        $options  = "";
-        $play     = $this->options->get("play", 0);
-        $effect   = $this->options->get("effect", "fade");
-        $interval = $this->options->get("interval", 5000);
-        $autoplay = $this->options->get("autoplay", 0);
-        $swap     = $this->options->get("swap", 1);
-        $pause    = $this->options->get("pause", 0);
-        $restart  = $this->options->get("restart", 2500);
+        $options  = '';
+        $play     = (int)$this->options->get('play', 0);
+        $effect   = $this->options->get('effect', 'fade');
+        $interval = (int)$this->options->get('interval', 5000);
+        $autoplay = (int)$this->options->get('autoplay', 0);
+        $swap     = (int)$this->options->get('swap', 1);
+        $pause    = (int)$this->options->get('pause', 0);
+        $restart  = (int)$this->options->get('restart', 2500);
 
-        if (!empty($play)) {
+        if ($play > 0) {
             $options = ',
             	play: {
                   active: true,

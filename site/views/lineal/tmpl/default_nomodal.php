@@ -12,7 +12,7 @@ defined('_JEXEC') or die;?>
 <div class="row">
     <?php if(!empty($this->defaultImage)) { ?>
     <div class="col-md-4">
-       <?php if ($this->params->get("image_linkable")) {?>
+       <?php if ($this->params->get('image_linkable')) {?>
        <a href="<?php echo $this->mediaUrl.$this->defaultImage->getImage();?>" <?php echo $this->openLink;?>>
        <?php }?>
     	<img
@@ -23,9 +23,9 @@ defined('_JEXEC') or die;?>
     	title="<?php echo $this->escape($this->item->title);?>" 
     	class="thumbnail"
     	/>  
-        <?php if ($this->params->get("image_linkable")) {?></a><?php } ?>
+        <?php if ($this->params->get('image_linkable')) {?></a><?php } ?>
 
-        <?php if ($this->params->get("display_additional_images", 0) and 0 < count($this->images)) {?>
+        <?php if ($this->params->get('display_additional_images', 0) and 0 < count($this->images)) {?>
     	<div class="mg-additional-images">
          <?php 
               $i = 0;
@@ -42,7 +42,7 @@ defined('_JEXEC') or die;?>
                 </a>
              <?php
               $i++;
-              if($i == $this->params->get("additional_images_number", 3)){ break; }
+              if($i == $this->params->get('additional_images_number', 3)){ break; }
              }
          ?>
         </div>
@@ -50,14 +50,14 @@ defined('_JEXEC') or die;?>
     </div>
     <?php } ?>
     <div class="col-md-8">
-        <?php if ($this->params->get("display_title")) {?>
+        <?php if ($this->params->get('display_title')) {?>
         <h3>
-            <?php if ($this->params->get("title_linkable") and !empty($this->item->url)) { ?>
+            <?php if ($this->params->get('title_linkable') and !empty($this->item->url)) { ?>
             <a href="<?php echo $this->item->url;?>" <?php echo $this->openLink;?>><?php echo $this->escape($this->item->title);?></a>
             <?php } else { ?>
             <?php echo $this->escape($this->item->title);?>
             <?php }?>
-            <?php echo (!empty($this->event->onContentAfterTitle) ) ? $this->event->onContentAfterTitle : ""; ?>
+            <?php echo (!empty($this->event->onContentAfterTitle) ) ? $this->event->onContentAfterTitle : ''; ?>
         </h3>
         <?php }?>
 

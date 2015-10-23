@@ -15,14 +15,14 @@ defined('_JEXEC') or die;
 <?php } ?>
 
 <?php
-if ($this->params->get("display_category_description", 0) and !empty($this->category)) {
+if ($this->params->get('display_category_description', 0) and !empty($this->category)) {
     echo $this->category->getDescription();
 }
 
-echo (!empty($this->event->onContentBeforeDisplay)) ? $this->event->onContentBeforeDisplay : "";
+echo (!empty($this->event->onContentBeforeDisplay)) ? $this->event->onContentBeforeDisplay : '';
 
-if ($this->items->provideResources()) {
+if ($this->items->provideEntities()) {
     echo $this->gallery->render();
 }
 
-echo (!empty($this->event->onContentAfterDisplay)) ? $this->event->onContentAfterDisplay : "";
+echo (!empty($this->event->onContentAfterDisplay)) ? $this->event->onContentAfterDisplay : '';

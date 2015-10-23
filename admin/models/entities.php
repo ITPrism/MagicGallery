@@ -10,7 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryModelResources extends JModelList
+class MagicGalleryModelEntities extends JModelList
 {
     /**
      * Constructor.
@@ -95,13 +95,13 @@ class MagicGalleryModelResources extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.description, a.image, a.thumbnail, a.home, ' .
-                'a.params, a.gallery_id, a.published, a.ordering'
+                'a.id, a.title, a.description, a.image, a.thumbnail, ' .
+                'a.home, a.gallery_id, a.published, a.ordering'
             )
         );
 
-        $query->from($db->quoteName('#__magicgallery_resources', "a"));
-        $query->where("a.gallery_id = " .(int)$this->getState('filter.gallery_id'));
+        $query->from($db->quoteName('#__magicgallery_entities', 'a'));
+        $query->where('a.gallery_id = ' .(int)$this->getState('filter.gallery_id'));
 
         // Filter by published state
         $state = $this->getState('filter.state');
@@ -133,7 +133,7 @@ class MagicGalleryModelResources extends JModelList
     {
         $orderCol  = $this->getState('list.ordering', 'a.id');
         $orderDirn = $this->getState('list.direction', 'asc');
-        if ($orderCol == 'a.ordering') {
+        if ($orderCol === 'a.ordering') {
             $orderCol = 'a.ordering';
         }
 
