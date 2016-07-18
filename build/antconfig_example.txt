@@ -1,5 +1,6 @@
-cfg.name=userideas
-cfg.versionDir=v1.0
+cfg.name=magicgallery
+cfg.version=v1.0
+cfg.joomlaVersion=J3.6
 cfg.buildDir=packages
-cfg.sourceDir=/path/...
-cfg.pkgDir=/path/.../pkg_userideas
+cfg.sourceDir=/.../magicgallery
+cfg.pkgDir=/.../pkg_magicgallery
