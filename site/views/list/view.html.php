@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewList extends JViewLegacy
+class MagicgalleryViewList extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -96,7 +96,7 @@ class MagicGalleryViewList extends JViewLegacy
         $this->openLink = 'target="' . $this->params->get('open_link', '_self') . '"';
 
         // Prepare the path to media files;
-        $this->mediaUrl = JURI::root() . $this->params->get('media_folder', 'images/magicgallery');
+        $this->mediaUrl = JUri::root() . $this->params->get('media_folder', 'images/magicgallery');
 
         $this->prepareLightBox();
         $this->prepareDocument();
@@ -109,8 +109,8 @@ class MagicGalleryViewList extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getCategoryViewRoute('list', $this->categoryId);
-        $item->image_intro = (count($this->images) > 0) ? MagicGalleryHelper::getIntroImage($this->category, $resources, $this->mediaUrl) : null;
+        $item->link        = MagicgalleryHelperRoute::getCategoryViewRoute('list', $this->categoryId);
+        $item->image_intro = (count($this->images) > 0) ? MagicgalleryHelper::getIntroImage($this->category, $resources, $this->mediaUrl) : null;
 
         $results                             = $dispatcher->trigger('onContentAfterTitle', array('com_magicgallery.details', &$item, &$this->params, $offset));
         $this->event->onContentAfterTitle    = trim(implode("\n", $results));
@@ -127,14 +127,12 @@ class MagicGalleryViewList extends JViewLegacy
     protected function prepareLightBox()
     {
         $this->modal      = $this->params->get('modal');
-        $this->modalClass = MagicGalleryHelper::getModalClass($this->modal);
+        $this->modalClass = MagicgalleryHelper::getModalClass($this->modal);
 
         switch ($this->modal) {
-
             case 'fancybox':
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxFancybox');
+                JHtml::_('Magicgallery.lightboxFancybox');
 
                 // Initialize lightbox
                 $js = 'jQuery(document).ready(function(){
@@ -145,9 +143,8 @@ class MagicGalleryViewList extends JViewLegacy
                 break;
 
             case 'nivo': // Joomla! native
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxNivo');
+                JHtml::_('Magicgallery.lightboxNivo');
 
                 // Initialize lightbox
                 $js = '
@@ -158,9 +155,8 @@ class MagicGalleryViewList extends JViewLegacy
                 break;
 
             case 'magnific': // Joomla! native
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxMagnific');
+                JHtml::_('Magicgallery.lightboxMagnific');
 
                 // Initialize lightbox
                 $js = '
@@ -175,7 +171,6 @@ class MagicGalleryViewList extends JViewLegacy
                 $this->document->addScriptDeclaration($js);
                 break;
         }
-
     }
 
 
@@ -216,9 +211,7 @@ class MagicGalleryViewList extends JViewLegacy
             if (!$title) {
                 $title = $app->get('sitename');
             }
-
         } else {
-
             $title = $this->category->getTitle();
 
             if (!$title) {
@@ -228,12 +221,9 @@ class MagicGalleryViewList extends JViewLegacy
                 if (!$title) {
                     $title = $app->get('sitename');
                 }
-
             } elseif ($app->get('sitename_pagetitles', 0)) { // Set site name if it is necessary ( the option 'sitename' = 1 )
                 $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-
             }
-
         }
 
         $this->document->setTitle($title);
@@ -257,6 +247,5 @@ class MagicGalleryViewList extends JViewLegacy
             $pathway = $app->getPathway();
             $pathway->addItem($this->category->getTitle());
         }
-
     }
 }

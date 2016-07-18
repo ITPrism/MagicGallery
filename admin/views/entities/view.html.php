@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewEntities extends JViewLegacy
+class MagicgalleryViewEntities extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -64,7 +64,7 @@ class MagicGalleryViewEntities extends JViewLegacy
         $this->gallery    = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
         $this->gallery->load($this->galleryId);
 
-        $this->mediaUri   = MagicGalleryHelper::getMediaUri($this->params, $this->gallery);
+        $this->mediaUri   = MagicgalleryHelper::getMediaUri($this->params, $this->gallery);
         if (!$this->mediaUri) {
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
         }
@@ -105,7 +105,7 @@ class MagicGalleryViewEntities extends JViewLegacy
      */
     protected function addSidebar()
     {
-        MagicGalleryHelper::addSubmenu($this->getName());
+        MagicgalleryHelper::addSubmenu($this->getName());
         $this->sidebar = JHtmlSidebar::render();
     }
 
@@ -117,25 +117,28 @@ class MagicGalleryViewEntities extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::sprintf('COM_MAGICGALLERY_ENTITIES_TITLE_S', $this->gallery->getTitle()));
-        JToolBarHelper::addNew('entity.add');
-        JToolBarHelper::editList('entity.edit');
-        JToolBarHelper::divider();
-        JToolBarHelper::publishList('entities.publish');
-        JToolBarHelper::unpublishList('entities.unpublish');
-        JToolBarHelper::divider();
-        JToolBarHelper::deleteList(JText::_('COM_MAGICGALLERY_DELETE_ITEMS_QUESTION'), 'entities.delete');
-        JToolBarHelper::divider();
-        JToolBarHelper::custom('entities.backToDashboard', 'dashboard', '', JText::_('COM_MAGICGALLERY_DASHBOARD'), false);
+        JToolbarHelper::title(JText::sprintf('COM_MAGICGALLERY_RESOURCES_TITLE_S', $this->gallery->getTitle()));
+        JToolbarHelper::addNew('entity.add');
+        JToolbarHelper::editList('entity.edit');
+        JToolbarHelper::divider();
+        JToolbarHelper::publishList('entities.publish');
+        JToolbarHelper::unpublishList('entities.unpublish');
+        JToolbarHelper::divider();
+        JToolbarHelper::deleteList(JText::_('COM_MAGICGALLERY_DELETE_ITEMS_QUESTION'), 'entities.delete');
+        JToolbarHelper::divider();
+        JToolbarHelper::custom('entities.backToDashboard', 'dashboard', '', JText::_('COM_MAGICGALLERY_DASHBOARD'), false);
     }
 
     /**
-     * Method to set up the document properties
+     * Method to set up the document properties.
+     *
+     * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function setDocument()
     {
-        $this->document->setTitle(JText::sprintf('COM_MAGICGALLERY_ENTITIES_TITLE_S', $this->gallery->getTitle()));
+        $this->document->setTitle(JText::sprintf('COM_MAGICGALLERY_RESOURCES_TITLE_S', $this->gallery->getTitle()));
 
         // Scripts
         JHtml::_('bootstrap.tooltip');
@@ -144,6 +147,6 @@ class MagicGalleryViewEntities extends JViewLegacy
 
         JHtml::_('magicgallery.lightboxNivo');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . Joomla\String\String::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

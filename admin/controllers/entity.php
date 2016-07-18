@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,11 +13,11 @@ defined('_JEXEC') or die;
 /**
  * Entity controller class.
  *
- * @package        MagicGallery
+ * @package        Magicgallery
  * @subpackage     Components
  * @since          1.6
  */
-class MagicGalleryControllerEntity extends Prism\Controller\Form\Backend
+class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
 {
     /**
      * Proxy method that returns model.
@@ -26,9 +26,9 @@ class MagicGalleryControllerEntity extends Prism\Controller\Form\Backend
      * @param string $prefix
      * @param array  $config
      *
-     * @return MagicGalleryModelEntity
+     * @return MagicgalleryModelEntity
      */
-    public function getModel($name = 'Entity', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Entity', $prefix = 'MagicgalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
         return $model;
@@ -52,7 +52,7 @@ class MagicGalleryControllerEntity extends Prism\Controller\Form\Backend
         );
 
         $model = $this->getModel();
-        /** @var $model MagicGalleryModelEntity */
+        /** @var $model MagicgalleryModelEntity */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */
@@ -88,7 +88,7 @@ class MagicGalleryControllerEntity extends Prism\Controller\Form\Backend
                 $gallery         = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
                 $gallery->load($validData['gallery_id']);
 
-                $mediaFolder     = MagicGalleryHelper::getMediaFolder($params, $gallery);
+                $mediaFolder     = MagicgalleryHelper::getMediaFolder($params, $gallery);
                 if (!$mediaFolder) {
                     throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
                 }
@@ -192,7 +192,7 @@ class MagicGalleryControllerEntity extends Prism\Controller\Form\Backend
                 $gallery         = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
                 $gallery->load($image->getGalleryId());
 
-                $mediaFolder     = MagicGalleryHelper::getMediaFolder($params, $gallery);
+                $mediaFolder     = MagicgalleryHelper::getMediaFolder($params, $gallery);
                 if (!$mediaFolder) {
                     throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
                 }

@@ -1,9 +1,9 @@
 <?php
 /**
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Projects
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
@@ -18,7 +18,7 @@ defined('JPATH_PLATFORM') or die;
 /**
  * This class provide functionality for managing projects.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Projects
  */
 class Galleries extends Prism\Database\ArrayObject
@@ -46,8 +46,11 @@ class Galleries extends Prism\Database\ArrayObject
      * </code>
      *
      * @param array $options
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query
@@ -65,7 +68,6 @@ class Galleries extends Prism\Database\ArrayObject
         // Filter by category ID.
         $categoryId = ArrayHelper::getValue($options, 'category_id');
         if ($categoryId !== null) {
-
             if (is_array($categoryId)) {
                 ArrayHelper::toInteger($categoryId);
                 if (count($categoryId) > 0) {
@@ -128,6 +130,8 @@ class Galleries extends Prism\Database\ArrayObject
      * </code>
      *
      * @param array $ids
+     *
+     * @throws \RuntimeException
      *
      * @return array
      */
@@ -244,7 +248,6 @@ class Galleries extends Prism\Database\ArrayObject
 
             unset($results, $galleryResources);
         }
-
     }
 
     /**
@@ -362,7 +365,7 @@ class Galleries extends Prism\Database\ArrayObject
      * }
      * </code>
      *
-     * @return array
+     * @return bool
      */
     public function provideEntities()
     {

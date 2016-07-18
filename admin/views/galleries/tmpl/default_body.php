@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -19,7 +19,6 @@ defined('_JEXEC') or die;
 			$disabledLabel    = JText::_('JORDERINGDISABLED');
 			$disableClassName = 'inactive tip-top';
 		}
-		
 	?>
 	<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid?>">
 		<td class="order nowrap center hidden-phone">
@@ -42,9 +41,7 @@ defined('_JEXEC') or die;
                 <?php echo JText::sprintf("COM_MAGICGALLERY_ALIAS_S", $this->escape($item->alias)); ?>
             </div>
             <div class="small">
-                <a href="<?php echo JRoute::_("index.php?option=com_magicgallery&view=entities&gid=".(int)$item->id); ?>">
-                <?php echo JText::sprintf("COM_MAGICGALLERY_ENTITIES_S", (isset($this->numberOfResources[$item->id])) ? (int)$this->numberOfResources[$item->id]['number'] : 0); ?>
-                </a>
+                <?php echo JHtml::_("Magicgallery.entities", $this->numberOfResources, $item->id); ?>
             </div>
         </td>
         <td class="nowrap hidden-phone">
@@ -57,4 +54,3 @@ defined('_JEXEC') or die;
         <td class="center hidden-phone"><?php echo (int)$item->id;?></td>
 	</tr>
 <?php }?>
-	  

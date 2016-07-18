@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Categories
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -14,7 +14,7 @@ defined('_JEXEC') or die;
 /**
  * This class provide functionality for managing categories.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Categories
  */
 class Categories extends \JCategories
@@ -40,7 +40,7 @@ class Categories extends \JCategories
      * $categories = new Magicgallery\Category\Categories($options);
      * </code>
      *
-     * @param array  $options
+     * @param array $options
      */
     public function __construct($options = array())
     {
@@ -64,6 +64,7 @@ class Categories extends \JCategories
     public function setDb(\JDatabaseDriver $db)
     {
         $this->db = $db;
+
         return $this;
     }
 
@@ -87,16 +88,18 @@ class Categories extends \JCategories
      * </code>
      *
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load(array $options = array())
     {
-        $offset    = (array_key_exists('offset', $options)) ? (int)$options['offset'] : 0;
-        $limit     = (array_key_exists('limit', $options)) ? (int)$options['limit'] : 0;
-        $orderBy   = (array_key_exists('order_by', $options)) ? $options['order_by'] : 'a.title';
-        $orderDir  = (array_key_exists('order_dir', $options)) ? $options['order_dir'] : 'ASC';
-        $parentId  = (array_key_exists('parent_id', $options)) ? (int)$options['parent_id'] : 0;
+        $offset   = array_key_exists('offset', $options) ? (int)$options['offset'] : 0;
+        $limit    = array_key_exists('limit', $options) ? (int)$options['limit'] : 0;
+        $orderBy  = array_key_exists('order_by', $options) ? $options['order_by'] : 'a.title';
+        $orderDir = array_key_exists('order_dir', $options) ? $options['order_dir'] : 'ASC';
+        $parentId = array_key_exists('parent_id', $options) ? (int)$options['parent_id'] : 0;
 
-        $orderDir = \JString::strtoupper($orderDir);
+        $orderDir = strtoupper($orderDir);
 
         if (!in_array($orderDir, array('ASC', 'DESC'), true)) {
             $orderDir = 'ASC';
@@ -109,10 +112,10 @@ class Categories extends \JCategories
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug'
             )
             ->from($this->db->quoteName('#__categories', 'a'))
-            ->where('a.extension = '. $this->db->quote($this->_extension));
+            ->where('a.extension = ' . $this->db->quote($this->_extension));
 
         if ($parentId > 0) {
-            $query->where('a.parent_id = '. (int)$parentId);
+            $query->where('a.parent_id = ' . (int)$parentId);
         }
 
         $query->order($this->db->quoteName($orderBy) . ' ' . $orderDir);

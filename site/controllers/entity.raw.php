@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,11 +13,11 @@ defined('_JEXEC') or die;
 /**
  * Entity RAW controller class.
  *
- * @package        MagicGallery
+ * @package        Magicgallery
  * @subpackage     Components
  * @since          1.6
  */
-class MagicGalleryControllerEntity extends JControllerLegacy
+class MagicgalleryControllerEntity extends JControllerLegacy
 {
     /**
      * Return the model of the item.
@@ -26,9 +26,9 @@ class MagicGalleryControllerEntity extends JControllerLegacy
      * @param string $prefix
      * @param array  $config
      *
-     * @return MagicGalleryModelEntity
+     * @return MagicgalleryModelEntity
      */
-    public function getModel($name = 'Entity', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Entity', $prefix = 'MagicgalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 

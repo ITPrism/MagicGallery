@@ -1,22 +1,22 @@
 <?php
 /**
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Galleries
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
 namespace Magicgallery\Gallery;
 
-use MagicGallery\Entity\Entity;
+use Magicgallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
  * This class provide functionality for managing Camera.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Galleries
  */
 class Camera extends GalleryAbstract
@@ -46,18 +46,20 @@ class Camera extends GalleryAbstract
      * $gallery->addScriptDeclaration();
      * </code>
      *
+     * @throws \InvalidArgumentException
+     *
      * @return self
      */
     public function addScriptDeclaration()
     {
         \JHtml::_('jquery.framework');
-        \JHtml::_('MagicGallery.camera');
+        \JHtml::_('Magicgallery.camera');
 
         $js = '
 jQuery(document).ready(function() {
         
 	jQuery("#' . $this->selector . '").camera({
-        alignment : "' . $this->options->get('alignment', 'center', $this->alignment) . '",
+        alignment : "' . $this->options->get('alignment', $this->alignment) . '",
         autoAdvance : ' . $this->options->get('auto_advance', $this->auto_advance) . ',
         barDirection : "' . $this->options->get('bar_direction', $this->bar_direction) . '",
         barPosition : "' . $this->options->get('bar_position', $this->bar_position) . '",
@@ -93,12 +95,10 @@ jQuery(document).ready(function() {
         $html = array();
 
         if (count($this->items) > 0) {
-
             $html[] = '<div id="' . $this->selector . '">';
 
             /** @var Gallery $item */
             foreach ($this->items as $item) {
-                
                 if (!$item->getId()) {
                     continue;
                 }
@@ -107,15 +107,13 @@ jQuery(document).ready(function() {
                 $dataLink   = '';
                 $dataTarget = '';
                 if ($this->options->get('linkable', $this->linkable) and $item->getUrl()) {
-
                     $dataLink = ' data-link="' . $item->getUrl() . '"';
 
                     // Set a link target
                     $dataTarget = ' data-target="' . $this->options->get('link_target', '_blank') . '"';
-
                 }
 
-                $media = $item->getDefaultEntity($item->getId());
+                $media = $item->getDefaultEntity();
                 /** @var Entity $media */
 
                 if ($media !== null and ($media instanceof Entity)) {

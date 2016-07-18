@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,10 +13,10 @@ defined('_JEXEC') or die;
 /**
  * Magic Gallery Entities Controller
  *
- * @package     MagicGallery
+ * @package     Magicgallery
  * @subpackage  Components
  */
-class MagicGalleryControllerEntities extends Prism\Controller\Admin
+class MagicgalleryControllerEntities extends Prism\Controller\Admin
 {
     public function __construct($config = array())
     {
@@ -24,7 +24,7 @@ class MagicGalleryControllerEntities extends Prism\Controller\Admin
         $this->registerTask('unsetDefault',	'setDefault');
     }
 
-    public function getModel($name = 'Entity', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Entity', $prefix = 'MagicgalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 

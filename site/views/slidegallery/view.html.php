@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewSlideGallery extends JViewLegacy
+class MagicgalleryViewSlideGallery extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -102,8 +102,8 @@ class MagicGalleryViewSlideGallery extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getCategoryViewRoute('slidegallery', $this->categoryId);
-        $item->image_intro = MagicGalleryHelper::getIntroImage($this->category, $resources, $this->mediaUrl);
+        $item->link        = MagicgalleryHelperRoute::getCategoryViewRoute('slidegallery', $this->categoryId);
+        $item->image_intro = MagicgalleryHelper::getIntroImage($this->category, $resources, $this->mediaUrl);
 
         $this->event                         = new stdClass();
         $results                             = $dispatcher->trigger('onContentBeforeDisplay', array('com_magicgallery.details', &$item, &$this->params, $offset));
@@ -116,7 +116,9 @@ class MagicGalleryViewSlideGallery extends JViewLegacy
     }
 
     /**
-     * Prepares the document
+     * Prepares the document.
+     *
+     * @throws \InvalidArgumentException
      */
     protected function prepareDocument()
     {
@@ -152,9 +154,7 @@ class MagicGalleryViewSlideGallery extends JViewLegacy
             if (!$title) {
                 $title = $app->get('sitename');
             }
-
         } else {
-
             $title = $this->category->getTitle();
 
             if (!$title) {
@@ -164,12 +164,9 @@ class MagicGalleryViewSlideGallery extends JViewLegacy
                 if (!$title) {
                     $title = $app->get('sitename');
                 }
-
             } elseif ($app->get('sitename_pagetitles', 0)) { // Set site name if it is necessary ( the option 'sitename' = 1 )
                 $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-
             }
-
         }
 
         $this->document->setTitle($title);

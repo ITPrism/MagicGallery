@@ -1,9 +1,9 @@
 <?php
 /**
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      SlideGallery
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
@@ -16,7 +16,7 @@ defined('JPATH_PLATFORM') or die;
 /**
  * This class provide functionality for managing Slide Gallery data.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Galleries
  */
 abstract class GalleryAbstract
@@ -39,7 +39,7 @@ abstract class GalleryAbstract
      * Initialize the object.
      *
      * <code>
-     * $gallery = new Magicgallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
      * </code>
      *
      * @param Galleries $items
@@ -57,7 +57,7 @@ abstract class GalleryAbstract
      * Set the element selector.
      *
      * <code>
-     * $gallery = new Magicgallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
      * $gallery->setSelector("#js-selector");
      * </code>
      *
@@ -78,7 +78,7 @@ abstract class GalleryAbstract
      * <code>
      * $mediaPath = "../.../..../";
      *
-     * $gallery = new Magicgallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
      * $gallery->setImagesPath($mediaPath);
      * </code>
      *
@@ -97,7 +97,7 @@ abstract class GalleryAbstract
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new Magicgallery\SlideGallery($items, $params, /JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params, /JFactory::getDocument());
      * $gallery->addScriptDeclaration();
      * </code>
      *
@@ -109,7 +109,7 @@ abstract class GalleryAbstract
      * Generate HTML code displaying thumbnails and images.
      *
      * <code>
-     * $gallery = new Magicgallery\SlideGallery($items, $options, /JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $options, /JFactory::getDocument());
      * $gallery->setSelector("#vp-com-galleria");
      * $gallery->render();
      * </code>

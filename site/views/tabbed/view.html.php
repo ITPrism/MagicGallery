@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewTabbed extends JViewLegacy
+class MagicgalleryViewTabbed extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -87,7 +87,7 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
         $this->galleries = $galleries;
 
-        $this->mediaUrl       = JURI::root() . $this->params->get('media_folder', 'images/magicgallery');
+        $this->mediaUrl       = JUri::root() . $this->params->get('media_folder', 'images/magicgallery');
         $this->activeTab      = $this->params->get('active_tab');
 
         // Open link target
@@ -101,8 +101,8 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getCategoriesViewRoute('tabbed');
-        $item->image_intro = MagicGalleryHelper::getCategoryImage($this->items);
+        $item->link        = MagicgalleryHelperRoute::getCategoriesViewRoute('tabbed');
+        $item->image_intro = MagicgalleryHelper::getCategoryImage($this->items);
 
         JPluginHelper::importPlugin('content');
         $dispatcher  = JEventDispatcher::getInstance();
@@ -120,16 +120,14 @@ class MagicGalleryViewTabbed extends JViewLegacy
     protected function prepareLightBox()
     {
         $this->modal      = $this->params->get('modal');
-        $this->modalClass = MagicGalleryHelper::getModalClass($this->modal);
+        $this->modalClass = MagicgalleryHelper::getModalClass($this->modal);
 
         $this->setLayout($this->modal);
 
         switch ($this->modal) {
-
             case 'fancybox':
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxFancybox');
+                JHtml::_('Magicgallery.lightboxFancybox');
 
                 // Initialize lightbox
                 $js = 'jQuery(document).ready(function(){
@@ -140,9 +138,8 @@ class MagicGalleryViewTabbed extends JViewLegacy
                 break;
 
             case 'nivo': // Joomla! native
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxNivo');
+                JHtml::_('Magicgallery.lightboxNivo');
 
                 // Initialize lightbox
                 $js = '
@@ -156,6 +153,8 @@ class MagicGalleryViewTabbed extends JViewLegacy
 
     /**
      * Prepare the document
+     *
+     * @throws \Exception
      */
     protected function prepareDocument()
     {
@@ -199,6 +198,5 @@ class MagicGalleryViewTabbed extends JViewLegacy
         if ($this->params->get('display_tip', 0)) {
             JHtml::_('bootstrap.tooltip');
         }
-
     }
 }

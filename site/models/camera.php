@@ -1,18 +1,18 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-JLoader::register('MagicGalleryModelList', MAGICGALLERY_PATH_COMPONENT_SITE . '/models/list.php');
+JLoader::register('MagicgalleryModelList', MAGICGALLERY_PATH_COMPONENT_SITE . '/models/list.php');
 
-class MagicGalleryModelCamera extends MagicGalleryModelList
+class MagicgalleryModelCamera extends MagicgalleryModelList
 {
     /**
      * Constructor.

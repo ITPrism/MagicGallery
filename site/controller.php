@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // No direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryController extends JControllerLegacy
+class MagicgalleryController extends JControllerLegacy
 {
     protected $cacheableViews = array('categorylist', 'tabbed', 'list', 'lineal', 'galleria', 'camera', 'slidegallery');
 
@@ -20,7 +20,7 @@ class MagicGalleryController extends JControllerLegacy
      * @param   boolean $cachable  If true, the view output will be cached
      * @param   array   $urlparams An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
      *
-     * @return  JController     This object to support chaining.
+     * @return  MagicgalleryController     This object to support chaining.
      * @since   1.5
      */
     public function display($cachable = false, $urlparams = array())

@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 /**
  * It is Magic Gallery helper class
  */
-class MagicGalleryHelper
+class MagicgalleryHelper
 {
     public static $extension = 'com_magicgallery';
 
@@ -43,7 +43,6 @@ class MagicGalleryHelper
             'index.php?option=' . self::$extension . '&view=galleries',
             $vName === 'galleries'
         );
-
     }
 
     /**
@@ -61,11 +60,9 @@ class MagicGalleryHelper
 
         $image = null;
         if (!$category->getImage() and 0 < count($resources)) {
-
             $image = reset($resources);
             
             if (!empty($image)) {
-
                 if ($image->getThumbnail()) {
                     $image = $mediaFolder . '/' . $image->getThumbnail();
                 } else {
@@ -74,7 +71,6 @@ class MagicGalleryHelper
             }
 
         } else {
-
             if ($category->getImage() and (0 !== strpos($category->getImage(), 'http'))) {
                 $image = $uri->toString(array('scheme', 'host')) . '/' . $category->getImage();
             } else {
@@ -88,7 +84,6 @@ class MagicGalleryHelper
     public static function getModalClass($modal)
     {
         switch ($modal) {
-
             case 'nivo':
                 $class = 'js-com-nivo-modal';
                 break;
@@ -140,6 +135,7 @@ class MagicGalleryHelper
      * @param Joomla\Registry\Registry $params
      * @param null|Magicgallery\Gallery\Gallery $gallery
      *
+     * @throws \UnexpectedValueException
      * @return null|string
      */
     public static function getMediaFolder($params, $gallery = null)

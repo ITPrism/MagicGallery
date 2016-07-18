@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewGallery extends JViewLegacy
+class MagicgalleryViewGallery extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -31,14 +31,10 @@ class MagicGalleryViewGallery extends JViewLegacy
 
     protected $extraImages;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get('option');
-    }
-
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
@@ -58,21 +54,23 @@ class MagicGalleryViewGallery extends JViewLegacy
         $isNew               = ($this->item->id === 0);
         $this->documentTitle = $isNew ? JText::_('COM_MAGICGALLERY_GALLERY_ADD') : JText::_('COM_MAGICGALLERY_GALLERY_EDIT');
 
-        JToolBarHelper::title($this->documentTitle);
+        JToolbarHelper::title($this->documentTitle);
 
-        JToolBarHelper::apply('gallery.apply');
-        JToolBarHelper::save2new('gallery.save2new');
-        JToolBarHelper::save('gallery.save');
+        JToolbarHelper::apply('gallery.apply');
+        JToolbarHelper::save2new('gallery.save2new');
+        JToolbarHelper::save('gallery.save');
 
         if (!$isNew) {
-            JToolBarHelper::cancel('gallery.cancel', 'JTOOLBAR_CANCEL');
+            JToolbarHelper::cancel('gallery.cancel', 'JTOOLBAR_CANCEL');
         } else {
-            JToolBarHelper::cancel('gallery.cancel', 'JTOOLBAR_CLOSE');
+            JToolbarHelper::cancel('gallery.cancel', 'JTOOLBAR_CLOSE');
         }
     }
 
     /**
      * Method to set up the document properties
+     *
+     * @throws \InvalidArgumentException
      *
      * @return void
      */
@@ -87,6 +85,6 @@ class MagicGalleryViewGallery extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . Joomla\String\String::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

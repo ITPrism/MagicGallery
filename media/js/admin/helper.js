@@ -1,4 +1,4 @@
-var MagicGalleryHelper = {
+var MagicgalleryHelper = {
     loadStyleFile: function(file, myCodeMirror) {
 
         jQuery.ajax({
@@ -19,7 +19,7 @@ var MagicGalleryHelper = {
                     var response = jQuery.parseJSON(responseText);
 
                     if(response && !response.success) {
-                        MagicGalleryHelper.displayMessageFailure(response.title, response.text);
+                        MagicgalleryHelper.displayMessageFailure(response.title, response.text);
                         return;
                     }
 

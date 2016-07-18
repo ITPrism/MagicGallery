@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewDashboard extends JViewLegacy
+class MagicgalleryViewDashboard extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -28,31 +28,28 @@ class MagicGalleryViewDashboard extends JViewLegacy
 
     protected $version;
     protected $prismVersion;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
+    protected $prismVersionLowerMessage;
 
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->version = new Magicgallery\Version();
 
         // Load ITPrism library version
-        if (!class_exists("Prism\\Version")) {
-            $this->prismVersion = JText::_("COM_MAGICGALLERY_PRISM_LIBRARY_DOWNLOAD");
+        if (!class_exists('Prism\\Version')) {
+            $this->prismVersion = JText::_('COM_MAGICGALLERY_PRISM_LIBRARY_DOWNLOAD');
         } else {
             $prismVersion       = new Prism\Version();
             $this->prismVersion = $prismVersion->getShortVersion();
 
-            if (version_compare($this->prismVersion, $this->version->requiredPrismVersion, "<")) {
-                $this->prismVersionLowerMessage = JText::_("COM_MAGICGALLERY_PRISM_LIBRARY_LOWER_VERSION");
+            if (version_compare($this->prismVersion, $this->version->requiredPrismVersion, '<')) {
+                $this->prismVersionLowerMessage = JText::_('COM_MAGICGALLERY_PRISM_LIBRARY_LOWER_VERSION');
             }
         }
 
         // Add submenu
-        MagicGalleryHelper::addSubmenu($this->getName());
+        MagicgalleryHelper::addSubmenu($this->getName());
 
         $this->addToolbar();
         $this->addSidebar();
@@ -68,13 +65,13 @@ class MagicGalleryViewDashboard extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JToolBarHelper::title(JText::_("COM_MAGICGALLERY_DASHBOARD"));
+        JToolbarHelper::title(JText::_("COM_MAGICGALLERY_DASHBOARD"));
 
-        JToolBarHelper::preferences('com_magicgallery');
-        JToolBarHelper::divider();
+        JToolbarHelper::preferences('com_magicgallery');
+        JToolbarHelper::divider();
 
         // Help button
-        $bar = JToolBar::getInstance('toolbar');
+        $bar = JToolbar::getInstance('toolbar');
         $bar->appendButton('Link', 'help', JText::_('JHELP'), JText::_('COM_MAGICGALLERY_HELP_URL'));
     }
 

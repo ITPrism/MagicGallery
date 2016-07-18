@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Galleries
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
 /**
  * This class contains methods that are used for managing a gallery.
  *
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Galleries
  */
 class Gallery extends Prism\Database\Table
@@ -57,8 +57,11 @@ class Gallery extends Prism\Database\Table
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 
@@ -620,6 +623,9 @@ class Gallery extends Prism\Database\Table
      * $image = $gallery->getDefaultEntity();
      * </code>
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
      * @return Entity\Entities
      */
     public function getDefaultEntity()
@@ -648,6 +654,9 @@ class Gallery extends Prism\Database\Table
      *
      * $items = $gallery->getEntities();
      * </code>
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @return Entity\Entities
      */

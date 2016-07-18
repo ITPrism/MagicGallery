@@ -1,20 +1,20 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Version
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace MagicGallery;
+namespace Magicgallery;
 
 defined('JPATH_BASE') or die;
 
 /**
  * Magic Gallery version class
  *
- * @package     MagicGallery
+ * @package     Magicgallery
  * @subpackage  Version
  */
 class Version
@@ -38,7 +38,7 @@ class Version
      *
      * @var integer
      */
-    public $devLevel = '1';
+    public $devLevel = '2';
 
     /**
      * Release Type
@@ -59,7 +59,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '31 October, 2015';
+    public $releaseDate = '17 July, 2016';
 
     /**
      * License
@@ -73,7 +73,7 @@ class Version
      *
      * @var string
      */
-    public $copyright = '&copy; 2015 ITPrism. All rights reserved.';
+    public $copyright = '&copy; 2016 ITPrism. All rights reserved.';
 
     /**
      * URL
@@ -101,7 +101,7 @@ class Version
      *
      * @var string
      */
-    public $requiredPrismVersion = '1.8';
+    public $requiredPrismVersion = '1.14';
 
     /**
      *  Build long format of the version text.

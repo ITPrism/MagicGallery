@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -19,11 +19,11 @@ jimport('Magicgallery.init');
  * Use router ...BuildRoute to build a link
  *
  * @static
- * @package        MagicGallery
+ * @package        Magicgallery
  * @subpackage     Components
  * @since          1.5
  */
-abstract class MagicGalleryHelperRoute
+abstract class MagicgalleryHelperRoute
 {
     protected static $lookup;
 
@@ -44,7 +44,7 @@ abstract class MagicGalleryHelperRoute
             $category = $catid;
         } else {
             $id       = (int)$catid;
-            $category = JCategories::getInstance('MagicGallery')->get($id);
+            $category = JCategories::getInstance('Magicgallery')->get($id);
         }
 
         if ($id < 1) {
@@ -101,7 +101,7 @@ abstract class MagicGalleryHelperRoute
             $category = $catid;
         } else {
             $id       = (int)$catid;
-            $category = JCategories::getInstance('MagicGallery')->get($id);
+            $category = JCategories::getInstance('Magicgallery')->get($id);
         }
 
         if ($id < 1) {
@@ -241,7 +241,7 @@ abstract class MagicGalleryHelperRoute
 
     /**
      * Prepare categories path to the segments.
-     * We use this method in the router "MagicGalleryParseRoute".
+     * We use this method in the router "MagicgalleryParseRoute".
      *
      * @param integer $categoryId Category Id
      * @param array   $segments
@@ -258,7 +258,7 @@ abstract class MagicGalleryHelperRoute
             $menuCategoryId = 0;
         }
 
-        $categories = Magicgallery\Category\Categories::getInstance('MagicGallery');
+        $categories = Magicgallery\Category\Categories::getInstance('Magicgallery');
         $category   = $categories->get($categoryId);
 
         if (!$category) {

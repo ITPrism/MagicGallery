@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -21,7 +21,7 @@ defined('_JEXEC') or die;
 
 <?php foreach ($this->items as $item) { ?>
     <div class="col-xs-6 col-md-4">
-        <a class="thumbnail" href="<?php echo JRoute::_(MagicGalleryHelperRoute::getCategoryViewRoute($this->projectsView, $item->slug)); ?>">
+        <a class="thumbnail" href="<?php echo JRoute::_(MagicgalleryHelperRoute::getCategoryViewRoute($this->projectsView, $item->slug)); ?>">
             <?php if (!empty($item->image)) { ?>
                 <img src="<?php echo JUri::root() . $item->image; ?>" alt="<?php echo $this->escape($item->title); ?>"/>
             <?php } else { ?>

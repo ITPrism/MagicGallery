@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,13 +13,13 @@ defined('_JEXEC') or die;
 /**
  * Gallery controller class.
  *
- * @package        MagicGallery
+ * @package        Magicgallery
  * @subpackage     Components
  * @since          1.6
  */
-class MagicGalleryControllerGallery extends Prism\Controller\Form\Backend
+class MagicgalleryControllerGallery extends Prism\Controller\Form\Backend
 {
-    public function getModel($name = 'Gallery', $prefix = 'MagicGalleryModel', $config = array('ignore_request' => true))
+    public function getModel($name = 'Gallery', $prefix = 'MagicgalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 
@@ -44,7 +44,7 @@ class MagicGalleryControllerGallery extends Prism\Controller\Form\Backend
         );
 
         $model = $this->getModel();
-        /** @var $model MagicGalleryModelGallery */
+        /** @var $model MagicgalleryModelGallery */
 
         $form = $model->getForm($data, false);
         /** @var $form JForm */

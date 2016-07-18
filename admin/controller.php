@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,29 +13,21 @@ defined('_JEXEC') or die;
 /**
  * Main controller
  *
- * @package        MagicGallery
+ * @package        Magicgallery
  * @subpackage     Components
  */
-class MagicGalleryController extends JControllerLegacy
+class MagicgalleryController extends JControllerLegacy
 {
-    protected $option;
-
-    public function __construct($config = array())
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->getCmd("option");
-    }
-
     public function display($cachable = false, $urlparams = false)
     {
         $document = JFactory::getDocument();
         /** @var $document JDocumentHtml */
 
         // Add component style
-        $document->addStyleSheet('../media/' . $this->option . '/css/backend.style.css');
+        $document->addStyleSheet('../media/com_magicgallery/css/backend.style.css');
 
-        $viewName = JFactory::getApplication()->input->getCmd('view', 'dashboard');
-        JFactory::getApplication()->input->set("view", $viewName);
+        $viewName = $this->input->getCmd('view', 'dashboard');
+        $this->input->set('view', $viewName);
 
         parent::display();
 

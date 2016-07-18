@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -27,7 +27,7 @@ foreach ($this->items as $item) {
             <?php
             /** @var Magicgallery\Gallery\Gallery $gallery */
             foreach ($this->galleries[$item->id] as $gallery) {
-                $projectDescriptionClean = Joomla\String\String::trim(strip_tags($gallery->getDescription()));
+                $projectDescriptionClean = trim(strip_tags($gallery->getDescription()));
 
                 if (!empty($projectDescriptionClean) and $this->params->get("description_max_charts", 0)) {
                     $projectDescriptionClean = JHtmlString::truncate($projectDescriptionClean, $this->params->get("description_max_charts"));
@@ -38,7 +38,8 @@ foreach ($this->items as $item) {
                     $titleClean = JHtmlString::truncate($titleClean, $this->params->get("title_max_charts"));
                 }
 
-                $defaultResource = $gallery->getDefaultItem();
+                $defaultResource = $gallery->getDefaultEntity();
+                /** @var Magicgallery\Entity\Entity $defaultResource */
                 ?>
 
                 <?php if ($defaultResource and $defaultResource->getThumbnail()) { ?>
@@ -63,7 +64,7 @@ foreach ($this->items as $item) {
                         </h3>
                     <?php } ?>
 
-                    <?php if ($this->params->get("display_description", 0) AND !empty($projectDescriptionClean)) { ?>
+                    <?php if ($this->params->get("display_description", 0) and !empty($projectDescriptionClean)) { ?>
                         <p><?php echo $this->escape($projectDescriptionClean); ?></p>
                     <?php } ?>
 

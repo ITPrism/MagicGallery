@@ -1,22 +1,22 @@
 <?php
 /**
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Galleries
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
 namespace Magicgallery\Gallery;
 
-use MagicGallery\Entity\Entity;
+use Magicgallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
  * This class provide functionality for managing Gallery.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Galleries
  */
 class Galleria extends GalleryAbstract
@@ -34,7 +34,7 @@ class Galleria extends GalleryAbstract
     public function addScriptDeclaration()
     {
         \JHtml::_('jquery.framework');
-        \JHtml::_('MagicGallery.galleria');
+        \JHtml::_('Magicgallery.galleria');
 
         $js = '
         jQuery(document).ready(function() {
@@ -69,17 +69,15 @@ class Galleria extends GalleryAbstract
         $html = array();
 
         if (count($this->items) > 0) {
-
             $html[] = '<div id="' . $this->selector . '">';
 
             /** @var Gallery $item */
             foreach ($this->items as $item) {
-
                 if (!$item->getId()) {
                     continue;
                 }
 
-                $media = $item->getDefaultEntity($item->getId());
+                $media = $item->getDefaultEntity();
                 /** @var Entity $media */
 
                 if ($media !== null and ($media instanceof Entity)) {
@@ -110,11 +108,9 @@ class Galleria extends GalleryAbstract
         $html = array();
 
         if (count($this->items) > 0) {
-
             $html[] = '<div id="' . $this->selector . '">';
 
             foreach ($this->items as $item) {
-
                 if (!$item->getId()) {
                     continue;
                 }

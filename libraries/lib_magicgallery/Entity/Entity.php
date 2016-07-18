@@ -1,25 +1,26 @@
 <?php
 /**
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Entities
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
 namespace Magicgallery\Entity;
 
-use Prism;
+use Prism\Database;
+use Prism\Constants;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
  * This class provide functionality for managing an entity.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Entities
  */
-class Entity extends Prism\Database\Table
+class Entity extends Database\Table
 {
     protected $id;
     protected $title;
@@ -55,8 +56,10 @@ class Entity extends Prism\Database\Table
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 
@@ -167,14 +170,14 @@ class Entity extends Prism\Database\Table
             ->select('COUNT(*)')
             ->from($this->db->quoteName('#__magicgallery_entities'))
             ->where($this->db->quoteName('gallery_id') .'='.(int)$this->gallery_id)
-            ->where($this->db->quoteName('home') .' = '. (int)Prism\Constants::STATE_DEFAULT);
+            ->where($this->db->quoteName('home') .' = '. (int)Constants::STATE_DEFAULT);
 
         $this->db->setQuery($query, 0, 1);
         $hasDefault = (bool)$this->db->loadResult();
 
         // If there is no default entity, set this as default one.
         if (!$hasDefault) {
-            $this->home = Prism\Constants::STATE_DEFAULT;
+            $this->home = Constants::STATE_DEFAULT;
         }
 
         $query       = $this->db->getQuery(true);
@@ -217,6 +220,10 @@ class Entity extends Prism\Database\Table
      *
      * @param string  $type
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     *
      * @return self
      */
     public function removeImage($type)
@@ -226,11 +233,8 @@ class Entity extends Prism\Database\Table
         }
 
         if ((int)$this->id > 0) {
-
             switch ($type) {
-
                 case 'thumbnail':
-
                     // Remove an image from the filesystem
                     $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->thumbnail);
                     if (\JFile::exists($file)) {
@@ -250,7 +254,6 @@ class Entity extends Prism\Database\Table
                     break;
 
                 case 'image':
-
                     // Remove an image from the filesystem
                     $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->image);
                     if (\JFile::exists($file)) {
@@ -287,6 +290,9 @@ class Entity extends Prism\Database\Table
      * $item->remove();
      * </code>
      *
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
      * @return self
      */
     public function remove()
@@ -296,7 +302,6 @@ class Entity extends Prism\Database\Table
         }
 
         if ($this->id > 0) {
-
             // Remove the thumbnail from the filesystem.
             $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->thumbnail);
             if (\JFile::exists($file)) {
@@ -339,18 +344,19 @@ class Entity extends Prism\Database\Table
      *
      * @param int $state State : 1 = default; 0 = not default;
      *
+     * @throws \RuntimeException
+     *
      * @return self
      */
     public function changeDefaultState($state)
     {
         if ((int)$this->id > 0) {
-
             // Reset the states of all entities.
-            if ((int)$state === Prism\Constants::STATE_DEFAULT) {
+            if ((int)$state === Constants::STATE_DEFAULT) {
                 $query = $this->db->getQuery(true);
                 $query
                     ->update($this->db->quoteName('#__magicgallery_entities'))
-                    ->set($this->db->quoteName('home') . ' = ' . (int)Prism\Constants::STATE_NOT_DEFAULT)
+                    ->set($this->db->quoteName('home') . ' = ' . (int)Constants::STATE_NOT_DEFAULT)
                     ->where($this->db->quoteName('gallery_id') . ' = ' . (int)$this->gallery_id);
 
                 $this->db->setQuery($query);
@@ -486,7 +492,7 @@ class Entity extends Prism\Database\Table
      */
     public function isDefault()
     {
-        return ((int)$this->home === Prism\Constants::STATE_DEFAULT);
+        return ((int)$this->home === Constants::STATE_DEFAULT);
     }
 
     /**
@@ -507,7 +513,7 @@ class Entity extends Prism\Database\Table
      */
     public function isPublished()
     {
-        return ((int)$this->published === Prism\Constants::PUBLISHED);
+        return ((int)$this->published === Constants::PUBLISHED);
     }
 
     /**
@@ -612,6 +618,6 @@ class Entity extends Prism\Database\Table
      */
     public function __toString()
     {
-        return (\JString::strlen($this->thumbnail) > 0) ? (string)$this->thumbnail : (string)$this->image;
+        return (strlen($this->thumbnail) > 0) ? (string)$this->thumbnail : (string)$this->image;
     }
 }

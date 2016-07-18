@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewLineal extends JViewLegacy
+class MagicgalleryViewLineal extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -109,7 +109,7 @@ class MagicGalleryViewLineal extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getGalleryViewRoute('lineal', $this->item->id, $this->categoryId, $offset);
+        $item->link        = MagicgalleryHelperRoute::getGalleryViewRoute('lineal', $this->item->id, $this->categoryId, $offset);
         $item->image_intro = ($this->defaultImage instanceof Magicgallery\Entity\Entity) ? $this->mediaUrl . $this->defaultImage->getThumbnail() : null;
 
         JPluginHelper::importPlugin('content');
@@ -131,14 +131,12 @@ class MagicGalleryViewLineal extends JViewLegacy
     protected function prepareLightBox()
     {
         $this->modal      = $this->params->get('modal');
-        $this->modalClass = MagicGalleryHelper::getModalClass($this->modal);
+        $this->modalClass = MagicgalleryHelper::getModalClass($this->modal);
 
         switch ($this->modal) {
-
             case 'fancybox':
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxFancybox');
+                JHtml::_('Magicgallery.lightboxFancybox');
 
                 $js = 'jQuery(document).ready(function(){
                         jQuery(".' . $this->modalClass . '").fancybox();
@@ -148,9 +146,8 @@ class MagicGalleryViewLineal extends JViewLegacy
                 break;
 
             case 'nivo': // Joomla! native
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxNivo');
+                JHtml::_('Magicgallery.lightboxNivo');
 
                 $js = '
                 jQuery(document).ready(function(){
@@ -160,9 +157,8 @@ class MagicGalleryViewLineal extends JViewLegacy
                 break;
 
             case 'magnific': // Joomla! native
-
                 JHtml::_('jquery.framework');
-                JHtml::_('MagicGallery.lightboxMagnific');
+                JHtml::_('Magicgallery.lightboxMagnific');
 
                 $js = '
                 jQuery(document).ready(function(){
@@ -176,9 +172,7 @@ class MagicGalleryViewLineal extends JViewLegacy
                 $this->document->addScriptDeclaration($js);
                 break;
         }
-
     }
-
 
     /**
      * Prepares the document
@@ -217,9 +211,7 @@ class MagicGalleryViewLineal extends JViewLegacy
             if (!$title) {
                 $title = $app->get('sitename');
             }
-
         } else {
-
             $title = $this->item->title;
 
             if (!$title) {
@@ -229,11 +221,9 @@ class MagicGalleryViewLineal extends JViewLegacy
                 if (!$title) {
                     $title = $app->get('sitename');
                 }
-
             } elseif ($app->get('sitename_pagetitles', 0)) { // Set site name if it is necessary ( the option 'sitename' = 1 )
                 $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
             }
-
         }
 
         // Add category name to page title.
@@ -261,9 +251,10 @@ class MagicGalleryViewLineal extends JViewLegacy
         // Add the category name into breadcrumbs
         $pathway = $app->getPathway();
         if ($this->params->get('category_breadcrumbs') and ($this->category !== null)) {
-            $categoryLink = JRoute::_(MagicGalleryHelperRoute::getCategoryViewRoute('lineal', $this->categoryId));
+            $categoryLink = JRoute::_(MagicgalleryHelperRoute::getCategoryViewRoute('lineal', $this->categoryId));
             $pathway->addItem($this->category->getTitle(), $categoryLink);
         }
+
         $pathway->addItem($this->item->title);
     }
 }

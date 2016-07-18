@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,11 +13,11 @@ defined('_JEXEC') or die;
 /**
  * Magic Gallery Html Helper
  *
- * @package        MagicGallery
+ * @package        Magicgallery
  * @subpackage     Components
  * @since          1.6
  */
-abstract class JHtmlMagicGallery
+abstract class JHtmlMagicgallery
 {
     protected static $extension = 'com_magicgallery';
 
@@ -32,7 +32,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.lightboxNivo');
+     * JHtml::_('Magicgallery.lightboxNivo');
      * </code>
      *
      * @link http://docs.dev7studios.com/jquery-plugins/nivo-lightbox
@@ -46,8 +46,8 @@ abstract class JHtmlMagicGallery
 
         $document = JFactory::getDocument();
 
-        $document->addStylesheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/nivo-lightbox.css');
-        $document->addStylesheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/themes/default/default.css');
+        $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/nivo-lightbox.css');
+        $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/themes/default/default.css');
         $document->addScript(JUri::root() . 'media/' . self::$extension . '/js/nivo/nivo-lightbox.min.js');
 
         self::$loaded[__METHOD__] = true;
@@ -59,7 +59,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('MagicGallery.ui.lightboxFancybox');
+     * JHtml::_('Magicgallery.ui.lightboxFancybox');
      * </code>
      *
      * @link http://fancyapps.com/fancybox/ FancyBox documentation
@@ -85,7 +85,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('MagicGallery.ui.lightboxMagnific');
+     * JHtml::_('Magicgallery.ui.lightboxMagnific');
      * </code>
      *
      * @link http://dimsemenov.com/plugins/magnific-popup/ Magnific documentation
@@ -111,7 +111,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.galleria');
+     * JHtml::_('Magicgallery.galleria');
      * </code>
      *
      * @link https://github.com/duncanmcdougall/Responsive-Lightbox
@@ -139,7 +139,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.camera');
+     * JHtml::_('Magicgallery.camera');
      * </code>
      *
      * @link http://www.pixedelic.com/plugins/camera/
@@ -166,7 +166,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.slidejs');
+     * JHtml::_('Magicgallery.slidejs');
      * </code>
      *
      * @link http://slidesjs.com/
@@ -193,7 +193,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.fileSize', $params);
+     * JHtml::_('Magicgallery.fileSize', $params);
      * </code>
      *
      * @param array $params
@@ -230,7 +230,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.imageSize', $params);
+     * JHtml::_('Magicgallery.imageSize', $params);
      * </code>
      *
      * @param array $params
@@ -254,12 +254,42 @@ abstract class JHtmlMagicGallery
     }
 
     /**
+     * Display the image size.
+     *
+     * <code>
+     * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
+     *
+     * JHtml::_('Magicgallery.imageSize', $params);
+     * </code>
+     *
+     * @param array $numberOfResources
+     * @param int $itemId
+     *
+     * @return string
+     */
+    public static function entities($numberOfResources, $itemId)
+    {
+        $number = array_key_exists($itemId, $numberOfResources) ? (int)$numberOfResources[$itemId]['number'] : 0;
+
+        $output   = array();
+        $output[] = '<a href="'.JRoute::_('index.php?option=com_magicgallery&view=entities&gid='.(int)$itemId). '" >';
+        $output[] = JText::sprintf('COM_MAGICGALLERY_RESOURCES_S', $number);
+        $output[] = '</a>';
+
+        if (!$number) {
+            $output[] = '<a href="'.JRoute::_('index.php?option=com_magicgallery&view=entity&layout=edit').'" class="btn btn-success btn-mini"><i class="icon icon-new"></i> ' .JText::sprintf('COM_MAGICGALLERY_ADD_RESOURCE', $number) . '</a>';
+        }
+
+        return implode("\n", $output);
+    }
+    
+    /**
      * Display the image mime type.
      *
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.mimeType', $params);
+     * JHtml::_('Magicgallery.mimeType', $params);
      * </code>
      *
      * @param array $params
@@ -283,7 +313,7 @@ abstract class JHtmlMagicGallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('MagicGallery.fileInfo', $params);
+     * JHtml::_('Magicgallery.fileInfo', $params);
      * </code>
      *
      * @param array $params

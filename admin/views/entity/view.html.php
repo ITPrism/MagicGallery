@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewEntity extends JViewLegacy
+class MagicgalleryViewEntity extends JViewLegacy
 {
     /**
      * @var JApplicationAdministrator
@@ -54,7 +54,7 @@ class MagicGalleryViewEntity extends JViewLegacy
         $this->gallery    = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
         $this->gallery->load($this->galleryId);
 
-        $this->mediaUri   = MagicGalleryHelper::getMediaUri($this->params, $this->gallery);
+        $this->mediaUri   = MagicgalleryHelper::getMediaUri($this->params, $this->gallery);
         if (!$this->mediaUri) {
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
         }
@@ -77,23 +77,25 @@ class MagicGalleryViewEntity extends JViewLegacy
         $this->app->input->set('hidemainmenu', true);
 
         $isNew               = ((int)$this->item->id === 0);
-        $this->documentTitle = $isNew ? JText::_('COM_MAGICGALLERY_ENTITY_ADD') : JText::_('COM_MAGICGALLERY_ENTITY_EDIT');
+        $this->documentTitle = $isNew ? JText::_('COM_MAGICGALLERY_RESOURCE_ADD') : JText::_('COM_MAGICGALLERY_RESOURCE_EDIT');
 
-        JToolBarHelper::title($this->documentTitle);
+        JToolbarHelper::title($this->documentTitle);
 
-        JToolBarHelper::apply('entity.apply');
-        JToolBarHelper::save2new('entity.save2new');
-        JToolBarHelper::save('entity.save');
+        JToolbarHelper::apply('entity.apply');
+        JToolbarHelper::save2new('entity.save2new');
+        JToolbarHelper::save('entity.save');
 
         if (!$isNew) {
-            JToolBarHelper::cancel('entity.cancel', 'JTOOLBAR_CANCEL');
+            JToolbarHelper::cancel('entity.cancel', 'JTOOLBAR_CANCEL');
         } else {
-            JToolBarHelper::cancel('entity.cancel', 'JTOOLBAR_CLOSE');
+            JToolbarHelper::cancel('entity.cancel', 'JTOOLBAR_CLOSE');
         }
     }
 
     /**
      * Method to set up the document properties
+     *
+     * @throws \InvalidArgumentException
      *
      * @return void
      */
@@ -114,6 +116,6 @@ class MagicGalleryViewEntity extends JViewLegacy
 
         JHtml::_('Prism.ui.bootstrap2FileInput');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . Joomla\String\String::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

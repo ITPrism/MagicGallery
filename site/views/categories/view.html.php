@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewCategories extends JViewLegacy
+class MagicgalleryViewCategories extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -74,8 +74,8 @@ class MagicGalleryViewCategories extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicGalleryHelperRoute::getCategoriesViewRoute('categories');
-        $item->image_intro = MagicGalleryHelper::getCategoryImage($this->items);
+        $item->link        = MagicgalleryHelperRoute::getCategoriesViewRoute('categories');
+        $item->image_intro = MagicgalleryHelper::getCategoryImage($this->items);
 
         $this->event                         = new stdClass();
         $results                             = $dispatcher->trigger('onContentBeforeDisplay', array('com_magicgallery.details', &$item, &$this->params, $offset));

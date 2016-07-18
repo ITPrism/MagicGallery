@@ -1,6 +1,6 @@
 Magic Gallery for Joomla!
 ==========================
-( Version 1.1 )
+( Version 1.2 )
 - - - 
 
 This is a Joomla! extension that provides functionality for creating and managing interactive galleries and portfolio views. 

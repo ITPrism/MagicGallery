@@ -1,15 +1,15 @@
 <?php
 /**
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Resources
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
 namespace Magicgallery\Entity;
 
-use Prism;
+use Prism\Database\Collection;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -17,10 +17,10 @@ defined('JPATH_PLATFORM') or die;
 /**
  * This class provide functionality for managing entities.
  *
- * @package         MagicGallery
+ * @package         Magicgallery
  * @subpackage      Entities
  */
-class Entities extends Prism\Database\ArrayObject
+class Entities extends Collection
 {
     protected $defaultEntity;
 
@@ -43,8 +43,11 @@ class Entities extends Prism\Database\ArrayObject
      * </code>
      *
      * @param array $options
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query
@@ -92,7 +95,7 @@ class Entities extends Prism\Database\ArrayObject
 
     /**
      * Return the default item for a gallery.
-     * 
+     *
      * <code>
      * $options  = array(
      *     "gallery_id" => 1,
@@ -101,10 +104,10 @@ class Entities extends Prism\Database\ArrayObject
      *
      * $items   = new Magicgallery\Entity\Entities(\JFactory::getDbo());
      * $items->load($options);
-     * 
+     *
      * $defaultResource = $items->getDefaultEntity();
      * </code>
-     * 
+     *
      * @return Resource
      */
     public function getDefaultEntity()

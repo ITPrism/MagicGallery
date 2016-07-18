@@ -1,16 +1,16 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class MagicGalleryViewGalleries extends JViewLegacy
+class MagicgalleryViewGalleries extends JViewLegacy
 {
     /**
      * @var JDocumentHtml
@@ -41,26 +41,22 @@ class MagicGalleryViewGalleries extends JViewLegacy
 
     protected $sidebar;
     protected $numberOfResources = array();
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get('option');
-    }
-
+    
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+        
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        if (!empty($this->items)) {
+        if (is_array($this->items) and count($this->items) > 0) {
             $ids = array();
             foreach ($this->items as $item) {
                 $ids[] = $item->id;
             }
 
-            Joomla\Utilities\ArrayHelper::toInteger($ids);
+            $ids = Joomla\Utilities\ArrayHelper::toInteger($ids);
             $galleries = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
             $this->numberOfResources = $galleries->countEntities($ids);
         }
@@ -99,7 +95,7 @@ class MagicGalleryViewGalleries extends JViewLegacy
      */
     protected function addSidebar()
     {
-        MagicGalleryHelper::addSubmenu($this->getName());
+        MagicgalleryHelper::addSubmenu($this->getName());
         $this->sidebar = JHtmlSidebar::render();
     }
 
@@ -111,20 +107,23 @@ class MagicGalleryViewGalleries extends JViewLegacy
     protected function addToolbar()
     {
         // Set toolbar items for the page
-        JToolBarHelper::title(JText::_('COM_MAGICGALLERY_GALLERIES'));
-        JToolBarHelper::addNew('gallery.add');
-        JToolBarHelper::editList('gallery.edit');
-        JToolBarHelper::divider();
-        JToolBarHelper::publishList('galleries.publish');
-        JToolBarHelper::unpublishList('galleries.unpublish');
-        JToolBarHelper::divider();
-        JToolBarHelper::deleteList(JText::_('COM_MAGICGALLERY_DELETE_ITEMS_QUESTION'), 'galleries.delete');
-        JToolBarHelper::divider();
-        JToolBarHelper::custom('galleries.backToDashboard', 'dashboard', '', JText::_('COM_MAGICGALLERY_DASHBOARD'), false);
+        JToolbarHelper::title(JText::_('COM_MAGICGALLERY_GALLERIES'));
+        JToolbarHelper::addNew('gallery.add');
+        JToolbarHelper::editList('gallery.edit');
+        JToolbarHelper::divider();
+        JToolbarHelper::publishList('galleries.publish');
+        JToolbarHelper::unpublishList('galleries.unpublish');
+        JToolbarHelper::divider();
+        JToolbarHelper::deleteList(JText::_('COM_MAGICGALLERY_DELETE_ITEMS_QUESTION'), 'galleries.delete');
+        JToolbarHelper::divider();
+        JToolbarHelper::custom('galleries.backToDashboard', 'dashboard', '', JText::_('COM_MAGICGALLERY_DASHBOARD'), false);
     }
 
     /**
      * Method to set up the document properties
+     *
+     * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function setDocument()

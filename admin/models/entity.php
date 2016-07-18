@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2014 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 /**
  * It is a item model.
  */
-class MagicGalleryModelEntity extends JModelAdmin
+class MagicgalleryModelEntity extends JModelAdmin
 {
     /**
      * Returns a reference to the a Table object, always creating it.
@@ -25,7 +25,7 @@ class MagicGalleryModelEntity extends JModelAdmin
      * @return  JTable  A database object
      * @since   1.6
      */
-    public function getTable($type = 'Entity', $prefix = 'MagicGalleryTable', $config = array())
+    public function getTable($type = 'Entity', $prefix = 'MagicgalleryTable', $config = array())
     {
         return JTable::getInstance($type, $prefix, $config);
     }

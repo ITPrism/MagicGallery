@@ -1,9 +1,9 @@
 <?php
 /**
- * @package      MagicGallery
+ * @package      Magicgallery
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -42,8 +42,7 @@ defined('_JEXEC') or die;
                 <div class="mg-additional-images">
                     <?php
                         $i = 0;
-                        foreach ($images as $image) {
-                            ?>
+                        foreach ($images as $image) {?>
                             <a href="<?php echo $this->mediaUrl . "/". $image['image'];?>" <?php echo $this->openLink;?> >
                                 <img
                                     width="<?php echo $this->params->get('additional_images_thumb_width', 50); ?>"

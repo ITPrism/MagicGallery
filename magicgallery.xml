@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="3.4" method="upgrade">
+<extension type="component" version="3.6" method="upgrade">
 	<name>com_magicgallery</name>
 	<author>Todor Iliev</author>
 	<authorEmail>todor@itprism.com</authorEmail>
 	<authorUrl>http://itprism.com</authorUrl>
-	<copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
-	<license>http://www.gnu.org/copyleft/gpl.html</license>
-	<version>1.1</version>
-	<creationDate>31 October, 2015</creationDate>
+	<copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
+	<license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
+	<version>1.2</version>
+	<creationDate>17 July, 2016</creationDate>
 	<description><![CDATA[
     <p><a href="http://extensions.joomla.org/extensions/extension/directory-a-documentation/portfolio/vip-portfolio" target="_blank">Magic Gallery</a> helps you to create your portfolio ang galleries easily. It is a good way to show your work, and excellent way to sell your skills.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
-    <p>Please, <a href="http://extensions.joomla.org/extensions/directory-a-documentation/portfolio/7863" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
+    <p>Please, <a href="#" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
     ]]></description>
 
 	<install>
