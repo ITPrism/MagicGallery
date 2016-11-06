@@ -58,7 +58,7 @@ class MagicgalleryViewGalleries extends JViewLegacy
 
             $ids = Joomla\Utilities\ArrayHelper::toInteger($ids);
             $galleries = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
-            $this->numberOfResources = $galleries->countEntities($ids);
+            $this->numberOfResources = $galleries->countResources($ids);
         }
 
         // Prepare sorting data

@@ -9,6 +9,7 @@
 
 namespace Magicgallery\Gallery;
 
+use Magicgallery\Entity\Entities;
 use Magicgallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
@@ -23,7 +24,6 @@ class Camera extends GalleryAbstract
 {
     protected $linkable = 0;
     protected $link_target = '_blank';
-
     protected $alignment = 'center';
     protected $auto_advance = 1;
     protected $bar_direction = 'leftToRight';
@@ -43,14 +43,18 @@ class Camera extends GalleryAbstract
      *
      * <code>
      * $gallery = new Magicgallery\Gallery\Camera($items, $params, \JFactory::getDocument());
-     * $gallery->addScriptDeclaration();
+     * $js = $this->gallery
+     *            ->setSelector('js-mg-com-camera')
+     *            ->prepareScriptDeclaration();
+     *
+     * $this->document->addScriptDeclaration($js);
      * </code>
      *
      * @throws \InvalidArgumentException
      *
-     * @return self
+     * @return string
      */
-    public function addScriptDeclaration()
+    public function prepareScriptDeclaration()
     {
         \JHtml::_('jquery.framework');
         \JHtml::_('Magicgallery.camera');
@@ -75,9 +79,8 @@ jQuery(document).ready(function() {
     });
         
 });';
-        $this->document->addScriptDeclaration($js);
 
-        return $this;
+        return $js;
     }
 
     /**
@@ -88,42 +91,42 @@ jQuery(document).ready(function() {
      * echo $gallery->render();
      * </code>
      *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
      * @return string
      */
     public function render()
     {
         $html = array();
 
-        if (count($this->items) > 0) {
+        if ($this->gallery !== null) {
             $html[] = '<div id="' . $this->selector . '">';
 
-            /** @var Gallery $item */
-            foreach ($this->items as $item) {
-                if (!$item->getId()) {
+            $resources = $this->gallery->getEntities();
+            foreach ($resources as $resource) {
+                if ($resource === null or !$resource->id) {
                     continue;
                 }
 
                 // Set a link
                 $dataLink   = '';
                 $dataTarget = '';
-                if ($this->options->get('linkable', $this->linkable) and $item->getUrl()) {
-                    $dataLink = ' data-link="' . $item->getUrl() . '"';
+                if ($this->options->get('linkable', $this->linkable) and $this->gallery->getMediaUri()) {
+                    $dataLink = ' data-link="' . $this->gallery->getMediaUri() . '"';
 
                     // Set a link target
                     $dataTarget = ' data-target="' . $this->options->get('link_target', '_blank') . '"';
                 }
 
-                $media = $item->getDefaultEntity();
-                /** @var Entity $media */
-
-                if ($media !== null and ($media instanceof Entity)) {
-                    // Set thumbnails
+                if (!empty($resource->image)) {
+                    // Prepare thumbnail.
                     $dataThumb = '';
-                    if ($this->options->get('thumbnails', $this->thumbnails) and $media->getThumbnail()) {
-                        $dataThumb = ' data-thumb="' . $this->mediaPath . '/' . $media->getThumbnail() . '"';
+                    if ($this->options->get('thumbnails', $this->thumbnails) and !empty($resource->thumbnail)) {
+                        $dataThumb = ' data-thumb="' . $this->gallery->getMediaUri() . '/' . $resource->thumbnail . '"';
                     }
 
-                    $html[] = '<div data-src="' . $this->mediaPath . '/' . $media->getImage() . '" ' . $dataLink . $dataTarget . $dataThumb . '></div>';
+                    $html[] = '<div data-src="' . $this->gallery->getMediaUri() . '/' . $resource->image . '" ' . $dataLink . $dataTarget . $dataThumb . '></div>';
                 }
             }
             $html[] = '</div>';

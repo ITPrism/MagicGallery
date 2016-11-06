@@ -21,7 +21,7 @@ if ($this->params->get('display_category_description', 0) and !empty($this->cate
 
 echo (!empty($this->event->onContentBeforeDisplay) ) ? $this->event->onContentBeforeDisplay : '';
 
-if ($this->items->provideEntities()) {
+if ($this->gallery !== null) {
     switch ($this->params->get('renderer', 'thumbs_images')) {
         case 'images':
             echo $this->gallery->renderOnlyImages();

@@ -23,10 +23,8 @@ abstract class GalleryAbstract
 {
     protected static $loaded = false;
 
-    protected $items;
-    protected $mediaPath;
+    protected $gallery;
     protected $selector;
-    protected $document;
 
     /**
      * The gallery options.
@@ -39,25 +37,23 @@ abstract class GalleryAbstract
      * Initialize the object.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\Gallery\SlideGallery($item, $params);
      * </code>
      *
-     * @param Galleries $items
+     * @param Gallery $gallery
      * @param Registry $options
-     * @param \JDocument $document
      */
-    public function __construct(Galleries $items, $options = null, \JDocument $document = null)
+    public function __construct(Gallery $gallery, Registry $options)
     {
-        $this->items    = $items;
-        $this->options  = ($options instanceof Registry) ? $options : new Registry;
-        $this->document = $document;
+        $this->gallery  = $gallery;
+        $this->options  = $options;
     }
 
     /**
      * Set the element selector.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
+     * $gallery = new Magicgallery\Gallery\SlideGallery($item, $params);
      * $gallery->setSelector("#js-selector");
      * </code>
      *
@@ -73,43 +69,24 @@ abstract class GalleryAbstract
     }
 
     /**
-     * Set a path to the pictures.
-     *
-     * <code>
-     * $mediaPath = "../.../..../";
-     *
-     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
-     * $gallery->setImagesPath($mediaPath);
-     * </code>
-     *
-     * @param string  $mediaPath
-     *
-     * @return self
-     */
-    public function setMediaPath($mediaPath)
-    {
-        $this->mediaPath = $mediaPath;
-
-        return $this;
-    }
-
-    /**
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params, /JFactory::getDocument());
-     * $gallery->addScriptDeclaration();
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $options);
+     * $js = $gallery->prepareScriptDeclaration();
+     *
+     * $document->addScriptDeclaration($js);
      * </code>
      *
      * @return self
      */
-    abstract public function addScriptDeclaration();
+    abstract public function prepareScriptDeclaration();
 
     /**
      * Generate HTML code displaying thumbnails and images.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $options, /JFactory::getDocument());
+     * $gallery = new Magicgallery\Gallery\SlideGallery($item, $options);
      * $gallery->setSelector("#vp-com-galleria");
      * $gallery->render();
      * </code>

@@ -7,23 +7,15 @@
     </layout>
 
     <!-- Add fields to the request variables for the layout. -->
-    <fields name="request">
-        <fieldset name="request" >
-        
-           <field name="id" type="category"
-               label="COM_MAGICGALLERY_CATEGORY"
-               description="COM_MAGICGALLERY_VIEW_SELECT_CATEGORY_DESC"
-               extension="com_magicgallery"
-               required="true"
-           />
-            
+    <fields name="request" addfieldpath="/administrator/components/com_magicgallery/models/fields">
+        <fieldset name="request">
+           <field name="id" type="mggallery" label="COM_MAGICGALLERY_GALLERY" description="COM_MAGICGALLERY_FIELD_GALLERY_DESC" required="true" published="1"/>
         </fieldset>
     </fields>
 
     <!-- Add fields to the parameters object for the layout. -->
     <fields name="params">
         <fieldset name="basic">
-        
             <field name="renderer" type="list" default="thumbs_images" label="COM_MAGICGALLERY_DISPLAY_IMAGES" description="COM_MAGICGALLERY_DISPLAY_IMAGES_DESC" >
                 <option value="thumbs_images">COM_MAGICGALLERY_THUMB_AND_IMAGES</option>
                 <option value="images">COM_MAGICGALLERY_ONLY_IMAGES</option>
@@ -48,7 +40,6 @@
             </field>
 
             <field name="height" type="text" default="0.5625" label="COM_MAGICGALLERY_HEIGHT" description="COM_MAGICGALLERY_HEIGHT_DESC" />
-
         </fieldset>
     </fields>
 </metadata>

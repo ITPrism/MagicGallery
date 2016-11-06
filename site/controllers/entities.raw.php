@@ -64,7 +64,6 @@ class MagicgalleryControllerEntities extends JControllerLegacy
         }
 
         $entityId   = $this->input->post->getInt('entity_id');
-
         $objectId   = $this->input->post->getInt('object_id');
         $categoryId = $this->input->post->getInt('category_id');
         $extension  = $this->input->post->getCmd('extension');
@@ -90,18 +89,10 @@ class MagicgalleryControllerEntities extends JControllerLegacy
             $app->close();
         }
 
-        // Magic Gallery global options.
-        $params = JComponentHelper::getParams('com_magicgallery');
-
-        $mediaFolder = MagicgalleryHelper::getMediaFolder($params, $gallery);
-
         try {
-
-            // Get the model
-            $this->getModel()->remove($entityId, $gallery, $mediaFolder);
-
+            $this->getModel()->remove($entityId, $gallery);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_magicgallery');
             $response
                 ->setTitle(JText::_('COM_MAGICGALLERY_FAIL'))
                 ->setText(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'))
@@ -118,6 +109,6 @@ class MagicgalleryControllerEntities extends JControllerLegacy
             ->success();
 
         echo $response;
-        JFactory::getApplication()->close();
+        $app->close();
     }
 }

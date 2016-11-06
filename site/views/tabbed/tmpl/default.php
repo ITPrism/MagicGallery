@@ -18,13 +18,17 @@ defined('_JEXEC') or die;
 <?php echo (!empty($this->event->onContentBeforeDisplay) ) ? $this->event->onContentBeforeDisplay : '';?>
 
 <?php
-switch($this->modal) {
+switch ($this->modal) {
     case 'fancybox':
         echo $this->loadTemplate('fancybox');
         break;
 
     case 'nivo': // Nivo modal
         echo $this->loadTemplate('nivo');
+        break;
+
+    case 'swipebox':
+        echo $this->loadTemplate('swipebox');
         break;
 
     default:

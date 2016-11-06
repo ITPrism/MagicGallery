@@ -41,7 +41,7 @@ class MagicgalleryViewLineal extends JViewLegacy
 
     protected $categoryId;
     protected $item;
-    protected $images;
+    protected $resources;
     protected $mediaUrl;
     protected $openLink;
     protected $modal;
@@ -50,7 +50,7 @@ class MagicgalleryViewLineal extends JViewLegacy
     /**
      * @var Magicgallery\Entity\Entity
      */
-    protected $defaultImage;
+    protected $defaultResource;
 
     public function display($tpl = null)
     {
@@ -75,31 +75,48 @@ class MagicgalleryViewLineal extends JViewLegacy
 
         // Initialise variables
         $this->state      = $this->get('State');
-        $this->items      = $this->get('Items');
+//        $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
         $this->params     = $this->state->get('params');
         /** @var  $params Joomla\Registry\Registry */
 
-        $this->item = array_shift($this->items);
+        $options  = array(
+            'category_id'    => $this->category->getId(),
+            'gallery_state'  => Prism\Constants::PUBLISHED,
+            'load_resources' => true,
+            'resource_state' => Prism\Constants::PUBLISHED,
+            'start'          => $this->state->get('list.start', 0),
+            'limit'          => $this->state->get('list.limit', 1)
+        );
 
+        $this->items      = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
+        $this->items->load($options);
+
+        $filesystemHelper = new Prism\Filesystem\Helper($this->params);
+        $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+
+        // Prepare the resources that will be used to generate an intro image.
+        $helperBus      = new Prism\Helper\HelperBus($this->items);
+        $helperBus->addCommand(new Magicgallery\Helper\PrepareGalleriesUriHelper($pathHelper));
+        $helperBus->handle();
+
+        $this->item = $this->items->getFirst();
         if (!$this->item) {
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_GALLERY'));
         }
 
-        $options = array(
-            'gallery_id' => $this->item->id,
-            'published' => Prism\Constants::PUBLISHED
-        );
-        $this->images = new Magicgallery\Entity\Entities(JFactory::getDbo());
-        $this->images->load($options);
+        // Get the default resource.
+        $this->defaultResource = null;
+        if (property_exists($this->item, 'entities') and ($this->item->entities instanceof \Magicgallery\Entity\Entities)) {
+            $entities = $this->item->entities;
+            /** @var \Magicgallery\Entity\Entities $entities */
 
-        $this->defaultImage = $this->images->getDefaultEntity();
+            $this->defaultResource = $entities->getDefaultEntity();
+        }
 
         // Open link target
         $this->openLink = 'target="' . $this->params->get('lineal_open_link', '_self') . '"';
-
-        $this->mediaUrl = JUri::root() . $this->params->get('media_folder', 'images/magicgallery') . '/';
 
         $this->prepareLightBox();
         $this->prepareDocument();
@@ -110,7 +127,7 @@ class MagicgalleryViewLineal extends JViewLegacy
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
         $item->link        = MagicgalleryHelperRoute::getGalleryViewRoute('lineal', $this->item->id, $this->categoryId, $offset);
-        $item->image_intro = ($this->defaultImage instanceof Magicgallery\Entity\Entity) ? $this->mediaUrl . $this->defaultImage->getThumbnail() : null;
+        $item->image_intro = ($this->defaultResource !== null) ? $this->item->media_uri .'/'. $this->defaultResource->getThumbnail() : null;
 
         JPluginHelper::importPlugin('content');
         $dispatcher  = JEventDispatcher::getInstance();
@@ -133,9 +150,10 @@ class MagicgalleryViewLineal extends JViewLegacy
         $this->modal      = $this->params->get('modal');
         $this->modalClass = MagicgalleryHelper::getModalClass($this->modal);
 
+        JHtml::_('jquery.framework');
+
         switch ($this->modal) {
             case 'fancybox':
-                JHtml::_('jquery.framework');
                 JHtml::_('Magicgallery.lightboxFancybox');
 
                 $js = 'jQuery(document).ready(function(){
@@ -146,7 +164,6 @@ class MagicgalleryViewLineal extends JViewLegacy
                 break;
 
             case 'nivo': // Joomla! native
-                JHtml::_('jquery.framework');
                 JHtml::_('Magicgallery.lightboxNivo');
 
                 $js = '
@@ -157,7 +174,6 @@ class MagicgalleryViewLineal extends JViewLegacy
                 break;
 
             case 'magnific': // Joomla! native
-                JHtml::_('jquery.framework');
                 JHtml::_('Magicgallery.lightboxMagnific');
 
                 $js = '
@@ -168,6 +184,16 @@ class MagicgalleryViewLineal extends JViewLegacy
                             enabled: true
                           }
                     });
+                });';
+                $this->document->addScriptDeclaration($js);
+                break;
+            case 'swipebox': // Joomla! native
+                JHtml::_('Magicgallery.lightboxSwipebox');
+
+                // Initialize lightbox
+                $js = '
+                jQuery(document).ready(function(){
+                    jQuery(".' . $this->modalClass . '").swipebox();
                 });';
                 $this->document->addScriptDeclaration($js);
                 break;

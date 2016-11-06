@@ -42,7 +42,7 @@ class Category extends Prism\Database\TableImmutable
      * $category->load($categoryId);
      * </code>
      *
-     * @param int|array $keys
+     * @param int||array $keys
      * @param array $options
      *
      * @throws \RuntimeException

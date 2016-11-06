@@ -27,7 +27,9 @@ class MagicgalleryModelEntities extends JModelList
                 'id', 'a.id',
                 'title', 'a.title',
                 'published', 'a.published',
-                'ordering', 'a.ordering'
+                'ordering', 'a.ordering',
+                'image_filesize', 'a.image_filesize',
+                'thumbnail_filesize', 'a.thumbnail_filesize',
             );
         }
 
@@ -95,8 +97,8 @@ class MagicgalleryModelEntities extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.description, a.image, a.thumbnail, ' .
-                'a.home, a.gallery_id, a.published, a.ordering'
+                'a.id, a.title, a.description, a.image, a.thumbnail, a.thumbnail_filesize, a.image_filesize, ' .
+                'a.image_meta, a.thumbnail_meta, a.home, a.gallery_id, a.published, a.ordering'
             )
         );
 

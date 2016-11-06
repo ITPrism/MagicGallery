@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // No direct access
 defined('_JEXEC') or die;
 
@@ -43,7 +45,7 @@ class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
 
         // Gets the data from the form
         $data   = $app->input->post->get('jform', array(), 'array');
-        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
+        $itemId = ArrayHelper::getValue($data, 'id', 0, 'int');
 
         // Redirect options
         $redirectOptions = array(
@@ -71,49 +73,64 @@ class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
         }
 
         try {
-
             // Get image
             $thumbFile = $app->input->files->get('jform', array(), 'array');
-            $thumbFile = Joomla\Utilities\ArrayHelper::getValue($thumbFile, 'thumbnail');
+            $thumbFile = ArrayHelper::getValue($thumbFile, 'thumbnail');
 
             $imageFile = $app->input->files->get('jform', array(), 'array');
-            $imageFile = Joomla\Utilities\ArrayHelper::getValue($imageFile, 'image');
+            $imageFile = ArrayHelper::getValue($imageFile, 'image');
 
             // Upload image
             if (!empty($imageFile['name']) or !empty($thumbFile['name'])) {
-
                 // Magic Gallery global options.
-                $params          = JComponentHelper::getParams('com_magicgallery');
+                $params              = JComponentHelper::getParams('com_magicgallery');
 
-                $gallery         = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
+                $gallery             = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
                 $gallery->load($validData['gallery_id']);
 
-                $mediaFolder     = MagicgalleryHelper::getMediaFolder($params, $gallery);
+                $filesystemHelper    = new Prism\Filesystem\Helper($params);
+                
+                // Get media folder from gallery options.
+                $pathHelper          = new Magicgallery\Helper\Path($filesystemHelper);
+                $mediaFolder         = $pathHelper->getMediaFolder($gallery);
                 if (!$mediaFolder) {
-                    throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
+                    throw new RuntimeException(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
                 }
 
-                $mediaFolder = JPath::clean(JPATH_ROOT . '/' . $mediaFolder);
+                // Prepare temporary filesystem.
+                $temporaryFolder     = JPath::clean($app->get('tmp_path'));
+                $temporaryAdapter    = new League\Flysystem\Adapter\Local($temporaryFolder);
+                $temporaryFilesystem = new League\Flysystem\Filesystem($temporaryAdapter);
 
-                // Get image options.
-                $options = Joomla\Utilities\ArrayHelper::getValue($validData, 'resize', array(), 'array');
+                // Prepare storage filesystem.
+                $storageFilesystem   = $filesystemHelper->getFilesystem();
+
+                $filesystemManager = new League\Flysystem\MountManager([
+                    'temporary' => $temporaryFilesystem,
+                    'storage'   => $storageFilesystem
+                ]);
+
+                // Get resize options.
+                $options     = ArrayHelper::getValue($validData, 'resize', array(), 'array');
 
                 // Set option states.
-                $resizeImage = Joomla\Utilities\ArrayHelper::getValue($options, 'resize_image', 0, 'int');
+                $resizeImage = ArrayHelper::getValue($options, 'resize_image', Prism\Constants::NO, 'int');
                 $app->setUserState($this->option . '.gallery.resize_image', $resizeImage);
-                $app->setUserState($this->option . '.gallery.image_width', Joomla\Utilities\ArrayHelper::getValue($options, 'image_width'));
-                $app->setUserState($this->option . '.gallery.image_height', Joomla\Utilities\ArrayHelper::getValue($options, 'image_height'));
-                $app->setUserState($this->option . '.gallery.image_scale', Joomla\Utilities\ArrayHelper::getValue($options, 'image_scale', \JImage::SCALE_INSIDE));
+                $app->setUserState($this->option . '.gallery.image_width', ArrayHelper::getValue($options, 'image_width'));
+                $app->setUserState($this->option . '.gallery.image_height', ArrayHelper::getValue($options, 'image_height'));
+                $app->setUserState($this->option . '.gallery.image_scale', ArrayHelper::getValue($options, 'image_scale', \JImage::SCALE_INSIDE));
+                $app->setUserState($this->option . '.gallery.image_quality', ArrayHelper::getValue($options, 'image_quality', 80));
 
-                $app->setUserState($this->option . '.gallery.create_thumb', Joomla\Utilities\ArrayHelper::getValue($options, 'create_thumb', 0, 'int'));
-                $app->setUserState($this->option . '.gallery.thumb_width', Joomla\Utilities\ArrayHelper::getValue($options, 'thumb_width', 200));
-                $app->setUserState($this->option . '.gallery.thumb_height', Joomla\Utilities\ArrayHelper::getValue($options, 'thumb_width', 200));
-                $app->setUserState($this->option . '.gallery.thumb_scale', Joomla\Utilities\ArrayHelper::getValue($options, 'thumb_width', \JImage::SCALE_INSIDE));
+                $app->setUserState($this->option . '.gallery.create_thumb', ArrayHelper::getValue($options, 'create_thumb', Prism\Constants::NO, 'int'));
+                $app->setUserState($this->option . '.gallery.thumb_width', ArrayHelper::getValue($options, 'thumb_width', 200));
+                $app->setUserState($this->option . '.gallery.thumb_height', ArrayHelper::getValue($options, 'thumb_width', 200));
+                $app->setUserState($this->option . '.gallery.thumb_scale', ArrayHelper::getValue($options, 'thumb_width', \JImage::SCALE_INSIDE));
+                $app->setUserState($this->option . '.gallery.thumb_quality', ArrayHelper::getValue($options, 'thumb_quality', 80));
 
                 $uploadOptions = array(
                     'path' => array(
-                        'temporary_folder' => JPath::clean($app->get('tmp_path')),
-                        'media_folder'     => $mediaFolder
+                        'temporary_folder' => $temporaryFolder, // Full path to temporary folder.
+                        'media_folder'     => $mediaFolder // Relative path to media folder.
                     ),
                     'validation' => array(
                         'content_length'   => (int)$app->input->server->get('CONTENT_LENGTH'),
@@ -128,8 +145,7 @@ class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
 
                 // Upload image
                 if (!empty($imageFile['name'])) {
-
-                    $result = $model->uploadImage($imageFile, $uploadOptions);
+                    $result = $model->uploadImage($imageFile, $uploadOptions, $filesystemManager);
 
                     if (count($result) > 0) {
                         $validData = array_merge($validData, $result);
@@ -138,11 +154,10 @@ class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
 
                 // Upload thumbnail
                 if (!empty($thumbFile['name']) and empty($validData['thumbnail'])) {
-
-                    $result = $model->uploadThumbnail($thumbFile, $uploadOptions);
+                    $result = $model->uploadThumbnail($thumbFile, $uploadOptions, $filesystemManager);
 
                     if (count($result) > 0) {
-                        $validData['thumbnail'] = $result['filename'];
+                        $validData['thumbnail'] = $result;
                     }
                 }
 
@@ -156,8 +171,7 @@ class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_magicgallery');
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'));
         }
 
@@ -182,33 +196,48 @@ class MagicgalleryControllerEntity extends Prism\Controller\Form\Backend
         );
 
         try {
-
             $image = new Magicgallery\Entity\Entity(JFactory::getDbo());
             $image->load($itemId);
 
             if ($image->getId()) {
-                $params = JComponentHelper::getParams('com_magicgallery');
-
+                jimport('Prism.libs.Flysystem.init');
+                jimport('Prism.libs.Aws.init');
+                jimport('Prism.libs.GuzzleHttp.init');
+                
                 $gallery         = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
                 $gallery->load($image->getGalleryId());
 
-                $mediaFolder     = MagicgalleryHelper::getMediaFolder($params, $gallery);
+                $params              = JComponentHelper::getParams('com_magicgallery');
+                $filesystemHelper    = new Prism\Filesystem\Helper($params);
+
+                // Get media folder from gallery options.
+                $pathHelper          = new Magicgallery\Helper\Path($filesystemHelper);
+                $mediaFolder         = $pathHelper->getMediaFolder($gallery);
                 if (!$mediaFolder) {
-                    throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
+                    throw new RuntimeException(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
                 }
 
-                $mediaFolder = JPath::clean(JPATH_ROOT . '/' . $mediaFolder);
+                // Prepare storage filesystem.
+                $storageFilesystem   = $filesystemHelper->getFilesystem();
 
-                $image->setMediaFolder($mediaFolder);
+                // Remove the file from storage.
+                $filename  = (strcmp('image', $type) === 0) ? $image->getImage() : $image->getThumbnail();
+                $filepath  = JPath::clean($mediaFolder .'/'. $filename, '/');
+
+                if ($storageFilesystem->has($filepath)) {
+                    $storageFilesystem->delete($filepath);
+                }
+
+                // Remove the record of the file.
                 $image->removeImage($type);
             }
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_magicgallery');
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'));
         }
 
-        // Display message
+        // Display message.
         if (strcmp('thumb', $type) === 0) {
             $msg = JText::_('COM_MAGICGALLERY_THUMB_DELETED');
         } else {

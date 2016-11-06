@@ -28,9 +28,9 @@ class MagicgalleryViewGalleria extends JViewLegacy
     protected $state;
 
     /**
-     * @var Magicgallery\Gallery\Galleries
+     * @var Magicgallery\Gallery\Gallery
      */
-    protected $items;
+    protected $item;
 
     protected $pagination;
 
@@ -38,12 +38,7 @@ class MagicgalleryViewGalleria extends JViewLegacy
     protected $option;
     protected $pageclass_sfx;
 
-    /**
-     * @var Magicgallery\Category\Category
-     */
-    protected $category;
-
-    protected $categoryId;
+    protected $galleryId;
     protected $gallery;
     protected $mediaUrl;
 
@@ -55,17 +50,9 @@ class MagicgalleryViewGalleria extends JViewLegacy
         $this->option = $app->input->get('option');
         
         // Check for valid category
-        $this->categoryId = $app->input->getInt('id');
-        $this->category   = null;
-
-        if ($this->categoryId > 0) {
-            $this->category = new Magicgallery\Category\Category(JFactory::getDbo());
-            $this->category->load($this->categoryId);
-
-            // Checking for published category
-            if (!$this->category->getId() or !$this->category->isPublished()) {
-                throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_CATEGORY_DOES_NOT_EXIST'));
-            }
+        $this->galleryId = $app->input->getInt('id');
+        if (!$this->galleryId) {
+            throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_GALLERY_DOES_NOT_EXIST'));
         }
 
         // Initialise variables
@@ -73,20 +60,19 @@ class MagicgalleryViewGalleria extends JViewLegacy
         $this->params = $app->getParams();
 
         $options  = array(
-            'category_id'    => $this->category->getId(),
-            'gallery_state'  => Prism\Constants::PUBLISHED,
-            'load_entities'  => true,
-            'entity_state'   => Prism\Constants::PUBLISHED
+            'load_resources'  => true,
+            'resource_state'  => Prism\Constants::PUBLISHED
         );
 
-        $this->items  = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
-        $this->items->load($options);
+        $this->item  = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
+        $this->item->load($this->galleryId, $options);
 
-        $gallery   = $this->items->getFirst();
-        $resources = ($gallery !== null and ($gallery instanceof Magicgallery\Gallery\Gallery)) ? $gallery->getEntities() : null;
+        // Prepare the parameters of the galleries.
+        $filesystemHelper = new Prism\Filesystem\Helper($this->params);
+        $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+        $mediaUri         = $pathHelper->getMediaUri($this->item);
 
-        // Prepare the path to media files;
-        $this->mediaUrl = JUri::root() . $this->params->get('media_folder', 'images/magicgallery');
+        $this->item->setMediaUri($mediaUri);
 
         $this->prepareDocument();
 
@@ -97,8 +83,8 @@ class MagicgalleryViewGalleria extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicgalleryHelperRoute::getCategoryViewRoute('galleria', $this->categoryId);
-        $item->image_intro = MagicgalleryHelper::getIntroImage($this->category, $resources, $this->mediaUrl);
+        $item->link        = MagicgalleryHelperRoute::getGalleryViewRoute('galleria', $this->item->getCatSlug(), $this->item->getSlug());
+        $item->image_intro = MagicgalleryHelper::getIntroImage($this->item);
 
         $this->event                         = new stdClass();
         $results                             = $dispatcher->trigger('onContentBeforeDisplay', array('com_magicgallery.details', &$item, &$this->params, $offset));
@@ -128,8 +114,8 @@ class MagicgalleryViewGalleria extends JViewLegacy
 
         // Set page heading
         if (!$this->params->get('page_heading')) {
-            if ($this->category !== null) {
-                $this->params->def('page_heading', $this->category->getTitle());
+            if ($this->item !== null) {
+                $this->params->def('page_heading', $this->item->getTitle());
             } else {
                 if ($menu) {
                     $this->params->def('page_heading', $menu->title);
@@ -140,7 +126,7 @@ class MagicgalleryViewGalleria extends JViewLegacy
         }
 
         // Set page title
-        if (!$this->category) { // Uncategorised
+        if (!$this->item) { // Uncategorised
             // Get title from the page title option
             $title = $this->params->get('page_title');
 
@@ -148,7 +134,7 @@ class MagicgalleryViewGalleria extends JViewLegacy
                 $title = $app->get('sitename');
             }
         } else {
-            $title = $this->category->getTitle();
+            $title = $this->item->getTitle();
 
             if (!$title) {
                 // Get title from the page title option
@@ -165,33 +151,34 @@ class MagicgalleryViewGalleria extends JViewLegacy
         $this->document->setTitle($title);
 
         // Meta Description
-        if (!$this->category) { // Uncategorised
+        if (!$this->item) { // Uncategorised
             $this->document->setDescription($this->params->get('menu-meta_description'));
         } else {
-            $this->document->setDescription($this->category->getMetaDescription());
+            $this->document->setDescription($this->item->getMetaDescription());
         }
 
         // Meta keywords
-        if (!$this->category) { // Uncategorised
-            $this->document->setDescription($this->params->get('menu-meta_keywords'));
+        if (!$this->item) { // Uncategorised
+            $this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
         } else {
-            $this->document->setMetaData('keywords', $this->category->getMetaKeywords());
+            $this->document->setMetaData('keywords', $this->item->getMetaKeywords());
         }
 
         // Add the category name into breadcrumbs
-        if ($this->params->get('category_breadcrumbs') and ($this->category !== null)) {
+        /*if ($this->params->get('category_breadcrumbs') and ($this->category !== null)) {
             $pathway = $app->getPathway();
             $pathway->addItem($this->category->getTitle());
-        }
+        }*/
 
         // Prepare the gallery.
-        if ($this->items->provideEntities()) {
-            $this->gallery = new Magicgallery\Gallery\Galleria($this->items, $this->params, $this->document);
+        if ($this->item->getId() > 0) {
+            $this->gallery = new Magicgallery\Gallery\Galleria($this->item, $this->params);
 
-            $this->gallery
-                ->setMediaPath($this->mediaUrl)
+            $js = $this->gallery
                 ->setSelector('js-mg-com-galleria')
-                ->addScriptDeclaration();
+                ->prepareScriptDeclaration();
+
+            $this->document->addScriptDeclaration($js);
         }
     }
 }

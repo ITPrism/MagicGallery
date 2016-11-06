@@ -20,8 +20,7 @@ defined('_JEXEC') or die;
 			$disableClassName = 'inactive tip-top';
 		}
 
-    $itemParams = (!empty($item->params)) ? json_decode($item->params, true) : array();
-    $previewImage = (!empty($item->thumbnail)) ? $item->thumbnail : $item->image;
+    $previewImage = !empty($item->thumbnail) ? $item->thumbnail : $item->image;
 	?>
 	<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->id?>">
 		<td class="order nowrap center hidden-phone">
@@ -43,23 +42,23 @@ defined('_JEXEC') or die;
         </td>
         <td class="nowrap hidden-phone">
             <?php if(!empty($previewImage)) { ?>
-            <a href="<?php echo $this->mediaUri . $item->image; ?>" title="<?php echo $this->escape($item->title); ?>" class="lightbox" data-lightbox-gallery="gallery<?php echo (int)$item->gallery_id; ?>">
-                <img src="<?php echo $this->mediaUri . $previewImage; ?>" width="50" height="50"/>
+            <a href="<?php echo $this->mediaUri .'/'. $item->image; ?>" title="<?php echo $this->escape($item->title); ?>" class="lightbox" data-lightbox-gallery="gallery<?php echo (int)$item->gallery_id; ?>">
+                <img src="<?php echo $this->mediaUri .'/'. $previewImage; ?>" width="50" height="50"/>
             </a>
             <?php } ?>
         </td>
         <td class="nowrap hidden-phone">
             <?php
             echo $this->escape($item->image);
-            $imageParams = (!empty($itemParams['image'])) ? $itemParams['image'] : array();
-            echo JHtml::_('Magicgallery.fileInfo', $imageParams);
+            echo JHtml::_('Magicgallery.fileInfo', $item->image_filesize, $item->image_meta);
+            echo JHtml::_('Magicgallery.filesize', $item->image_filesize);
             ?>
         </td>
         <td class="nowrap hidden-phone">
             <?php
             echo $this->escape($item->thumbnail);
-            $imageParams = (!empty($itemParams['thumbnail'])) ? $itemParams['thumbnail'] : array();
-            echo JHtml::_('Magicgallery.fileInfo', $imageParams);
+            echo JHtml::_('Magicgallery.fileInfo', $item->thumbnail_filesize, $item->thumbnail_meta);
+            echo JHtml::_('Magicgallery.filesize', $item->thumbnail_filesize);
             ?>
         </td>
         <td class="nowrap center hidden-phone">
@@ -68,4 +67,3 @@ defined('_JEXEC') or die;
         <td class="center hidden-phone"><?php echo (int)$item->id;?></td>
 	</tr>
 <?php }?>
-	  

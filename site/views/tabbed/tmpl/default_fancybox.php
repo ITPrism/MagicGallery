@@ -9,77 +9,72 @@
 
 // no direct access
 defined('_JEXEC') or die;
+/**
+ * @var stdClass $resource
+ * @var Magicgallery\Gallery\Gallery $gallery
+ * @var array $galleries
+ */
 ?>
 <?php
-$classes = array("pull-center");
-if ($this->params->get("display_tip", 0)) {
-    $classes[] = "hasTooltip";
+$classes = array('pull-center');
+if ($this->params->get('display_tip', 0)) {
+    $classes[] = 'hasTooltip';
 }
 
 echo JHtml::_('Prism.ui.bootstrap3StartTabSet', 'js-mg-com-tabbed', array('active' => $this->activeTab));
 $i = 1;
-foreach ($this->items as $item) {
+foreach ($this->items as $gallery) {
+    echo JHtml::_('Prism.ui.bootstrap3AddTab', 'js-mg-com-tabbed', $gallery->getAlias(), $gallery->getTitle());
+    ?>
+    <div class='row'>
+        <?php
+        $resources = $gallery->getEntities();
+        foreach ($resources as $resource) {
+            $projectDescriptionClean = trim(strip_tags($resource->description));
 
-    if (isset($this->galleries[$item->id])) {
-        echo JHtml::_('Prism.ui.bootstrap3AddTab', "js-mg-com-tabbed", $item->alias, $item->title);
-        ?>
-        <div class="row">
-            <?php
-            /** @var Magicgallery\Gallery\Gallery $gallery */
-            foreach ($this->galleries[$item->id] as $gallery) {
-                $projectDescriptionClean = trim(strip_tags($gallery->getDescription()));
+            if (!empty($projectDescriptionClean) and $this->params->get('description_max_charts', 0)) {
+                $projectDescriptionClean = JHtmlString::truncate($projectDescriptionClean, $this->params->get('description_max_charts'));
+            }
 
-                if (!empty($projectDescriptionClean) and $this->params->get("description_max_charts", 0)) {
-                    $projectDescriptionClean = JHtmlString::truncate($projectDescriptionClean, $this->params->get("description_max_charts"));
-                }
+            $titleClean = $titleCleanTruncated = $this->escape($resource->title);
+            if ($this->params->get('title_max_charts', 0)) {
+                $titleClean = JHtmlString::truncate($titleClean, $this->params->get('title_max_charts'));
+            }
+            ?>
+            <?php if ($resource !== null and ($resource->image and $resource->thumbnail)) { ?>
+                <div class='col-xs-6 col-md-4'>
+                    <a href='<?php echo $gallery->getMediaUri() . '/' . $resource->image; ?>' <?php echo $this->openLink; ?> class='thumbnail mt-10 <?php echo $this->modalClass; ?>' rel='js-com-group<?php echo $resource->gallery_id;?>' title="<?php echo $titleClean; ?>">
+                        <img src='<?php echo $gallery->getMediaUri() . '/' . $resource->thumbnail; ?>'
+                             alt='<?php echo $titleClean; ?>'
+                             class='<?php echo implode(' ', $classes); ?>'
+                            <?php if ($this->params->get('display_tip', 0)) { ?>
+                                title='<?php echo JHtml::tooltipText($titleClean . '::' . $this->escape($projectDescriptionClean)); ?>'
+                            <?php } ?>
+                            />
+                    </a>
 
-                $titleClean = $this->escape($gallery->getTitle());
-                if ($this->params->get("title_max_charts", 0)) {
-                    $titleClean = JHtmlString::truncate($titleClean, $this->params->get("title_max_charts"));
-                }
+                    <?php if ($this->params->get('display_title', 0)) { ?>
+                        <h3>
+                            <?php if ($this->params->get('title_linkable') and $gallery->getUrl()) { ?>
+                                <a href='<?php echo $gallery->getUrl(); ?>' <?php echo $this->openLink; ?>><?php echo $titleCleanTruncated; ?></a>
+                            <?php } else { ?>
+                                <?php echo $titleCleanTruncated; ?>
+                            <?php } ?>
+                        </h3>
+                    <?php } ?>
 
-                $defaultResource = $gallery->getDefaultEntity();
-                /** @var Magicgallery\Entity\Entity $defaultResource */
-                ?>
+                    <?php if ($this->params->get('display_description', 0) and !empty($projectDescriptionClean)) { ?>
+                        <p><?php echo $this->escape($projectDescriptionClean); ?></p>
+                    <?php } ?>
 
-                <?php if ($defaultResource->getThumbnail()) { ?>
-                    <div class="col-xs-6 col-md-4">
-                        <a href="<?php echo $this->mediaUrl . "/" . $defaultResource->getImage(); ?>" <?php echo $this->openLink; ?> class="thumbnail mt-10 <?php echo $this->modalClass; ?>" rel="js-com-group<?php echo $item->id;?>">
-                            <img src="<?php echo $this->mediaUrl . "/" . $defaultResource->getThumbnail(); ?>"
-                                 alt="<?php echo $titleClean; ?>"
-                                 class="<?php echo implode(" ", $classes); ?>"
-                                <?php if ($this->params->get("display_tip", 0)) { ?>
-                                    title="<?php echo JHtml::tooltipText($titleClean . "::" . $this->escape($projectDescriptionClean)); ?>"
-                                <?php } ?>
-                                />
-                        </a>
+                    <?php if ($this->params->get('display_url', 0) and $gallery->getUrl()) { ?>
+                        <a href='<?php echo $gallery->getUrl(); ?>' <?php echo $this->openLink; ?>><?php echo $gallery->getUrl(); ?></a>
+                    <?php } ?>
+                </div>
+            <?php }  // if ($resource !== null and $resource->thumbnail) { { ?>
 
-                        <?php if ($this->params->get("display_title", 0)) { ?>
-                            <h3>
-                                <?php if ($this->params->get("title_linkable") and $gallery->getUrl()) { ?>
-                                    <a href="<?php echo $gallery->getUrl(); ?>" <?php echo $this->openLink; ?>><?php echo $titleClean; ?></a>
-                                <?php } else { ?>
-                                    <?php echo $titleClean; ?>
-                                <?php } ?>
-                            </h3>
-                        <?php } ?>
-
-                        <?php if ($this->params->get("display_description", 0) AND !empty($projectDescriptionClean)) { ?>
-                            <p><?php echo $this->escape($projectDescriptionClean); ?></p>
-                        <?php } ?>
-
-                        <?php if ($this->params->get("display_url", 0) and $gallery->getUrl()) { ?>
-                            <a href="<?php echo $gallery->getUrl(); ?>" <?php echo $this->openLink; ?>><?php echo $gallery->getUrl(); ?></a>
-                        <?php } ?>
-                    </div>
-                <?php }  // if($project['thumb']) { ?>
-
-            <?php } // foreach ($this->projects[$item->id] ... ?>
-
-        </div>
-        <?php echo JHtml::_('Prism.ui.bootstrap3EndTab'); ?>
-
-    <?php } // if (isset($this->projects[$item->id])) { ?>
-
-<?php } ?>
+        <?php } // foreach ($resources as $resource) { ?>
+    </div>
+    <?php echo JHtml::_('Prism.ui.bootstrap3EndTab'); ?>
+<?php } // foreach ($this->items as $gallery) { ?>
 <?php echo JHtml::_('Prism.ui.bootstrap3EndTabSet'); ?>

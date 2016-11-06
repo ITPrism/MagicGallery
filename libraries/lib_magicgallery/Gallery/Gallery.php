@@ -11,7 +11,8 @@ namespace Magicgallery\Gallery;
 
 use Prism;
 use Joomla\Utilities\ArrayHelper;
-use Magicgallery\Entity;
+use Magicgallery\Entity\Entity;
+use Magicgallery\Entity\Entities;
 use Joomla\Registry\Registry;
 
 defined('JPATH_PLATFORM') or die;
@@ -37,8 +38,15 @@ class Gallery extends Prism\Database\Table
     protected $user_id = 0;
     protected $slug;
     protected $catslug;
+    protected $metadesc;
+    protected $metakeys;
 
+    /**
+     * @var array
+     */
     protected $entities;
+
+    protected $media_uri;
 
     /**
      * Load gallery data from database.
@@ -47,15 +55,15 @@ class Gallery extends Prism\Database\Table
      * $galleryId = 1;
      *
      * $options = array(
-     *     "load_entities" => true,
-     *     "entity_state" => Prism\Constants::PUBLISHED
+     *     "load_resources" => true,
+     *     "resource_state" => Prism\Constants::PUBLISHED
      * );
      *
      * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
      * $gallery->load($galleryId);
      * </code>
      *
-     * @param int|array $keys
+     * @param array||int $keys ID or array with IDs
      * @param array $options
      *
      * @throws \RuntimeException
@@ -68,7 +76,7 @@ class Gallery extends Prism\Database\Table
         $query
             ->select(
                 'a.id, a.title, a.alias, a.description, a.url, a.catid, a.extension, ' .
-                'a.params, a.object_id, a.published, a.ordering, a.user_id, ' .
+                'a.params, a.object_id, a.published, a.ordering, a.user_id, a.metadesc, a.metakeys, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug,' .
                 $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug'
             )
@@ -89,16 +97,16 @@ class Gallery extends Prism\Database\Table
         $this->bind($result);
 
         // Load the items.
-        $loadEntities = ArrayHelper::getValue($options, 'load_entities', false, 'bool');
-        if ($loadEntities) {
-            $itemState = ArrayHelper::getValue($options, 'entity_state', Prism\Constants::PUBLISHED, 'int');
+        $loadResources = ArrayHelper::getValue($options, 'load_resources', false, 'bool');
+        if ($loadResources) {
+            $itemState = ArrayHelper::getValue($options, 'resource_state', Prism\Constants::PUBLISHED, 'int');
 
             $option = array(
                 'gallery_id' => (int)$this->id,
                 'published'  => $itemState
             );
 
-            $this->entities = new Entity\Entities(\JFactory::getDbo());
+            $this->entities = new Entities(\JFactory::getDbo());
             $this->entities->load($option);
         }
     }
@@ -131,6 +139,8 @@ class Gallery extends Prism\Database\Table
         // Prepare extra data value.
         $description = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
         $url         = (!$this->url) ? 'NULL' : $this->db->quote($this->url);
+        $metadesc    = (!$this->metadesc) ? 'NULL' : $this->db->quote($this->metadesc);
+        $metakeys    = (!$this->metakeys) ? 'NULL' : $this->db->quote($this->metakeys);
 
         $params      = 'NULL';
         if (($this->params !== null) and ($this->params instanceof Registry) and ($this->params->count() > 0)) {
@@ -151,6 +161,8 @@ class Gallery extends Prism\Database\Table
             ->set($this->db->quoteName('published') . '=' . (int)$this->published)
             ->set($this->db->quoteName('ordering') . '=' . (int)$this->ordering)
             ->set($this->db->quoteName('user_id') . '=' . (int)$this->user_id)
+            ->set($this->db->quoteName('metadesc') . '=' . $metadesc)
+            ->set($this->db->quoteName('metakeys') . '=' . $metakeys)
             ->set($this->db->quoteName('params') . '=' . $params);
 
         $this->db->setQuery($query);
@@ -162,6 +174,8 @@ class Gallery extends Prism\Database\Table
         // Prepare extra data value.
         $description = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
         $url         = (!$this->url) ? 'NULL' : $this->db->quote($this->url);
+        $metadesc    = (!$this->metadesc) ? 'NULL' : $this->db->quote($this->metadesc);
+        $metakeys    = (!$this->metakeys) ? 'NULL' : $this->db->quote($this->metakeys);
 
         $params      = 'NULL';
         if (($this->params !== null) and ($this->params instanceof Registry) and ($this->params->count() > 0)) {
@@ -169,7 +183,7 @@ class Gallery extends Prism\Database\Table
         }
 
         if (!$this->alias) {
-            $this->alias = \JApplicationHelper::stringURLSafe($this->title);
+            $this->alias = Prism\Utilities\StringHelper::stringUrlSafe($this->title);
         }
 
         // Get last number of the ordering.
@@ -197,6 +211,8 @@ class Gallery extends Prism\Database\Table
             ->set($this->db->quoteName('published') . '=' . (int)$this->published)
             ->set($this->db->quoteName('ordering') . '=' . (int)$this->ordering)
             ->set($this->db->quoteName('user_id') . '=' . (int)$this->user_id)
+            ->set($this->db->quoteName('metadesc') . '=' . $metadesc)
+            ->set($this->db->quoteName('metakeys') . '=' . $metakeys)
             ->set($this->db->quoteName('params') . '=' . $params);
 
         $this->db->setQuery($query);
@@ -626,7 +642,7 @@ class Gallery extends Prism\Database\Table
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      *
-     * @return Entity\Entities
+     * @return Entity
      */
     public function getDefaultEntity()
     {
@@ -636,7 +652,7 @@ class Gallery extends Prism\Database\Table
                 'published'  => Prism\Constants::PUBLISHED
             );
 
-            $this->entities = new Entity\Entities(\JFactory::getDbo());
+            $this->entities = new Entities(\JFactory::getDbo());
             $this->entities->load($option);
         }
 
@@ -658,7 +674,7 @@ class Gallery extends Prism\Database\Table
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      *
-     * @return Entity\Entities
+     * @return Entities
      */
     public function getEntities()
     {
@@ -668,7 +684,7 @@ class Gallery extends Prism\Database\Table
                 'published'  => Prism\Constants::PUBLISHED
             );
 
-            $this->entities = new Entity\Entities(\JFactory::getDbo());
+            $this->entities = new Entities(\JFactory::getDbo());
             $this->entities->load($options);
         }
 
@@ -688,11 +704,11 @@ class Gallery extends Prism\Database\Table
      * $gallery->setEntities($items);
      * </code>
      *
-     * @param Entity\Entities $entities
+     * @param Entities $entities
      *
      * @return self
      */
-    public function setEntities(Entity\Entities $entities)
+    public function setEntities(Entities $entities)
     {
         $this->entities = $entities;
 
@@ -719,13 +735,94 @@ class Gallery extends Prism\Database\Table
 
         $items = array();
 
-        /** @var Entity\Entity $item */
+        /** @var Entity $item */
         foreach ($this->entities as $item) {
             $items[] = $item->getProperties();
         }
 
-        $gallery['items'] = $items;
+        $gallery['entities'] = $items;
 
         return $gallery;
+    }
+
+    /**
+     * Set the media URL of the gallery.
+     *
+     * <code>
+     * $mediaUri = '/media/magicgalelry';
+     * $galleryId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     * $gallery->load($galleryId);
+     *
+     * $gallery->setMediaUri($mediaUri);
+     * </code>
+     *
+     * @param string $uri
+     *
+     * @return self
+     */
+    public function setMediaUri($uri)
+    {
+        $this->media_uri = $uri;
+
+        return $this;
+    }
+
+    /**
+     * Return  the media URL of the gallery.
+     *
+     * <code>
+     * $galleryId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     * $gallery->load($galleryId);
+     *
+     * $gallery->getMediaUri();
+     * </code>
+     *
+     * @return string
+     */
+    public function getMediaUri()
+    {
+        return (string)$this->media_uri;
+    }
+
+    /**
+     * Return meta description.
+     *
+     * <code>
+     * $galleryId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     * $gallery->load($galleryId);
+     *
+     * echo $gallery->getMetaDescription();
+     * </code>
+     *
+     * @return string
+     */
+    public function getMetaDescription()
+    {
+        return (string)$this->metadesc;
+    }
+
+    /**
+     * Return meta keywords.
+     *
+     * <code>
+     * $galleryId = 1;
+     *
+     * $gallery   = new Magicgallery\Gallery\Gallery(\JFactory::getDbo());
+     * $gallery->load($galleryId);
+     *
+     * echo $gallery->getMetaKeywords();
+     * </code>
+     *
+     * @return string
+     */
+    public function getMetaKeywords()
+    {
+        return (string)$this->metakeys;
     }
 }

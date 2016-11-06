@@ -37,3 +37,16 @@ $lang->load('lib_magicgallery', MAGICGALLERY_PATH_COMPONENT_SITE);
 
 // Register class aliases.
 JLoader::registerAlias('MagicgalleryCategories', '\\Magicgallery\\Category\\Categories');
+
+JLog::addLogger(
+    array(
+        // Sets file name
+        'text_file' => 'com_magicgallery.errors.php'
+    ),
+    // Sets messages of all log levels to be sent to the file
+    JLog::CRITICAL + JLog::EMERGENCY + JLog::ALERT + JLog::ERROR + JLog::WARNING,
+    // The log category/categories which should be recorded in this file
+    // In this case, it's just the one category from our extension, still
+    // we need to put it inside an array
+    array('com_magicgallery')
+);

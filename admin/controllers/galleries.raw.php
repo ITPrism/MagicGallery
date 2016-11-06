@@ -50,15 +50,15 @@ class MagicgalleryControllerGalleries extends JControllerAdmin
         try {
             $model->saveorder($pks, $order);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_magicgallery');
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'));
         }
 
         $response = array(
-            "success" => true,
-            "title"   => JText::_('COM_MAGICGALLERY_SUCCESS'),
-            "text"    => JText::_('JLIB_APPLICATION_SUCCESS_ORDERING_SAVED'),
-            "data"    => array()
+            'success' => true,
+            'title'   => JText::_('COM_MAGICGALLERY_SUCCESS'),
+            'text'    => JText::_('JLIB_APPLICATION_SUCCESS_ORDERING_SAVED'),
+            'data'    => array()
         );
 
         echo json_encode($response);

@@ -45,21 +45,27 @@ class MagicgalleryViewEntity extends JViewLegacy
         
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
-        $this->form  = $this->get('Form');
 
-        $this->params = $this->state->get('params');
+        if (!$this->item) {
+            $this->app->redirect(JRoute::_('index.php?option=com_magicgallery&view=galleries', false));
+            return;
+        }
 
-        $this->galleryId = (int)$this->app->getUserState('com_magicgallery.entities.filter.gallery_id');
+        $this->form       = $this->get('Form');
+        $this->params     = $this->state->get('params');
+
+        $this->galleryId  = (int)$this->app->getUserState('com_magicgallery.entities.filter.gallery_id');
 
         $this->gallery    = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
         $this->gallery->load($this->galleryId);
 
-        $this->mediaUri   = MagicgalleryHelper::getMediaUri($this->params, $this->gallery);
+        $filesystemHelper = new Prism\Filesystem\Helper($this->params);
+        $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+
+        $this->mediaUri   = $pathHelper->getMediaUri($this->gallery);
         if (!$this->mediaUri) {
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
         }
-
-        $this->mediaUri = JUri::root() . $this->mediaUri . '/';
 
         $this->addToolbar();
         $this->setDocument();

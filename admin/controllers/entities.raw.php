@@ -50,7 +50,7 @@ class MagicgalleryControllerEntities extends JControllerAdmin
         try {
             $model->saveorder($pks, $order);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_magicgallery');
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'));
         }
 

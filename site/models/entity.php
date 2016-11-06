@@ -7,6 +7,9 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+use Joomla\String\StringHelper;
+
 // No direct access
 defined('_JEXEC') or die;
 
@@ -23,13 +26,12 @@ class MagicgalleryModelEntity extends JModelLegacy
      *
      * @param int $itemId
      * @param Magicgallery\Gallery\Gallery $gallery
-     * @param string $mediaFolder
      *
      * @throws Exception
      *
      * @return array
      */
-    public function remove($itemId, $gallery, $mediaFolder)
+    public function remove($itemId, $gallery)
     {
         $db = $this->getDbo();
 
@@ -45,14 +47,23 @@ class MagicgalleryModelEntity extends JModelLegacy
         $result = (array)$db->loadAssoc();
 
         if (count($result) > 0) {
-
             jimport('Prism.libs.Flysystem.init');
-            $localAdapter  = new League\Flysystem\Adapter\Local(JPATH_ROOT);
+            jimport('Prism.libs.Aws.init');
+            jimport('Prism.libs.GuzzleHttp.init');
 
-            $filesystem    = new League\Flysystem\Filesystem($localAdapter);
+            // Magic Gallery global options.
+            $params = JComponentHelper::getParams('com_magicgallery');
 
-            $fileImage     = JPath::clean($mediaFolder .'/'. $result['image']);
-            $fileThumbnail = JPath::clean($mediaFolder .'/'. $result['thumbnail']);
+            // Get filesystem.
+            $filesystemHelper = new Prism\Filesystem\Helper($params);
+            $filesystem  = $filesystemHelper->getFilesystem();
+
+            // Prepare media folder.
+            $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+            $mediaFolder = $pathHelper->getMediaFolder($gallery);
+            
+            $fileImage     = JPath::clean($mediaFolder .'/'. $result['image'], '/');
+            $fileThumbnail = JPath::clean($mediaFolder .'/'. $result['thumbnail'], '/');
 
             if ($filesystem->has($fileImage)) {
                 $filesystem->delete($fileImage);
@@ -77,46 +88,32 @@ class MagicgalleryModelEntity extends JModelLegacy
     /**
      * Upload the file. This method can create thumbnail or to resize the file.
      *
-     * @param array $file
+     * @param array $uploadedFileData
      * @param array $options
+     * @param League\Flysystem\MountManager $filesystemManager
      * @param int $galleryId
      *
      * @throws Exception
      *
      * @return array
      */
-    public function upload($file, $options, $galleryId)
+    public function upload($uploadedFileData, $options, $filesystemManager, $galleryId)
     {
-        $itemData = array();
-
-        jimport('Prism.libs.Flysystem.init');
-        $temporaryAdapter    = new League\Flysystem\Adapter\Local($options['path']['temporary_folder']);
-        $storageAdapter      = new League\Flysystem\Adapter\Local($options['path']['media_folder']);
-        $temporaryFilesystem = new League\Flysystem\Filesystem($temporaryAdapter);
-        $storageFilesystem   = new League\Flysystem\Filesystem($storageAdapter);
-
-        $manager = new League\Flysystem\MountManager([
-            'temporary' => $temporaryFilesystem,
-            'storage'   => $storageFilesystem
-        ]);
-
-        $image = new Prism\File\Image($file, $options['path']['temporary_folder']);
-
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($file, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($file, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($file, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Prepare file size validator
         $fileSizeValidator = new Prism\File\Validator\Size($options['validation']['content_length'], $options['validation']['upload_maxsize']);
 
         // Prepare server validator.
-        $serverValidator = new Prism\File\Validator\Server($errorCode, array(UPLOAD_ERR_NO_FILE));
+        $serverValidator   = new Prism\File\Validator\Server($errorCode, array(UPLOAD_ERR_NO_FILE));
 
         // Prepare image validator.
-        $imageValidator = new Prism\File\Validator\Image($uploadedFile, $uploadedName);
+        $imageValidator    = new Prism\File\Validator\Image($uploadedFile, $uploadedName);
 
         // Get allowed mime types from media manager options
-        $options['validation']['legal_types'] = \JString::trim($options['validation']['legal_types']);
+        $options['validation']['legal_types'] = StringHelper::trim($options['validation']['legal_types']);
         if ($options['validation']['legal_types']) {
             $mimeTypes = explode(',', $options['validation']['legal_types']);
             $mimeTypes = array_map('JString::trim', $mimeTypes);
@@ -124,7 +121,7 @@ class MagicgalleryModelEntity extends JModelLegacy
         }
 
         // Get allowed image extensions from media manager options
-        $options['validation']['legal_extensions'] = \JString::trim($options['validation']['legal_extensions']);
+        $options['validation']['legal_extensions'] = StringHelper::trim($options['validation']['legal_extensions']);
         if ($options['validation']['legal_extensions']) {
             $imageExtensions = explode(',', $options['validation']['legal_extensions']);
             $imageExtensions = array_map('JString::trim', $imageExtensions);
@@ -136,78 +133,127 @@ class MagicgalleryModelEntity extends JModelLegacy
         $imageSizeValidator->setMinWidth($options['validation']['image_width']);
         $imageSizeValidator->setMinHeight($options['validation']['image_height']);
 
-        $image
+        $file = new Prism\File\File($uploadedFile);
+        $file
             ->addValidator($fileSizeValidator)
             ->addValidator($serverValidator)
             ->addValidator($imageValidator)
             ->addValidator($imageSizeValidator);
 
         // Validate the file.
-        if (!$image->isValid()) {
-            throw new RuntimeException($image->getError());
+        if (!$file->isValid()) {
+            throw new RuntimeException($file->getError());
         }
 
-        // Upload the file.
-        $image->upload();
+        // Upload the file in temporary folder.
+        $filesystemLocal = new \Prism\Filesystem\Adapter\Local($options['path']['temporary_folder']);
+        $filePath        = $filesystemLocal->upload($uploadedFileData);
+        // Resize the image.
+        if (array_key_exists('resize_image', $options['resize']) and (int)$options['resize']['resize_image'] === Prism\Constants::OK) {
+            $resizeOptions = new \Joomla\Registry\Registry;
+            $resizeOptions->set('width', ArrayHelper::getValue($options['resize'], 'image_width'));
+            $resizeOptions->set('height', ArrayHelper::getValue($options['resize'], 'image_height'));
+            $resizeOptions->set('scale', ArrayHelper::getValue($options['resize'], 'image_scale'));
+            $resizeOptions->set('quality', ArrayHelper::getValue($options['resize'], 'image_quality', 80, 'int'));
+            $resizeOptions->set('filename_length', 16);
+            $resizeOptions->set('create_new', Prism\Constants::NO);
 
-        $mainImage = array();
+            $image      = new Prism\File\Image($filePath);
+            $fileData   = $image->resize($options['path']['temporary_folder'], $resizeOptions);
 
-        if (array_key_exists('resize_image', $options['resize']) and (int)$options['resize']['resize_image'] === 1) {
-            $resizeOptions = array(
-                'width'  => $options['resize']['image_width'],
-                'height' => $options['resize']['image_height'],
-                'scale'  => $options['resize']['image_scale']
-            );
+            // Remove the original file.
+            if (JFile::exists($filePath)) {
+                JFile::delete($filePath);
+            }
 
-            $mainImage  = $image->resize($resizeOptions, Prism\Constants::REPLACE);
-            $filename   = basename($mainImage['filename']);
-            $manager->copy('temporary://'.$filename, 'storage://'.$filename);
+            // Set resized file as original. I will use it to create a thumbnail, if it is allowed.
+            $filePath = $fileData['filepath'];
+            unset($fileData['filepath']);
+        } else {
+            // Prepare meta data about the file if it is not resized.
+            $file     = new Prism\File\File($filePath);
+            $fileData = $file->extractFileData();
         }
+
+        // Copy the file to storage.
+        $filesystemManager->copy('temporary://'.$fileData['filename'], 'storage://'. JPath::clean($options['path']['media_folder'].'/'.$fileData['filename'], '/'));
 
         // Generate thumbnail.
         $thumbnailData = array();
-        if (array_key_exists('create_thumb', $options['resize']) and (int)$options['resize']['create_thumb'] === 1) {
-            $resizeOptions = array(
-                'width'  => $options['resize']['thumb_width'],
-                'height' => $options['resize']['thumb_height'],
-                'scale'  => $options['resize']['thumb_scale']
-            );
+        if (array_key_exists('create_thumb', $options['resize']) and (int)$options['resize']['create_thumb'] === Prism\Constants::OK) {
+            $resizeOptions = new \Joomla\Registry\Registry;
+            $resizeOptions->set('width', ArrayHelper::getValue($options['resize'], 'thumb_width'));
+            $resizeOptions->set('height', ArrayHelper::getValue($options['resize'], 'thumb_height'));
+            $resizeOptions->set('scale', ArrayHelper::getValue($options['resize'], 'thumb_scale'));
+            $resizeOptions->set('quality', ArrayHelper::getValue($options['resize'], 'thumb_quality', 80, 'int'));
+            $resizeOptions->set('filename_length', 16);
+            $resizeOptions->set('create_new', Prism\Constants::NO);
+            $resizeOptions->set('prefix', 'thumb_');
 
-            $thumbnailData   = $image->resize($resizeOptions, Prism\Constants::DO_NOT_REPLACE, 'thumb_');
-            $filename        = basename($thumbnailData['filename']);
-            $manager->move('temporary://'.$filename, 'storage://'.$filename);
+            $image                 = new Prism\File\Image($filePath);
+            $thumbnailData         = $image->resize($options['path']['temporary_folder'], $resizeOptions);
+            unset($thumbnailData['filepath']);
+
+            $filesystemManager->move('temporary://'.$thumbnailData['filename'], 'storage://'. JPath::clean($options['path']['media_folder'].'/'.$thumbnailData['filename'], '/'));
         }
 
         // Remove the original file.
-        $image->remove();
+        if (JFile::exists($filePath)) {
+            JFile::delete($filePath);
+        }
 
-        // Store it as item.
-        if (count($mainImage) > 0) {
-
+        // Prepare item data that will be returned.
+        $itemData = array();
+        if (count($fileData) > 0) {
             // Prepare data that will be stored as gallery item.
-            $itemData = array(
-                'image'    => $mainImage['filename'],
-                'width'    => $mainImage['width'],
-                'height'   => $mainImage['height'],
-                'filesize' => $mainImage['filesize'],
-                'mime'     => $mainImage['mime'],
-                'type'     => 'image',
-                'gallery_id' => (int)$galleryId
-            );
-            unset($mainImage);
+            $itemData['image'] = $fileData;
+            unset($fileData);
 
             // Set the thumbnail name.
             if (count($thumbnailData) > 0) {
-                $itemData['thumbnail'] = $thumbnailData['filename'];
+                $itemData['thumbnail'] = $thumbnailData;
+                unset($thumbnailData);
+            }
+        }
+
+        // Store it as item.
+        if (count($itemData) > 0) {
+            $bindData = array();
+            if (array_key_exists('image', $itemData) and count($itemData['image']) > 0) {
+                $bindData = [
+                    'gallery_id'     => (int)$galleryId,
+                    'type'           => 'image',
+                    'title'          => $itemData['image']['filename'],
+                    'image'          => $itemData['image']['filename'],
+                    'image_filesize' => $itemData['image']['filesize'],
+                    'image_meta'     => [
+                        'mime'     => $itemData['image']['mime'],
+                        'filesize' => $itemData['image']['filesize'],
+                        'width'    => $itemData['image']['attributes']['width'],
+                        'height'   => $itemData['image']['attributes']['height']
+                    ]
+                ];
             }
 
-            $item = new Magicgallery\Entity\Entity(JFactory::getDbo());
-            $item->bind($itemData);
-            $item->setStatus($options['item']['default_item_status']);
+            if (array_key_exists('thumbnail', $itemData) and count($itemData['thumbnail']) > 0) {
+                $bindData['thumbnail']          = $itemData['thumbnail']['filename'];
+                $bindData['thumbnail_filesize'] = $itemData['thumbnail']['filesize'];
+                $bindData['thumbnail_meta'] = [
+                    'mime'     => $itemData['thumbnail']['mime'],
+                    'filesize' => $itemData['thumbnail']['filesize'],
+                    'width'    => $itemData['thumbnail']['attributes']['width'],
+                    'height'   => $itemData['thumbnail']['attributes']['height']
+                ];
+            }
 
-            $item->store();
+            if (count($bindData) > 0) {
+                $item = new Magicgallery\Entity\Entity(JFactory::getDbo());
+                $item->bind($bindData);
+                $item->setStatus($options['item']['default_item_status']);
 
-            $itemData['id'] = $item->getId();
+                $item->store();
+                $itemData['id'] = $item->getId();
+            }
         }
 
         return $itemData;

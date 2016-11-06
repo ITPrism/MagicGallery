@@ -7,16 +7,9 @@
     </layout>
 
     <!-- Add fields to the request variables for the layout. -->
-    <fields name="request">
+    <fields name="request" addfieldpath="/administrator/components/com_magicgallery/models/fields">
         <fieldset name="request">
-        
-            <field name="id" type="category"
-               label="COM_MAGICGALLERY_CATEGORY"
-               description="COM_MAGICGALLERY_VIEW_SELECT_CATEGORY_DESC"
-               extension="com_magicgallery"
-               required="true"
-           />
-           
+            <field name="id" type="mggallery" label="COM_MAGICGALLERY_GALLERY" description="COM_MAGICGALLERY_FIELD_GALLERY_DESC" required="true" published="1"/>
         </fieldset>
     </fields>
 

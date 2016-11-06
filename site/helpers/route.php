@@ -31,23 +31,17 @@ abstract class MagicgalleryHelperRoute
      * Routing a link to gallery view.
      *
      * @param string $view
-     * @param int $catid
      * @param int $galleryId
-     * @param int $offset
      *
      * @return string
      */
-    public static function getGalleryViewRoute($view, $catid, $galleryId, $offset = null)
+    public static function getGalleryViewRoute($view, $galleryId)
     {
-        if ($catid instanceof JCategoryNode) {
-            $id       = $catid->id;
-            $category = $catid;
-        } else {
-            $id       = (int)$catid;
-            $category = JCategories::getInstance('Magicgallery')->get($id);
-        }
+        $categoryViews = array('camera', 'galleria', 'slidegallery', 'tabbed');
+        $view = in_array($view, $categoryViews, true) ? $view : 'camera';
 
-        if ($id < 1) {
+        $id = (int)$galleryId;
+        if ($id === 0) {
             $link = '';
         } else {
             $needles = array(
@@ -60,27 +54,15 @@ abstract class MagicgalleryHelperRoute
             } else { // Continue to search and deep inside
 
                 // Create the link
-                $link = 'index.php?option=com_magicgallery&view=' . $view . '&catid=' . $id . '&id='.$galleryId;
+                $link = 'index.php?option=com_magicgallery&view=' . $view . '&id='.$galleryId;
 
-                if ($category) {
-                    $catids = array_reverse($category->getPath());
-
-                    $needles = array(
-                        $view => $catids
-                    );
-
-                    // Looking for menu item (Itemid)
-                    if ($item = self::findItem($needles)) {
-                        $link .= '&Itemid=' . $item;
-                    } elseif ($item = self::findItem()) { // Get the menu item (Itemid) from the active (current) item.
-                        $link .= '&Itemid=' . $item;
-                    }
+                // Looking for menu item (Itemid)
+                if ($item = self::findItem($needles)) {
+                    $link .= '&Itemid=' . $item;
+                } elseif ($item = self::findItem()) { // Get the menu item (Itemid) from the active (current) item.
+                    $link .= '&Itemid=' . $item;
                 }
             }
-        }
-
-        if ($offset !== null) {
-            $link .= '&start=' . (int)$offset;
         }
 
         return $link;
@@ -96,6 +78,9 @@ abstract class MagicgalleryHelperRoute
      */
     public static function getCategoryViewRoute($view, $catid)
     {
+        $categoryViews = array('list', 'lineal');
+        $view = in_array($view, $categoryViews, true) ? $view : 'list';
+
         if ($catid instanceof JCategoryNode) {
             $id       = $catid->id;
             $category = $catid;
@@ -205,7 +190,7 @@ abstract class MagicgalleryHelperRoute
                             self::$lookup[$view] = array();
                         }
 
-                        if (isset($item->query['id'])) {
+                        if (isset($item->query['id']) and !is_array($item->query['id'])) {
                             self::$lookup[$view][$item->query['id']] = $item->id;
                         } else { // If it is a root element that have no a request parameter ID ( categories, authors ), we set 0 for an key
                             self::$lookup[$view][0] = $item->id;
@@ -216,10 +201,8 @@ abstract class MagicgalleryHelperRoute
         }
 
         if ($needles) {
-
             foreach ($needles as $view => $ids) {
                 if (isset(self::$lookup[$view])) {
-
                     foreach ($ids as $id) {
                         if (isset(self::$lookup[$view][(int)$id])) {
                             return self::$lookup[$view][(int)$id];

@@ -9,6 +9,8 @@
 
 namespace Magicgallery\Gallery;
 
+use Joomla\Registry\Registry;
+use Magicgallery\Entity\Entities;
 use Magicgallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
@@ -25,13 +27,18 @@ class Galleria extends GalleryAbstract
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\Galleria($items, $params, \JFactory::getDocument());
-     * $gallery->addScriptDeclaration($document);
+     * $resource = new Magicgallery\Gallery\Galleria($items, $params);
+     * $js = $this->gallery
+     *            ->setSelector('js-mg-com-galleria')
+     *            ->prepareScriptDeclaration();
+     *
+     * $this->document->addScriptDeclaration($js);
      * </code>
      *
-     * @return self
+     * @throws \InvalidArgumentException
+     * @return string
      */
-    public function addScriptDeclaration()
+    public function prepareScriptDeclaration()
     {
         \JHtml::_('jquery.framework');
         \JHtml::_('Magicgallery.galleria');
@@ -48,19 +55,20 @@ class Galleria extends GalleryAbstract
             });
         });';
 
-        $this->document->addScriptDeclaration($js);
-
-        return $this;
+        return $js;
     }
 
     /**
      * Generate HTML code displaying thumbnails and images.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
-     * $gallery->setSelector("js-mg-com-galleria");
-     * echo $gallery->render();
+     * $resource = new Magicgallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
+     * $resource->setSelector("js-mg-com-galleria");
+     * echo $resource->render();
      * </code>
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      *
      * @return string
      */
@@ -68,20 +76,25 @@ class Galleria extends GalleryAbstract
     {
         $html = array();
 
-        if (count($this->items) > 0) {
+        if ($this->gallery !== null) {
             $html[] = '<div id="' . $this->selector . '">';
 
-            /** @var Gallery $item */
-            foreach ($this->items as $item) {
-                if (!$item->getId()) {
+            $resources = $this->gallery->getEntities();
+            foreach ($resources as $resource) {
+                if ($resource === null or !$resource->id) {
                     continue;
                 }
 
-                $media = $item->getDefaultEntity();
-                /** @var Entity $media */
+                if (!empty($resource->image) and !empty($resource->thumbnail)) {
+                    if (empty($resource->image_meta)) {
+                        $resource->image_meta = '{}';
+                    }
 
-                if ($media !== null and ($media instanceof Entity)) {
-                    $html[] = '<a href="' . $this->mediaPath . '/' . $media->getImage() . '"><img src="' . $this->mediaPath . '/' . $media->getThumbnail() . '" width="200" height="200" /></a>';
+                    $meta   = new Registry($resource->image_meta);
+                    $width  = $meta->get('width', 200);
+                    $height = $meta->get('height', 200);
+
+                    $html[] = '<a href="' . $this->gallery->getMediaUri() . '/' . $resource->image . '"><img src="' . $this->gallery->getMediaUri() . '/' . $resource->thumbnail . '" width="'.$width.'" height="'.$height.'" /></a>';
                 }
             }
 
@@ -95,11 +108,14 @@ class Galleria extends GalleryAbstract
      * Generate HTML code displaying only images.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
-     * $gallery->setSelector("js-mg-com-galleria");
+     * $resource = new Magicgallery\Gallery\Galleria($items, $options, \JFactory::getDocument());
+     * $resource->setSelector("js-mg-com-galleria");
      *
-     * echo $gallery->renderOnlyImages();
+     * echo $resource->renderOnlyImages();
      * </code>
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      *
      * @return string
      */
@@ -107,19 +123,25 @@ class Galleria extends GalleryAbstract
     {
         $html = array();
 
-        if (count($this->items) > 0) {
+        if ($this->gallery !== null) {
             $html[] = '<div id="' . $this->selector . '">';
 
-            foreach ($this->items as $item) {
-                if (!$item->getId()) {
+            $resources = $this->gallery->getEntities();
+            foreach ($resources as $resource) {
+                if ($resource === null or !$resource->id) {
                     continue;
                 }
 
-                $media = $item->getDefaultEntity($item->getId());
-                /** @var Entity $media */
+                if ($resource->image !== null and $resource->image !== '') {
+                    if (empty($resource->image_meta)) {
+                        $resource->image_meta = '{}';
+                    }
 
-                if ($media !== null and ($media instanceof Entity)) {
-                    $html[] = '<img src="' . $this->mediaPath . '/' . $media->getImage() . '" />';
+                    $meta   = new Registry($resource->image_meta);
+                    $width  = $meta->get('width', 200);
+                    $height = $meta->get('height', 200);
+
+                    $html[] = '<img src="' . $this->gallery->getMediaUri() .'/'. $resource->image . '" width="'.$width.'" height="'.$height.'" />';
                 }
             }
 

@@ -22,7 +22,6 @@ defined('_JEXEC') or die;
 
 <?php
 switch ($this->modal) {
-
     case 'fancybox':
         echo $this->loadTemplate('fancybox');
         break;
@@ -31,8 +30,8 @@ switch ($this->modal) {
         echo $this->loadTemplate('nivo');
         break;
 
-    case 'magnific':
-        echo $this->loadTemplate('magnific');
+    case 'swipebox':
+        echo $this->loadTemplate('swipebox');
         break;
 
     default:

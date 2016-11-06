@@ -69,34 +69,34 @@ class MagicgalleryViewList extends JViewLegacy
         
         // Initialise variables
         $this->state      = $this->get('State');
-        $this->items      = $this->get('Items');
+//        $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
+        $this->params     = $this->state->get('params');
 
-        $this->params = $this->state->get('params');
-
-        // Get items IDs.
-        $ids = array();
-        foreach ($this->items as $item) {
-            $ids[] = $item->id;
-        }
-
-        if (count($ids) > 0) {
-            $model        = $this->getModel();
-            $this->images = $model->getImages($ids);
-        }
+        $options  = array(
+            'category_id'    => $this->category->getId(),
+            'gallery_state'  => Prism\Constants::PUBLISHED,
+            'load_resources' => true,
+            'resource_state' => Prism\Constants::PUBLISHED
+        );
+        
+        $galleries     = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
+        $galleries->load($options);
+        
+        
 
         // Prepare the resources that will be used to generate an intro image.
-        $resources = null;
-        if (count($this->images) > 0) {
-            $resources = new Magicgallery\Entity\Entities();
-            $resources->setEntities(reset($this->images));
-        }
+        $filesystemHelper = new Prism\Filesystem\Helper($this->params);
+        $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+
+        $helperBus        = new Prism\Helper\HelperBus($galleries);
+        $helperBus->addCommand(new Magicgallery\Helper\PrepareGalleriesUriHelper($pathHelper));
+        $helperBus->handle();
+
+        $this->items    = $galleries->getGalleries();
 
         // Open link target
         $this->openLink = 'target="' . $this->params->get('open_link', '_self') . '"';
-
-        // Prepare the path to media files;
-        $this->mediaUrl = JUri::root() . $this->params->get('media_folder', 'images/magicgallery');
 
         $this->prepareLightBox();
         $this->prepareDocument();
@@ -110,7 +110,7 @@ class MagicgalleryViewList extends JViewLegacy
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
         $item->link        = MagicgalleryHelperRoute::getCategoryViewRoute('list', $this->categoryId);
-        $item->image_intro = (count($this->images) > 0) ? MagicgalleryHelper::getIntroImage($this->category, $resources, $this->mediaUrl) : null;
+        $item->image_intro = MagicgalleryHelper::getIntroImageFromGalleries($this->items);
 
         $results                             = $dispatcher->trigger('onContentAfterTitle', array('com_magicgallery.details', &$item, &$this->params, $offset));
         $this->event->onContentAfterTitle    = trim(implode("\n", $results));
@@ -129,9 +129,10 @@ class MagicgalleryViewList extends JViewLegacy
         $this->modal      = $this->params->get('modal');
         $this->modalClass = MagicgalleryHelper::getModalClass($this->modal);
 
+        JHtml::_('jquery.framework');
+
         switch ($this->modal) {
             case 'fancybox':
-                JHtml::_('jquery.framework');
                 JHtml::_('Magicgallery.lightboxFancybox');
 
                 // Initialize lightbox
@@ -142,8 +143,7 @@ class MagicgalleryViewList extends JViewLegacy
 
                 break;
 
-            case 'nivo': // Joomla! native
-                JHtml::_('jquery.framework');
+            case 'nivo':
                 JHtml::_('Magicgallery.lightboxNivo');
 
                 // Initialize lightbox
@@ -154,19 +154,13 @@ class MagicgalleryViewList extends JViewLegacy
                 $this->document->addScriptDeclaration($js);
                 break;
 
-            case 'magnific': // Joomla! native
-                JHtml::_('jquery.framework');
-                JHtml::_('Magicgallery.lightboxMagnific');
+            case 'swipebox':
+                JHtml::_('Magicgallery.lightboxSwipebox');
 
                 // Initialize lightbox
                 $js = '
                 jQuery(document).ready(function(){
-                    jQuery(".' . $this->modalClass . '").magnificPopup({
-                        type: "image",
-                        gallery: {
-                            enabled:true
-                          }
-                    });
+                    jQuery(".' . $this->modalClass . '").swipebox();
                 });';
                 $this->document->addScriptDeclaration($js);
                 break;

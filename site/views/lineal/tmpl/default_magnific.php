@@ -8,42 +8,46 @@
  */
 
 // no direct access
-defined('_JEXEC') or die; ?>
+defined('_JEXEC') or die;
+/**
+ * @var Magicgallery\Entity\Entities $resources
+ * @var stdClass $resource
+ */
+?>
 <div class="row">
-    <?php if (!empty($this->defaultImage)) { ?>
-        <div class="col-md-4">
+    <?php if (!empty($this->defaultResource)) { ?>
+        <div class="col-md-4 col-sm-12 col-xs-12">
             <?php if ($this->params->get('image_linkable')) { ?>
-            <a href="<?php echo $this->mediaUrl . $this->defaultImage->getImage(); ?>" <?php echo $this->openLink; ?> class="<?php echo $this->modalClass; ?>" rel="group<?php echo $this->item->id; ?>">
+            <a href="<?php echo $this->item->media_uri .'/'. $this->defaultResource->getImage(); ?>" <?php echo $this->openLink; ?> class="<?php echo $this->modalClass; ?>" rel="group<?php echo $this->item->id; ?>" title="<?php echo $this->escape($this->defaultResource->getTitle()); ?>">
                 <?php } ?>
                 <img
-                    width="<?php echo $this->params->get('lineal_thumb_width', 300); ?>"
-                    height="<?php echo $this->params->get('lineal_thumb_height', 300); ?>"
-                    src="<?php echo $this->mediaUrl . $this->defaultImage->getThumbnail(); ?>"
-                    alt="<?php echo $this->escape($this->item->title); ?>"
-                    title="<?php echo $this->escape($this->item->title); ?>"
+                    width="<?php echo $this->params->get('thumb_width', 300); ?>"
+                    height="<?php echo $this->params->get('thumb_height', 300); ?>"
+                    src="<?php echo $this->item->media_uri .'/'. $this->defaultResource->getThumbnail(); ?>"
+                    alt="<?php echo $this->escape($this->defaultResource->getTitle()); ?>"
+                    title="<?php echo $this->escape($this->defaultResource->getTitle()); ?>"
                     class="thumbnail"
                     />
                 <?php if ($this->params->get('image_linkable')) { ?></a><?php } ?>
 
-            <?php if ($this->params->get('display_additional_images', 0) and 0 < count($this->images)) { ?>
+            <?php if ($this->params->get('display_additional_images', 0) and count($this->item->entities) > 0) { ?>
                 <div class="mg-additional-images">
                     <?php
                     $i = 0;
-                    foreach ($this->images as $eImage) {
-                        ?>
-                        <a href="<?php echo $this->mediaUrl . $eImage->getImage();?>" <?php echo $this->openLink;?> class="<?php echo $this->modalClass;?>" rel="group<?php echo $this->item->id;?>">
-                            <img
-                                width="<?php echo $this->params->get('additional_images_thumb_width', 50); ?>"
-                                height="<?php echo $this->params->get('additional_images_thumb_height', 50); ?>"
-                                src="<?php echo $this->mediaUrl . $eImage->getThumbnail();?>"
-                                alt=""
-                                title=""
-                                class="thumbnail"
-                                />
-                        </a>
+                    $resources = $this->item->entities;
+                    foreach ($resources as $resource) { ?>
+                    <a href="<?php echo $this->item->media_uri .'/'. $resource->image;?>" <?php echo $this->openLink;?> class="<?php echo $this->modalClass;?>" rel="group<?php echo $this->item->id;?>" title="<?php echo $this->escape($resource->title); ?>">
+                        <img
+                            width="<?php echo $this->params->get('additional_images_thumb_width', 50); ?>"
+                            height="<?php echo $this->params->get('additional_images_thumb_height', 50); ?>"
+                            src="<?php echo $this->item->media_uri .'/'. $resource->thumbnail;?>"
+                            alt="<?php echo $this->escape($resource->title); ?>"
+                            title="<?php echo $this->escape($resource->title); ?>"
+                            />
+                    </a>
                         <?php
                         $i++;
-                        if ($i == $this->params->get('additional_images_number', 3)) {
+                        if ($i === (int)$this->params->get('additional_images_number', 3)) {
                             break;
                         }
                     }
@@ -52,7 +56,7 @@ defined('_JEXEC') or die; ?>
             <?php } ?>
         </div>
     <?php } ?>
-    <div class="col-md-8">
+    <div class="col-md-8 col-sm-12 col-xs-12">
         <?php if ($this->params->get('display_title')) { ?>
             <h3>
                 <?php if ($this->params->get('title_linkable') and !empty($this->item->url)) { ?>

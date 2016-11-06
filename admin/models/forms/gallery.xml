@@ -1,74 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
 	<fieldset>
-		<field name="id" type="text" class="readonly"
-			label="JGLOBAL_FIELD_ID_LABEL" 
-			description="JGLOBAL_FIELD_ID_DESC"
-			default="0" 
-			filter="int"
-			readonly="true" 
-		/>
-
-        <field name="title"  type="text" class="span12"
-               label="JGLOBAL_TITLE"
-               description="COM_MAGICGALLERY_FIELD_TITLE_DESC"
-               required="true"
-               filter="trim"
-                />
-
-        <field name="alias" type="text"
-            label="JFIELD_ALIAS_LABEL"
-            description="JFIELD_ALIAS_DESC" 
-            filter="trim"
-        />
-
-        <field name="catid" type="category"
-            label="JCATEGORY" 
-            description="JFIELD_CATEGORY_DESC"
-            extension="com_magicgallery"
-            filter="int"
-        />
-
-		<field name="published" type="radio" class="btn-group"
-			label="JSTATUS"
-			description="JFIELD_PUBLISHED_DESC"
-			default="1" >
-			<option
-				value="1">JPUBLISHED</option>
-			<option
-				value="0">JUNPUBLISHED</option>
+		<field name="id" type="text" class="readonly" label="JGLOBAL_FIELD_ID_LABEL" description="JGLOBAL_FIELD_ID_DESC" default="0" filter="int" readonly="true"/>
+        <field name="title"  type="text" class="span12" label="JGLOBAL_TITLE" description="COM_MAGICGALLERY_FIELD_TITLE_DESC" required="true" filter="trim"/>
+        <field name="alias" type="text" label="JFIELD_ALIAS_LABEL" description="JFIELD_ALIAS_DESC" filter="trim"/>
+        <field name="catid" type="category" label="JCATEGORY" description="JFIELD_CATEGORY_DESC" extension="com_magicgallery" filter="int"/>
+		<field name="published" type="radio" class="btn-group" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" default="1" >
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
 		</field>
-            
-        <field name="url" type="url" class="span12"
-            label="COM_MAGICGALLERY_URL"
-            description="COM_MAGICGALLERY_FIELD_URL_DESC"
-            filter="trim"
-            validate="url"
-         />
-		
-		<field name="description" type="editor" class="span12"
-		    buttons="false" show="toggle"
-            label="JGLOBAL_DESCRIPTION" 
-            description="COM_MAGICGALLERY_FIELD_DESCRIPTION_DESC"
-            filter="safehtml"
-        />
-
+        <field name="url" type="url" class="span12" label="COM_MAGICGALLERY_URL" description="COM_MAGICGALLERY_FIELD_URL_DESC" filter="trim" validate="url"/>
+		<field name="description" type="editor" class="span12" buttons="false" show="toggle" label="JGLOBAL_DESCRIPTION" description="COM_MAGICGALLERY_FIELD_DESCRIPTION_DESC" filter="safehtml"/>
         <field name="user_id" type="user" label="COM_MAGICGALLERY_FIELD_USER_ID_LABEL" description="COM_MAGICGALLERY_FIELD_USER_ID_DESC" />
-
 	</fieldset>
 
     <fields name="params">
         <fieldset name="paths" label="COM_MAGICGALLERY_PATHS_OPTIONS">
-            <field name="path"  type="text" class="input-xxlarge"
-                   label="COM_MAGICGALLERY_MEDIA_FOLDER"
-                   description="COM_MAGICGALLERY_GALLERY_FIELD_MEDIA_FOLDER_DESC"
-                    />
-
-            <field name="uri"  type="text" class="input-xxlarge"
-                   label="COM_MAGICGALLERY_URI"
-                   description="COM_MAGICGALLERY_GALLERY_FIELD_MEDIA_URI_DESC"
-                    />
+            <field name="path"  type="text" class="input-xxlarge" label="COM_MAGICGALLERY_MEDIA_FOLDER" description="COM_MAGICGALLERY_GALLERY_FIELD_MEDIA_FOLDER_DESC" hint="/media/magicgallery" />
+            <field name="uri"  type="text" class="input-xxlarge" label="COM_MAGICGALLERY_URI" description="COM_MAGICGALLERY_GALLERY_FIELD_MEDIA_URI_DESC" hint="/media/magicgallery" />
         </fieldset>
     </fields>
+
+    <fieldset name="publishing" label="COM_MAGICGALLERY_PUBLISHING">
+        <field name="metadesc" type="textarea" class="input-xxlarge" label="COM_MAGICGALLERY_META_DESCRIPTION" />
+        <field name="metakeys" type="textarea" class="input-xxlarge" label="COM_MAGICGALLERY_META_KEYWORDS" />
+    </fieldset>
 
 </form>

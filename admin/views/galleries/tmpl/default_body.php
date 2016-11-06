@@ -31,24 +31,24 @@ defined('_JEXEC') or die;
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td class="center">
-            <?php echo JHtml::_('jgrid.published', $item->published, $i, "galleries."); ?>
+            <?php echo JHtml::_('jgrid.published', $item->published, $i, 'galleries.'); ?>
         </td>
 		<td class="title">
-			<a href="<?php echo JRoute::_("index.php?option=com_magicgallery&view=gallery&layout=edit&id=".(int)$item->id); ?>" >
+			<a href="<?php echo JRoute::_('index.php?option=com_magicgallery&view=gallery&layout=edit&id='.(int)$item->id); ?>" >
                 <?php echo $item->title; ?>
             </a>
             <div class="small">
-                <?php echo JText::sprintf("COM_MAGICGALLERY_ALIAS_S", $this->escape($item->alias)); ?>
+                <?php echo JText::sprintf('COM_MAGICGALLERY_ALIAS_S', $this->escape($item->alias)); ?>
             </div>
             <div class="small">
-                <?php echo JHtml::_("Magicgallery.entities", $this->numberOfResources, $item->id); ?>
+                <?php echo JHtml::_('Magicgallery.entities', $this->numberOfResources, $item->id); ?>
             </div>
         </td>
         <td class="nowrap hidden-phone">
-            <?php echo (!empty($item->category)) ? $this->escape($item->category) : JText::_("COM_MAGICGALLERY_UNCATEGORISED"); ?>
+            <?php echo (!empty($item->category)) ? $this->escape($item->category) : JText::_('COM_MAGICGALLERY_UNCATEGORISED'); ?>
         </td>
         <td class="nowrap hidden-phone">
-            <?php echo (!empty($item->extension)) ? $this->escape($item->extension) : "--"; ?>
+            <?php echo (!empty($item->extension)) ? $this->escape($item->extension) : '--'; ?>
         </td>
         <td class="hidden-phone"><?php echo JHtmlString::truncate($item->url, 64); ?></td>
         <td class="center hidden-phone"><?php echo (int)$item->id;?></td>

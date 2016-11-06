@@ -13,6 +13,11 @@ defined('_JEXEC') or die;
 class MagicgalleryViewEntities extends JViewLegacy
 {
     /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+
+    /**
      * @var JDocumentHtml
      */
     public $document;
@@ -51,6 +56,7 @@ class MagicgalleryViewEntities extends JViewLegacy
 
     public function display($tpl = null)
     {
+        $this->app        = JFactory::getApplication();
         $this->option     = JFactory::getApplication()->input->get('option');
 
         $this->state      = $this->get('State');
@@ -60,16 +66,21 @@ class MagicgalleryViewEntities extends JViewLegacy
         $this->params     = $this->state->get('params');
 
         $this->galleryId  = (int)$this->state->get('filter.gallery_id');
+        if (!$this->galleryId) {
+            $this->app->redirect(JRoute::_('index.php?option=com_magicgallery&view=galleries', false));
+            return;
+        }
 
         $this->gallery    = new Magicgallery\Gallery\Gallery(JFactory::getDbo());
         $this->gallery->load($this->galleryId);
 
-        $this->mediaUri   = MagicgalleryHelper::getMediaUri($this->params, $this->gallery);
+        $filesystemHelper = new Prism\Filesystem\Helper($this->params);
+        $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+
+        $this->mediaUri   = $pathHelper->getMediaUri($this->gallery);
         if (!$this->mediaUri) {
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_INVALID_MEDIA_FOLDER'));
         }
-
-        $this->mediaUri = JUri::root() . $this->mediaUri . '/';
 
         // Prepare sorting data
         $this->prepareSorting();

@@ -22,16 +22,14 @@ defined('JPATH_PLATFORM') or die;
  */
 class Entities extends Collection
 {
-    protected $defaultEntity;
-
     /**
      * Load the resources.
      *
      * <code>
      * $options  = array(
      *     "ids" => array(1,2,3,4),
-     *     "gallery_id" => 1, // Load the resources of a gallery.
-     *     "published" => Prism\Constants::PUBLISHED
+     *     "gallery_id" => 1, // Can be integer or array that contains IDs.
+     *     "state" => Prism\Constants::PUBLISHED
      * );
      *
      * $items   = new Magicgallery\Entity\Entities(\JFactory::getDbo());
@@ -51,24 +49,33 @@ class Entities extends Collection
     {
         $query = $this->db->getQuery(true);
         $query
-            ->select('a.id, a.title, a.description, a.thumbnail, a.image, a.home, a.ordering, a.published, a.gallery_id')
+            ->select(
+                'a.id, a.title, a.description, a.image, a.thumbnail, a.image_meta, a.thumbnail_meta, ' .
+                'a.home, a.ordering, a.published, a.gallery_id, a.image_filesize, a.thumbnail_filesize'
+            )
             ->from($this->db->quoteName('#__magicgallery_entities', 'a'));
 
         // Filter by ID.
-        $ids = ArrayHelper::getValue($options, 'ids', array(), 'array');
-        ArrayHelper::toInteger($ids);
+        $ids = $this->getOptionIds($options);
         if (count($ids) > 0) {
             $query->where('a.id IN (' . implode(',', $ids) . ')');
         }
 
-        // Filter by gallery ID.
-        $galleryId = ArrayHelper::getValue($options, 'gallery_id', 0, 'int');
-        if ($galleryId > 0) {
-            $query->where('a.gallery_id = ' . (int)$galleryId);
+        // Filter by gallery IDs.
+        $galleryId = ArrayHelper::getValue($options, 'gallery_id');
+        if ($galleryId !== null) {
+            if (is_array($galleryId)) {
+                $galleryId = ArrayHelper::toInteger($galleryId);
+                if (count($galleryId) > 0) {
+                    $query->where('a.gallery_id IN (' . implode(',', $galleryId) . ')');
+                }
+            } else {
+                $query->where('a.gallery_id = ' . (int)$galleryId);
+            }
         }
 
         // Filter by state.
-        $published = ArrayHelper::getValue($options, 'published');
+        $published = ArrayHelper::getValue($options, 'state');
         if ($published !== null and is_numeric($published)) {
             $query->where('a.published = ' . (int)$published);
         } else {
@@ -78,19 +85,75 @@ class Entities extends Collection
         $query->order('a.ordering ASC');
         $this->db->setQuery($query);
 
-        $results = (array)$this->db->loadAssocList();
+        $this->items = (array)$this->db->loadObjectList();
+    }
 
-        foreach ($results as $key => $value) {
-            $item = new Entity();
-            $item->bind($value);
-
-            $this->items[$key] = $item;
+    /**
+     * Set the resource items for this object.
+     *
+     * <code>
+     * $resourceId  = 1;
+     * $items       = new Magicgallery\Entity\Entities(\JFactory::getDbo());
+     *
+     * $items->getEntity($resourceId);
+     * </code>
+     *
+     * @param int $id
+     *
+     * @return Entity|null
+     */
+    public function getEntity($id)
+    {
+        $resource = null;
+        foreach ($this->items as $item) {
+            if ((int)$item->id === $id) {
+                $resource = new Entity();
+                $resource->bind($item);
+                break;
+            }
         }
 
-        unset($results);
+        return $resource;
+    }
 
-        // Prepare default resource.
-        $this->prepareDefaultEntity();
+    /**
+     * Get an array with objects Entity.
+     *
+     * <code>
+     * $items    = new Magicgallery\Entity\Entities(\JFactory::getDbo());
+     *
+     * $items->setEntities('gallery_id');
+     * </code>
+     *
+     * @param string $key
+     *
+     * @return array
+     */
+    public function getEntities($key = '')
+    {
+        $items = array();
+        foreach ($this->items as $item) {
+            $resource = new Entity();
+            $resource->bind($item);
+
+            if ($key !== '' and property_exists($item, $key)) {
+                if (!$resource->isDefault()) {
+                    $index = (string)$item->$key;
+                    $items[$index][] = $resource;
+                } else {
+                    $index = (string)$item->$key;
+                    $items[$index]['default'] = $resource;
+                }
+            } else {
+                if (!$resource->isDefault()) {
+                    $items[] = $resource;
+                } else {
+                    $items['default'] = $resource;
+                }
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -108,59 +171,38 @@ class Entities extends Collection
      * $defaultResource = $items->getDefaultEntity();
      * </code>
      *
-     * @return Resource
+     * @param int $galleryId
+     *
+     * @return Entity
      */
-    public function getDefaultEntity()
+    public function getDefaultEntity($galleryId = 0)
     {
-        if ($this->defaultEntity === null) {
-            $this->prepareDefaultEntity();
-        }
+        $resource      = null;
+        $defaultEntity = null;
 
-        return $this->defaultEntity;
-    }
-
-    /**
-     * Set the resource items for this object.
-     *
-     * <code>
-     * $items    = new Magicgallery\Entity\Entities(\JFactory::getDbo());
-     * $items2   = array(...);
-     *
-     * $items->setEntities($items2);
-     * </code>
-     *
-     * @param array $items
-     *
-     * @return self
-     */
-    public function setEntities(array $items)
-    {
-        foreach ($items as $item) {
-            $image = new Entity();
-            $image->bind($item);
-
-            $this->items[] = $image;
-        }
-
-        $this->prepareDefaultEntity();
-
-        return $this;
-    }
-
-    protected function prepareDefaultEntity()
-    {
-        /** @var Entity $item */
+        /** @var \stdClass $item */
         foreach ($this->items as $item) {
-            if ($item->isDefault()) {
-                $this->defaultEntity = $item;
+            if ($galleryId > 0 and $item->gallery_id !== $galleryId) {
+                continue;
+            }
+
+            if ((int)$item->home === 1) {
+                $defaultEntity = $item;
                 break;
             }
         }
 
         // If there is no default image, get the first one.
-        if (!$this->defaultEntity and count($this->items) > 0) {
+        if (!$defaultEntity and count($this->items) > 0) {
             $item = reset($this->items);
-            $this->defaultEntity = $item;
+            $defaultEntity = $item;
         }
+
+        if ($defaultEntity !== null) {
+            $resource = new Entity();
+            $resource->bind($defaultEntity);
+        }
+
+        return $resource;
     }
 }

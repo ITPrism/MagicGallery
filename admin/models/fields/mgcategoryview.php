@@ -21,7 +21,7 @@ JFormHelper::loadFieldClass('list');
  * @subpackage   Components
  * @since        1.6
  */
-class JFormFieldMgStyle extends JFormFieldList
+class JFormFieldMgCategoryView extends JFormFieldList
 {
     /**
      * The form field type.
@@ -29,7 +29,7 @@ class JFormFieldMgStyle extends JFormFieldList
      * @var     string
      * @since   1.6
      */
-    protected $type = 'MgStyle';
+    protected $type = 'mgcategoryview';
 
     /**
      * Method to get the field options.
@@ -40,11 +40,8 @@ class JFormFieldMgStyle extends JFormFieldList
     protected function getOptions()
     {
         $options = array(
-            array("value" => 'list', "text" => 'List View'),
-            array("value" => 'lineal', "text" => 'Lineal View'),
-            array("value" => 'slidegallery', "text" => 'SlideGallery View'),
-            array("value" => 'camera', "text" => 'Camera View'),
-            array("value" => 'galleria', "text" => 'Galleria View')
+            array('value' => 'list', 'text' => 'List View'),
+            array('value' => 'lineal', 'text' => 'Lineal View'),
         );
 
         // Merge any additional options in the XML definition.

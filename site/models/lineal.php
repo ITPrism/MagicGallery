@@ -97,7 +97,7 @@ class MagicgalleryModelLineal extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.description, a.url, ' .
+                'a.id, a.title, a.description, a.url, a.params, ' .
                 'a.catid, a.published, a.ordering '
             )
         );

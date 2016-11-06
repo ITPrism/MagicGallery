@@ -27,10 +27,10 @@ defined('_JEXEC') or die;
         &nbsp;
     </th>
     <th width="10%" class="nowrap hidden-phone">
-        <?php echo JText::_('COM_MAGICGALLERY_IMAGE'); ?>
+        <?php echo JText::_('COM_MAGICGALLERY_IMAGE'); ?> / <?php echo JHtml::_('searchtools.sort',  'COM_MAGICGALLERY_FILESIZE', 'a.image_filesize', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap hidden-phone">
-        <?php echo JText::_('COM_MAGICGALLERY_THUMBNAIL'); ?>
+        <?php echo JText::_('COM_MAGICGALLERY_THUMBNAIL'); ?> / <?php echo JHtml::_('searchtools.sort',  'COM_MAGICGALLERY_FILESIZE', 'a.thumbnail_filesize', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap center hidden-phone">
         <?php echo JText::_('COM_MAGICGALLERY_DEFAULT'); ?>
@@ -39,4 +39,3 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('searchtools.sort',  'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>
     </th>
 </tr>
-	  

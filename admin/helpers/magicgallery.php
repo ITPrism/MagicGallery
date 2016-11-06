@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Magicgallery\Gallery\Gallery;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -43,42 +45,67 @@ class MagicgalleryHelper
             'index.php?option=' . self::$extension . '&view=galleries',
             $vName === 'galleries'
         );
+
+        JHtmlSidebar::addEntry(
+            JText::_('COM_MAGICGALLERY_RESOURCES'),
+            'index.php?option=' . self::$extension . '&view=entities',
+            $vName === 'entities'
+        );
     }
 
     /**
      * Prepare an image that will be used for meta data.
      *
-     * @param Magicgallery\Category\Category $category
-     * @param Magicgallery\Entity\Entities  $resources
-     * @param string  $mediaFolder
+     * @param array $galleries
      *
-     * @return NULL|string
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
+     * @return null|string
      */
-    public static function getIntroImage($category, $resources, $mediaFolder)
+    public static function getIntroImageFromGalleries($galleries)
     {
-        $uri = JUri::getInstance();
+        $imageUrl = null;
 
-        $image = null;
-        if (!$category->getImage() and 0 < count($resources)) {
-            $image = reset($resources);
-            
-            if (!empty($image)) {
-                if ($image->getThumbnail()) {
-                    $image = $mediaFolder . '/' . $image->getThumbnail();
-                } else {
-                    $image = $mediaFolder . '/' . $image->getImage();
-                }
-            }
+        /** @var Gallery $gallery */
+        $gallery   = reset($galleries);
 
-        } else {
-            if ($category->getImage() and (0 !== strpos($category->getImage(), 'http'))) {
-                $image = $uri->toString(array('scheme', 'host')) . '/' . $category->getImage();
+        $resource  = $gallery->getDefaultEntity();
+        if ($resource !== null) {
+            if ($resource->getThumbnail()) {
+                $imageUrl = $gallery->getMediaUri() . '/' . $resource->getThumbnail();
             } else {
-                $image = $category->getImage();
+                $imageUrl = $gallery->getMediaUri() . '/' . $resource->getImage();
             }
         }
 
-        return $image;
+        return $imageUrl;
+    }
+
+    /**
+     * Prepare an image that will be used for meta data.
+     *
+     * @param Magicgallery\Gallery\Gallery $gallery
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
+     * @return null|string
+     */
+    public static function getIntroImage($gallery)
+    {
+        $imageUrl = null;
+
+        $resource = $gallery->getDefaultEntity();
+        if ($resource !== null) {
+            if ($resource->getThumbnail()) {
+                $imageUrl = $gallery->getMediaUri() . '/' . $resource->getThumbnail();
+            } else {
+                $imageUrl = $gallery->getMediaUri() . '/' . $resource->getImage();
+            }
+        }
+
+        return $imageUrl;
     }
 
     public static function getModalClass($modal)
@@ -95,6 +122,10 @@ class MagicgalleryHelper
             case 'magnific':
                 $class = 'js-com-magnific-modal';
                 break;
+            case 'swipebox':
+                $class = 'js-com-swipebox-modal';
+                break;
+
             default:
                 $class = '';
                 break;
@@ -127,53 +158,5 @@ class MagicgalleryHelper
         }
 
         return $result;
-    }
-
-    /**
-     * Prepare and return media folder.
-     *
-     * @param Joomla\Registry\Registry $params
-     * @param null|Magicgallery\Gallery\Gallery $gallery
-     *
-     * @throws \UnexpectedValueException
-     * @return null|string
-     */
-    public static function getMediaFolder($params, $gallery = null)
-    {
-        $mediaFolder = '';
-
-        if ($gallery !== null and ($gallery instanceof Magicgallery\Gallery\Gallery)) {
-            $mediaFolder = JPath::clean($gallery->getParam('path'));
-        }
-
-        if (!$mediaFolder) {
-            $mediaFolder = JPath::clean($params->get('media_folder', 'images/magicgallery'));
-        }
-
-        return (!$mediaFolder) ? null : $mediaFolder;
-    }
-
-    /**
-     * Prepare and return media URI.
-     *
-     * @param Joomla\Registry\Registry $params
-     * @param null|Magicgallery\Gallery\Gallery $gallery
-     *
-     * @return null|string
-     */
-    public static function getMediaUri($params, $gallery = null)
-    {
-        $mediaUri = '';
-
-        if ($gallery !== null and ($gallery instanceof Magicgallery\Gallery\Gallery)) {
-            $mediaUri    = $gallery->getParam('uri');
-        }
-
-
-        if (!$mediaUri) {
-            $mediaUri = $params->get('media_folder', 'images/magicgallery');
-        }
-
-        return (!$mediaUri) ? null : $mediaUri;
     }
 }

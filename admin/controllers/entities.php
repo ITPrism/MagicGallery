@@ -21,13 +21,12 @@ class MagicgalleryControllerEntities extends Prism\Controller\Admin
     public function __construct($config = array())
     {
         parent::__construct($config);
-        $this->registerTask('unsetDefault',	'setDefault');
+        $this->registerTask('unsetDefault', 'setDefault');
     }
 
     public function getModel($name = 'Entity', $prefix = 'MagicgalleryModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
 
@@ -61,7 +60,6 @@ class MagicgalleryControllerEntities extends Prism\Controller\Admin
         );
 
         try {
-
             $image = new Magicgallery\Entity\Entity(JFactory::getDbo());
             $image->load($itemId);
 
@@ -70,7 +68,6 @@ class MagicgalleryControllerEntities extends Prism\Controller\Admin
             }
 
         } catch (Exception $e) {
-
             JLog::add($e->getMessage());
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'));
 

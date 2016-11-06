@@ -80,7 +80,7 @@ class pkg_magicgalleryInstallerScript
         jimport('Magicgallery.init');
 
         $params       = JComponentHelper::getParams('com_magicgallery');
-        $imagesFolder = JFolder::makeSafe($params->get('media_folder', 'images/magicgallery'));
+        $imagesFolder = JFolder::makeSafe($params->get('local_media_folder', 'media/magicgallery'));
         $imagesPath   = JPath::clean(JPATH_SITE . DIRECTORY_SEPARATOR . $imagesFolder);
 
         // Create images folder

@@ -13,6 +13,11 @@ defined('_JEXEC') or die;
 class MagicgalleryViewTabbed extends JViewLegacy
 {
     /**
+     * @var JApplicationSite
+     */
+    public $app;
+    
+    /**
      * @var JDocumentHtml
      */
     public $document;
@@ -34,8 +39,6 @@ class MagicgalleryViewTabbed extends JViewLegacy
     protected $option;
     protected $pageclass_sfx;
 
-    protected $category;
-    protected $categoryId;
     protected $galleries;
     protected $mediaUrl;
     protected $activeTab;
@@ -46,49 +49,41 @@ class MagicgalleryViewTabbed extends JViewLegacy
     
     public function display($tpl = null)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
-        $this->option = $app->input->get('option');
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
         
         $this->state  = $this->get('State');
-        $this->items  = $this->get('Items');
+//        $this->items  = $this->get('Items');
         $this->params = $this->state->params;
 
-        $this->projectsView = $app->input->get('projects_view', 'tabbed', 'string');
+        $this->projectsView = $this->app->input->get('projects_view', 'tabbed', 'string');
 
-        // Parse parameters and collect categories ids in array
-        $categoriesIds = array();
-        foreach ($this->items as &$item) {
-            $item->params = json_decode($item->params);
-            if ($item->params !== null and isset($item->params->image) and ($item->params->image !== '')) {
-                $item->image = $item->params->image;
-            }
+        $requestId  = $this->app->input->getCmd('id');
 
-            $categoriesIds[] = $item->id;
-        }
-
-        unset($item);
-
-        $options  = array(
-            'category_id'    => $categoriesIds,
+        $galleryIds = $this->params->get('gallery_id');
+        $galleryIds = Joomla\Utilities\ArrayHelper::toInteger($galleryIds);
+        $options    = array(
+            'ids'            => $galleryIds,
             'gallery_state'  => Prism\Constants::PUBLISHED,
             'load_resources' => true,
             'resource_state' => Prism\Constants::PUBLISHED
         );
 
-        $galleries_  = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
-        $galleries_->load($options);
+        $galleries  = new Magicgallery\Gallery\Galleries(JFactory::getDbo());
+        $galleries->load($options);
 
-        $galleries = array();
-        foreach ($galleries_ as $gallery) {
-            $galleries[$gallery->getCategoryId()][] = $gallery;
-        }
+        // Prepare the categories parameters and images.
+        $filesystemHelper = new Prism\Filesystem\Helper($this->params);
+        $pathHelper       = new Magicgallery\Helper\Path($filesystemHelper);
+        
+        // Prepare the media URL of the galleries.
+        $helperBus      = new Prism\Helper\HelperBus($galleries);
+        $helperBus->addCommand(new Magicgallery\Helper\PrepareGalleriesUriHelper($pathHelper));
+        $helperBus->handle();
 
-        $this->galleries = $galleries;
+        $this->items     = $galleries->getGalleries();
 
-        $this->mediaUrl       = JUri::root() . $this->params->get('media_folder', 'images/magicgallery');
-        $this->activeTab      = $this->params->get('active_tab');
+        $this->activeTab = $this->params->get('active_tab');
 
         // Open link target
         $this->openLink = 'target="' . $this->params->get('open_link', '_self') . '"';
@@ -101,8 +96,8 @@ class MagicgalleryViewTabbed extends JViewLegacy
 
         $item              = new stdClass();
         $item->title       = $this->document->getTitle();
-        $item->link        = MagicgalleryHelperRoute::getCategoriesViewRoute('tabbed');
-        $item->image_intro = MagicgalleryHelper::getCategoryImage($this->items);
+        $item->link        = MagicgalleryHelperRoute::getGalleryViewRoute('tabbed', $requestId);
+        $item->image_intro = MagicgalleryHelper::getIntroImageFromGalleries($this->items);
 
         JPluginHelper::importPlugin('content');
         $dispatcher  = JEventDispatcher::getInstance();
@@ -124,9 +119,10 @@ class MagicgalleryViewTabbed extends JViewLegacy
 
         $this->setLayout($this->modal);
 
+        JHtml::_('jquery.framework');
+
         switch ($this->modal) {
             case 'fancybox':
-                JHtml::_('jquery.framework');
                 JHtml::_('Magicgallery.lightboxFancybox');
 
                 // Initialize lightbox
@@ -138,13 +134,23 @@ class MagicgalleryViewTabbed extends JViewLegacy
                 break;
 
             case 'nivo': // Joomla! native
-                JHtml::_('jquery.framework');
                 JHtml::_('Magicgallery.lightboxNivo');
 
                 // Initialize lightbox
                 $js = '
                 jQuery(document).ready(function(){
                     jQuery(".' . $this->modalClass . '").nivoLightbox();
+                });';
+                $this->document->addScriptDeclaration($js);
+                break;
+
+            case 'swipebox':
+                JHtml::_('Magicgallery.lightboxSwipebox');
+
+                // Initialize lightbox
+                $js = '
+                jQuery(document).ready(function(){
+                    jQuery(".' . $this->modalClass . '").swipebox();
                 });';
                 $this->document->addScriptDeclaration($js);
                 break;
@@ -158,8 +164,7 @@ class MagicgalleryViewTabbed extends JViewLegacy
      */
     protected function prepareDocument()
     {
-        $app   = JFactory::getApplication();
-        $menus = $app->getMenu();
+        $menus = $this->app->getMenu();
 
         //Escape strings for HTML output
         $this->pageclass_sfx = htmlspecialchars($this->params->get('pageclass_sfx'));
@@ -176,9 +181,9 @@ class MagicgalleryViewTabbed extends JViewLegacy
         // Set page title
         $title = $this->params->get('page_title', '');
         if ($title !== '') {
-            $title = $app->get('sitename');
-        } elseif ($app->get('sitename_pagetitles', 0)) {
-            $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
+            $title = $this->app->get('sitename');
+        } elseif ($this->app->get('sitename_pagetitles', 0)) {
+            $title = JText::sprintf('JPAGETITLE', $this->app->get('sitename'), $title);
         }
         $this->document->setTitle($title);
 

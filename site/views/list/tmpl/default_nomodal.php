@@ -9,75 +9,68 @@
 
 // no direct access
 defined('_JEXEC') or die;
-?>
-<?php foreach ($this->items as $item) {
+/**
+ * @var Magicgallery\Entity\Entity $defaultResource
+ * @var Magicgallery\Entity\Entities $resources
+ * @var Magicgallery\Gallery\Gallery $gallery
+ * @var stdClass $resource
+ */
+foreach ($this->items as $gallery) {
+    $mediaUrl        = $gallery->getMediaUri();
+    $resources       = $gallery->getEntities();
+    $defaultResource = array();
 
-    $images = JArrayHelper::getValue($this->images, $item->id);
-    $defaultImage = array();
-
-    if (!empty($images)) {
-        $defaultImage = JArrayHelper::getValue($images, "default");
-        unset($images["default"]);
+    if (count($resources) > 0) {
+        $defaultResource = $resources->getDefaultEntity();
+        $defaultWidth    = $this->params->get('thumb_width', 200);
+        $defaultHeight   = $this->params->get('thumb_height', 200);
     }
     ?>
-    <div class="row">
-        <?php if ($defaultImage) { ?>
-            <div class="col-md-3" style="width: <?php echo $this->params->get('thumb_width', 200); ?>; height: <?php echo $this->params->get('thumb_height', 200); ?>;">
-            <?php if ($this->params->get("image_linkable")) { ?>
-            <a href="<?php echo $this->mediaUrl . "/". $defaultImage["image"]; ?>" <?php echo $this->openLink; ?> >
-            <?php } ?>
-                <img
-                    width="<?php echo $this->params->get('thumb_width', 200); ?>"
-                    height="<?php echo $this->params->get('thumb_height', 200); ?>"
-                    src="<?php echo $this->mediaUrl . "/". $defaultImage["thumbnail"]; ?>"
-                    alt="<?php echo $this->escape($item->title); ?>"
-                    title="<?php echo $this->escape($item->title); ?>"
-                    class="thumbnail"
-                    />
-            <?php if ($this->params->get("image_linkable")) { ?>
+    <div class="row mb-15">
+        <?php if ($defaultResource) { ?>
+            <div class="col-md-4 col-sm-12 col-xs-12" style="width: <?php echo $this->params->get('thumb_width', 200); ?>; height: <?php echo $this->params->get('thumb_height', 200); ?>;">
+                <?php if ($this->params->get('image_linkable')) { ?>
+                <a href="<?php echo $mediaUrl . '/' . $defaultResource->getImage(); ?>" <?php echo $this->openLink; ?> >
+                    <?php } ?>
+                    <img width="<?php echo $defaultWidth; ?>" height="<?php echo $defaultHeight; ?>" src="<?php echo $mediaUrl . '/' . $defaultResource->getThumbnail(); ?>" alt="<?php echo $this->escape($defaultResource->getTitle()); ?>" title="<?php echo $this->escape($defaultResource->getTitle()); ?>" class="thumbnail mb-5"/>
+                    <?php if ($this->params->get('image_linkable')) { ?>
                 </a>
             <?php } ?>
 
-                <?php if ($this->params->get("display_additional_images", 0) and !empty($images)) {?>
-                <div class="mg-additional-images">
-                    <?php
+                <?php if ($this->params->get('display_additional_images', 0) and count($resources) > 0) { ?>
+                    <div class="mg-additional-images">
+                        <?php
                         $i = 0;
-                        foreach ($images as $image) {?>
-                            <a href="<?php echo $this->mediaUrl . "/". $image['image'];?>" <?php echo $this->openLink;?> >
-                                <img
-                                    width="<?php echo $this->params->get('additional_images_thumb_width', 50); ?>"
-                                    height="<?php echo $this->params->get('additional_images_thumb_height', 50); ?>"
-                                    src="<?php echo $this->mediaUrl . "/". $image['thumbnail'];?>"
-                                    alt=""
-                                    title=""
-                                    />
-                            </a>
-
-                            <?php
-                            $i++;
-                            if ($i == $this->params->get("additional_images_number", 3)) {
-                                break;
+                        foreach ($resources as $resource) {
+                            if (!$resource->home) { ?>
+                                <a href="<?php echo $mediaUrl . '/' . $resource->image; ?>" <?php echo $this->openLink; ?>>
+                                    <img width="<?php echo $this->params->get('additional_images_thumb_width', 50); ?>" height="<?php echo $this->params->get('additional_images_thumb_height', 50); ?>" src="<?php echo $mediaUrl . '/' . $resource->thumbnail; ?>"/>
+                                </a>
+                                <?php
+                                $i++;
+                                if ($i === (int)$this->params->get('additional_images_number', 3)) {
+                                    break;
+                                }
                             }
-                        }
-                    ?>
-                </div>
+                        } ?>
+                    </div>
                 <?php } ?>
             </div>
         <?php } ?>
-        <div class="col-md-9">
+        <div class="col-md-8 col-sm-12 col-xs-12">
             <?php
-            if ($this->params->get("display_title")) { ?>
+            if ($this->params->get('display_title')) { ?>
                 <h3>
-                <?php if ($this->params->get("title_linkable") and !empty($item->url)) { ?>
-                    <a href="<?php echo $item->url; ?>" <?php echo $this->openLink; ?>><?php echo $this->escape($item->title); ?></a>
-                <?php } else { ?>
-                    <?php echo $this->escape($item->title); ?>
-                <?php } ?>
-                <?php echo (!empty($this->event->onContentAfterTitle) ) ? $this->event->onContentAfterTitle : ""; ?>
+                    <?php if ($this->params->get('title_linkable') and $gallery->getUrl()) { ?>
+                        <a href="<?php echo $gallery->getUrl(); ?>" <?php echo $this->openLink; ?>><?php echo $this->escape($gallery->getTitle()); ?></a>
+                    <?php } else { ?>
+                        <?php echo $this->escape($gallery->getTitle()); ?>
+                    <?php } ?>
+                    <?php echo (!empty($this->event->onContentAfterTitle)) ? $this->event->onContentAfterTitle : ''; ?>
                 </h3>
             <?php } ?>
 
-            <?php echo $item->description; ?>
+            <?php echo $gallery->getDescription(); ?>
         </div>
     </div>
 <?php } ?>

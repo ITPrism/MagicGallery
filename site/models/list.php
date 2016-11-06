@@ -104,7 +104,7 @@ class MagicgalleryModelList extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.description, a.url, a.catid, a.published, a.ordering'
+                'a.id, a.title, a.description, a.url, a.catid, a.published, a.ordering, a.params'
             )
         );
 
@@ -132,58 +132,5 @@ class MagicgalleryModelList extends JModelList
         $orderDirn = $this->getState('list.direction', 'ASC');
 
         return $orderCol . ' ' . $orderDirn;
-    }
-
-    public function getImages($ids)
-    {
-        $db = $this->getDbo();
-        /** @var $db JDatabaseDriver */
-
-        $query = $db->getQuery(true);
-
-        // Select the required fields from the table.
-        $query->select(
-            $this->getState(
-                'list.select',
-                'a.id, a.title, a.description, a.thumbnail, a.image, a.home, a.ordering, a.published, a.gallery_id'
-            )
-        );
-
-        $query->from($db->quoteName('#__magicgallery_entities', 'a'));
-        $query->where('a.gallery_id IN (' . implode(',', $ids).')');
-        $query->where('a.published = '.(int)Prism\Constants::PUBLISHED);
-        $query->order('a.ordering');
-
-        $db->setQuery($query);
-
-        $results = $db->loadAssocList();
-
-        $images = array();
-        foreach ($results as $value) {
-            $images[$value['gallery_id']][] = $value;
-        }
-
-        foreach ($images as $key_ => &$images_) {
-            $defaultImage = null;
-
-            foreach ($images_ as $key => $image) {
-                if ($image['home']) {
-                    
-                    $defaultImage = $image;
-                    $images_['default'] = $defaultImage;
-                    unset($images_[$key]);
-                    
-                    break 1;
-                }
-            }
-
-            if (!$defaultImage) {
-                $images_['default'] = array_shift($images_);
-            }
-        }
-        
-        unset($images_);
-
-        return $images;
     }
 }

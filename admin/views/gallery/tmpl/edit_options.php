@@ -10,22 +10,20 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<div class="span6">
-    <div class="panel panel-default">
-        <div class="panel-heading"><?php echo JText::_('COM_MAGICGALLERY_PATH_OPTIONS'); ?></div>
-        <div class="panel-body">
-            <?php foreach ($this->form->getFieldset('paths') as $field) { ?>
-                <div class="control-group">
-                    <?php if (!$field->hidden) : ?>
-                        <div class="control-label">
-                            <?php echo $field->label; ?>
-                        </div>
-                    <?php endif; ?>
-                    <div class="controls">
-                        <?php echo $field->input; ?>
+<div class="panel panel-default">
+    <div class="panel-heading"><?php echo JText::_('COM_MAGICGALLERY_PATH_OPTIONS'); ?></div>
+    <div class="panel-body">
+        <?php foreach ($this->form->getFieldset('paths') as $field) { ?>
+            <div class="control-group">
+                <?php if (!$field->hidden) : ?>
+                    <div class="control-label">
+                        <?php echo $field->label; ?>
                     </div>
+                <?php endif; ?>
+                <div class="controls">
+                    <?php echo $field->input; ?>
                 </div>
-            <?php } ?>
-        </div>
+            </div>
+        <?php } ?>
     </div>
 </div>

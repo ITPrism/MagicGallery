@@ -9,9 +9,9 @@
 
 namespace Magicgallery\Gallery;
 
-use Prism;
 use Joomla\Utilities\ArrayHelper;
-use Magicgallery\Entity;
+use Prism\Database\Collection;
+use Magicgallery\Entity\Entities;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -21,20 +21,18 @@ defined('JPATH_PLATFORM') or die;
  * @package         Magicgallery
  * @subpackage      Projects
  */
-class Galleries extends Prism\Database\ArrayObject
+class Galleries extends Collection
 {
-    protected $resources;
-
     /**
      * Load the galleries.
      *
      * <code>
      * $options  = array(
-     *     "ids" => array(1,2,3,4),
-     *     "category_id" => array(1,2,3,4,5), // Can be integer or array that contains IDs.
-     *     "gallery_state"   => Prism\Constants::PUBLISHED,
-     *     "load_entities" => true,
-     *     "entity_state" => Prism\Constants::PUBLISHED
+     *     "ids"            => array(1,2,3,4),
+     *     "category_id"    => array(1,2,3,4,5), // Can be integer or array that contains IDs.
+     *     "gallery_state"  => Prism\Constants::PUBLISHED,
+     *     "load_resources" => true,
+     *     "resource_state" => Prism\Constants::PUBLISHED
      * );
      *
      * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
@@ -54,13 +52,11 @@ class Galleries extends Prism\Database\ArrayObject
     {
         $query = $this->db->getQuery(true);
         $query
-            ->select('a.id, a.title, a.alias, a.description, a.url, a.catid, a.extension, a.object_id, a.published, a.ordering, a.user_id')
+            ->select('a.id, a.title, a.alias, a.description, a.url, a.catid, a.extension, a.object_id, a.published, a.ordering, a.user_id, a.params')
             ->from($this->db->quoteName('#__magicgallery_galleries', 'a'));
 
         // Filter by ID.
-        $ids = ArrayHelper::getValue($options, 'ids', array(), 'array');
-        ArrayHelper::toInteger($ids);
-
+        $ids = $this->getOptionIds($options);
         if (count($ids) > 0) {
             $query->where('a.id IN (' . implode(',', $ids) . ')');
         }
@@ -81,37 +77,25 @@ class Galleries extends Prism\Database\ArrayObject
         // Filter by state.
         $published = ArrayHelper::getValue($options, 'gallery_state');
         if ($published !== null and is_numeric($published)) {
-            if ($published) {
-                $query->where('a.published = 1');
-            } else {
-                $query->where('a.published = 0');
-            }
+            $published = $published ? 1 : 0;
+            $query->where('a.published = ' . (int)$published);
+        } else {
+            $query->where('a.published = (0,1)');
         }
 
         $query->order('a.ordering');
-        $this->db->setQuery($query);
 
-        $this->items = (array)$this->db->loadAssocList();
+        $start = $this->getOptionStart($options);
+        $limit = $this->getOptionLimit($options);
+        $this->db->setQuery($query, $start, $limit);
+
+        $this->items = (array)$this->db->loadObjectList();
+        $this->prepareParameters();
 
         // Load the images.
-        $loadEntities = ArrayHelper::getValue($options, 'load_entities', false, 'bool');
-        if ($loadEntities) {
-            $this->loadEntities($options);
-        }
-
-        // Create Gallery objects and set the images.
-        foreach ($this->items as $key => $item) {
-            $gallery = new Gallery();
-            $gallery->bind($item);
-
-            if ($loadEntities) {
-                $resources = $this->getEntities($item['id']);
-                if ($resources !== null) {
-                    $gallery->setEntities($resources);
-                }
-            }
-
-            $this->items[$key] = $gallery;
+        $loadResources = ArrayHelper::getValue($options, 'load_resources', false, 'bool');
+        if ($loadResources) {
+            $this->loadResources($options);
         }
     }
 
@@ -119,134 +103,75 @@ class Galleries extends Prism\Database\ArrayObject
      * Return the number of items.
      *
      * <code>
-     * $ids = array(1,2,3,4);
+     * $ids         = array(1,2,3,4);
      *
      * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
-     * $number = $galleries->countEntities($options);
+     * $number      = $galleries->countResources($options);
      *
      * foreach($galleries as $id => $number) {
      *     echo $number;
      * }
      * </code>
      *
-     * @param array $ids
+     * @param array $galleriesIds
      *
      * @throws \RuntimeException
      *
      * @return array
      */
-    public function countEntities(array $ids = array())
+    public function countResources(array $galleriesIds = array())
     {
         // Get the ids from current galleries
         // if the IDs are not provided as parameter.
-        if (count($ids) === 0) {
-            $ids = $this->getKeys();
+        if (count($galleriesIds) === 0) {
+            $galleriesIds = $this->getValues('id');
         }
 
-        ArrayHelper::toInteger($ids);
         $result = array();
 
-        if (count($ids) > 0) {
+        $galleriesIds = ArrayHelper::toInteger($galleriesIds);
+        if (count($galleriesIds) > 0) {
             $query = $this->db->getQuery(true);
             $query
                 ->select('a.gallery_id, COUNT(*) AS number')
                 ->from($this->db->quoteName('#__magicgallery_entities', 'a'))
-                ->where('a.gallery_id IN (' . implode(',', $ids) . ')')
+                ->where('a.gallery_id IN (' . implode(',', $galleriesIds) . ')')
                 ->group('a.gallery_id');
 
             $this->db->setQuery($query);
-
             $result = (array)$this->db->loadAssocList('gallery_id');
         }
 
         return $result;
     }
-
-    /**
-     * Return the resources for a gallery.
-     *
-     * <code>
-     * $options  = array(
-     *     "ids" => array(1,2,3,4),
-     *     "category_id" => 1, // Can be integer or array that contains IDs.
-     *     "gallery_state"   => Prism\Constants::PUBLISHED,
-     *     "load_entities" => true
-     * );
-     *
-     * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
-     * $galleries->load($options);
-     *
-     * $galleryId = 1;
-     *
-     * $resources = $galleries->getEntities($galleryId);
-     * </code>
-     *
-     * @param int $galleryId
-     * @param array $options
-     *
-     * @return null|Entity\Entities
-     */
-    public function getEntities($galleryId, array $options = array())
-    {
-        $result = null;
-        $galleryId = (int)$galleryId;
-
-        // Load the images.
-        if ($this->resources === null) {
-            $this->loadEntities($options);
-        }
-
-        if (is_array($this->resources) and array_key_exists($galleryId, $this->resources)) {
-            $result = $this->resources[$galleryId];
-        }
-
-        return $result;
-    }
     
-    protected function loadEntities(array $options = array())
+    protected function loadResources(array $options = array())
     {
-        $galleriesIds = $this->getKeys();
+        $galleriesIds = $this->getValues('id');
+        $galleriesIds = ArrayHelper::toInteger($galleriesIds);
 
         if (count($galleriesIds) > 0) {
-            $query = $this->db->getQuery(true);
-            $query
-                ->select('a.id, a.title, a.description, a.thumbnail, a.image, a.home, a.ordering, a.published, a.gallery_id')
-                ->from($this->db->quoteName('#__magicgallery_entities', 'a'))
-                ->where('a.gallery_id IN (' . implode(',', $galleriesIds) . ')');
+            $published = ArrayHelper::getValue($options, 'resource_state');
+            $options = array(
+                'gallery_id' => $galleriesIds,
+                'state'      => $published
+            );
+            
+            $resources = new Entities($this->db);
+            $resources->load($options);
 
-            // Filter by state.
-            $published = ArrayHelper::getValue($options, 'entity_state');
-            if ($published !== null and is_numeric($published)) {
-                if ($published) {
-                    $query->where('a.published = '. (int)Prism\Constants::PUBLISHED);
-                } else {
-                    $query->where('a.published = ' . (int)Prism\Constants::UNPUBLISHED);
-                }
-            } else {
-                $query->where('a.published IN (1,0)');
+            // Set the resources to the galleries.
+            $resources_ = array();
+            foreach ($this->items as $item) {
+                $entities   = new Entities();
+                $resources_ = $resources->findAll($item->id, 'gallery_id');
+
+                $entities->setItems($resources_);
+
+                $item->entities = $entities;
             }
 
-            $query->order('a.ordering');
-            $this->db->setQuery($query);
-
-            $results = (array)$this->db->loadAssocList();
-
-            $this->resources = array();
-
-            // Split the resources by galleries.
-            $galleryResources = array();
-            foreach ($results as $value) {
-                $galleryResources[$value['gallery_id']][] = $value;
-            }
-
-            foreach ($galleryResources as $key => $items) {
-                $resources = new Entity\Entities(\JFactory::getDbo());
-                $resources->setEntities($items);
-
-                $this->resources[$key] = $resources;
-            }
-
-            unset($results, $galleryResources);
+            unset($resources, $resources_, $galleriesIds);
         }
     }
 
@@ -258,7 +183,7 @@ class Galleries extends Prism\Database\ArrayObject
      *     "ids" => array(1,2,3,4),
      *     "category_id" => 1, // Can be integer or array that contains IDs.
      *     "gallery_state"   => Prism\Constants::PUBLISHED,
-     *     "load_entities" => true
+     *     "load_resources" => true
      * );
      *
      * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
@@ -269,7 +194,7 @@ class Galleries extends Prism\Database\ArrayObject
      * $resources = $galleries->getFirst($galleryId);
      * </code>
      *
-     * @return null|Gallery
+     * @return null|\stdClass
      */
     public function getFirst()
     {
@@ -286,7 +211,7 @@ class Galleries extends Prism\Database\ArrayObject
      *     "ids" => array(1,2,3,4),
      *     "category_id" => 1, // Can be integer or array that contains IDs.
      *     "gallery_state"   => Prism\Constants::PUBLISHED,
-     *     "load_entities" => true
+     *     "load_resources" => true
      * );
      *
      * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
@@ -304,10 +229,10 @@ class Galleries extends Prism\Database\ArrayObject
     {
         $gallery = null;
 
-        /** @var Gallery $item */
         foreach ($this->items as $item) {
-            if ((int)$galleryId === (int)$item->getId()) {
-                $gallery = $item;
+            if ((int)$galleryId === (int)$item['id']) {
+                $gallery = new Gallery($this->db);
+                $gallery->bind($item);
                 break;
             }
         }
@@ -316,59 +241,34 @@ class Galleries extends Prism\Database\ArrayObject
     }
 
     /**
-     * Return the items as array.
+     * Get an array with objects Gallery.
      *
      * <code>
-     * $options  = array(
-     *     "ids" => array(1,2,3,4),
-     *     "category_id" => 1, // Can be integer or array that contains IDs.
-     *     "gallery_state"   => Prism\Constants::PUBLISHED,
-     *     "load_entities" => true
-     * );
+     * $items    = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
      *
-     * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
-     * $galleries->load($options);
-     *
-     * $galleriesAsArray = $galleries->toArray();
+     * $items->getGalleries('catid');
      * </code>
+     *
+     * @param string $key
      *
      * @return array
      */
-    public function toArray()
+    public function getGalleries($key = '')
     {
-        $galleries = array();
-
-        /** @var Gallery $item */
+        $items = array();
+        
         foreach ($this->items as $item) {
-            $galleries[] = $item->toArray();
+            $gallery = new Gallery($this->db);
+            $gallery->bind($item);
+
+            if ($key !== '' and property_exists($item, $key)) {
+                $index           = (string)$item->$key;
+                $items[$index][] = $gallery;
+            } else {
+                $items[] = $gallery;
+            }
         }
 
-        return $galleries;
-    }
-
-    /**
-     * Check for available resources.
-     *
-     * <code>
-     * $options  = array(
-     *     "ids" => array(1,2,3,4),
-     *     "category_id" => 1, // Can be integer or array that contains IDs.
-     *     "gallery_state"   => Prism\Constants::PUBLISHED,
-     *     "load_entities" => true
-     * );
-     *
-     * $galleries   = new Magicgallery\Gallery\Galleries(\JFactory::getDbo());
-     * $galleries->load($options);
-     *
-     * if (!$galleries->provideEntities()) {
-     * ...
-     * }
-     * </code>
-     *
-     * @return bool
-     */
-    public function provideEntities()
-    {
-        return (bool)(is_array($this->resources) and count($this->resources) > 0);
+        return $items;
     }
 }

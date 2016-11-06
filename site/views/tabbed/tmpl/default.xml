@@ -7,30 +7,21 @@
     </layout>
 
    <!-- Add fields to the request variables for the layout. -->
-    <fields name="request">
-        <fieldset name="request"
-            addfieldpath="/administrator/components/com_magicgallery/models/fields"
-        >
-            
-            <field name="categories_ids" type="category"
-               label="COM_MAGICGALLERY_CATEGORY"
-               description="COM_MAGICGALLERY_VIEW_SELECT_CATEGORY_DESC"
-               extension="com_magicgallery"
-               required="true"
-               multiple="true" 
-               size="10"
-           />
-            
-        </fieldset>
-    </fields>
-    
+	<fields name="request" addfieldpath="/libraries/Prism/ui/fields">
+		<fieldset name="request">
+			<field name="id" type="prismuid" label="COM_MAGICGALLERY_REQUEST_ID" />
+		</fieldset>
+	</fields>
+
     <!-- Add fields to the parameters object for the layout. -->
-    <fields name="params">
+    <fields name="params" addfieldpath="/administrator/components/com_magicgallery/models/fields">
         <fieldset name="basic">
+			<field name="gallery_id" type="mggallery" label="COM_MAGICGALLERY_GALLERY" description="COM_MAGICGALLERY_FIELD_GALLERY_DESC" required="true" published="1" multiple="true"/>
             <field name="modal" type="list" default="0"  label="COM_MAGICGALLERY_MODAL_WINDOW" description="COM_MAGICGALLERY_MODAL_WINDOW_DESC" >
 	           <option value="">COM_MAGICGALLERY_NONE</option>
-               <option value="nivo">COM_MAGICGALLERY_LIGHTBOX_NIVO</option>
-               <option value="fancybox">COM_MAGICGALLERY_LIGHTBOX_FANCYBOX</option>
+				<option value="fancybox">COM_MAGICGALLERY_LIGHTBOX_FANCYBOX</option>
+				<option value="nivo">COM_MAGICGALLERY_LIGHTBOX_NIVO</option>
+				<option value="swipebox">COM_MAGICGALLERY_LIGHTBOX_SWIPEBOX</option>
 	        </field>
 	        <field name="display_title" type="radio" default="0"  label="COM_MAGICGALLERY_DISPLAY_TITLE" description="COM_MAGICGALLERY_DISPLAY_TITLE_DESC" class="btn-group">
 	            <option value="0">JNO</option>
@@ -58,8 +49,8 @@
 	            <option value="0">JNO</option>
 	            <option value="1">JYES</option>
 	        </field>
-            
-	        <field name="active_tab" type="MgCategoryLayout" label="COM_MAGICGALLERY_ACTIVE_TAB" description="COM_MAGICGALLERY_ACTIVE_TAB_DESC" />
+
+	        <field name="active_tab" type="MgGalleryLayout" label="COM_MAGICGALLERY_ACTIVE_TAB" description="COM_MAGICGALLERY_ACTIVE_TAB_DESC" published="1" />
         </fieldset>
     </fields>
     

@@ -9,6 +9,7 @@
 
 namespace Magicgallery\Entity;
 
+use Joomla\Registry\Registry;
 use Prism\Database;
 use Prism\Constants;
 
@@ -27,22 +28,19 @@ class Entity extends Database\Table
     protected $description;
     protected $image;
     protected $thumbnail;
-    protected $width;
-    protected $height;
-    protected $mime;
+    protected $image_filesize;
+    protected $thumbnail_filesize;
     protected $type;
     protected $home;
-    protected $filesize;
     protected $ordering;
     protected $published;
     protected $gallery_id;
 
     /**
-     * The folder where the media files are stored.
-     *
-     * @var string
+     * @var Registry
      */
-    protected $mediaFolder;
+    protected $image_meta;
+    protected $thumbnail_meta;
 
     /**
      * Load gallery data from database.
@@ -54,8 +52,8 @@ class Entity extends Database\Table
      * $item->load($itemId);
      * </code>
      *
-     * @param int|array $keys
-     * @param array $options
+     * @param int||array $keys
+     * @param array     $options
      *
      * @throws \RuntimeException
      */
@@ -64,19 +62,22 @@ class Entity extends Database\Table
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.title, a.description, a.image, a.thumbnail, a.width, a.height, a.mime, a.type, a.home, a.filesize, a.ordering, a.published, a.gallery_id')
+            ->select(
+                'a.id, a.title, a.description, a.image, a.thumbnail, a.image_filesize, a.thumbnail_filesize, ' .
+                'a.image_meta, a.thumbnail_meta, a.type, a.home, a.ordering, a.published, a.gallery_id'
+            )
             ->from($this->db->quoteName('#__magicgallery_entities', 'a'));
 
         if (is_array($keys)) {
             foreach ($keys as $key => $value) {
-                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.' . $key) . ' = ' . $this->db->quote($value));
             }
         } else {
             $query->where('a.id = ' . (int)$keys);
         }
 
         $this->db->setQuery($query);
-        $result = (array)$this->db->loadAssoc();
+        $result = $this->db->loadObject();
 
         $this->bind($result);
     }
@@ -109,13 +110,11 @@ class Entity extends Database\Table
         // Prepare extra data value.
         $title       = (!$this->title) ? 'NULL' : $this->db->quote($this->title);
         $description = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
-        $filesize    = (!$this->filesize) ? 'NULL' : $this->db->quote($this->filesize);
-        $width    = (!$this->width) ? 'NULL' : (int)$this->width;
-        $height    = (!$this->height) ? 'NULL' : (int)$this->height;
-        $mime    = (!$this->mime) ? 'NULL' : $this->db->quote($this->mime);
-        $type    = (!$this->type) ? 'image' : $this->db->quote($this->type);
+        $imageMeta   = ($this->image_meta instanceof Registry) ? $this->db->quote($this->image_meta->toString()) : $this->db->quote('{}');
+        $thumbMeta   = ($this->thumbnail_meta instanceof Registry) ? $this->db->quote($this->thumbnail_meta->toString()) : $this->db->quote('{}');
+        $type        = (!$this->type) ? 'image' : $this->db->quote($this->type);
 
-        $query     = $this->db->getQuery(true);
+        $query = $this->db->getQuery(true);
 
         $query
             ->update($this->db->quoteName('#__magicgallery_entities'))
@@ -123,16 +122,16 @@ class Entity extends Database\Table
             ->set($this->db->quoteName('description') . '=' . $description)
             ->set($this->db->quoteName('image') . '=' . $this->db->quote($this->image))
             ->set($this->db->quoteName('thumbnail') . '=' . $this->db->quote($this->thumbnail))
-            ->set($this->db->quoteName('filesize') . '=' . $filesize)
-            ->set($this->db->quoteName('width') . '=' . $width)
-            ->set($this->db->quoteName('height') . '=' . $height)
-            ->set($this->db->quoteName('mime') . '=' . $mime)
+            ->set($this->db->quoteName('image_filesize') . '=' . (int)$this->image_filesize)
+            ->set($this->db->quoteName('thumbnail_filesize') . '=' . (int)$this->thumbnail_filesize)
+            ->set($this->db->quoteName('image_meta') . '=' . $imageMeta)
+            ->set($this->db->quoteName('thumbnail_meta') . '=' . $thumbMeta)
             ->set($this->db->quoteName('type') . '=' . $type)
             ->set($this->db->quoteName('home') . '=' . (int)$this->home)
             ->set($this->db->quoteName('ordering') . '=' . (int)$this->ordering)
             ->set($this->db->quoteName('published') . '=' . (int)$this->published)
             ->set($this->db->quoteName('gallery_id') . '=' . (int)$this->gallery_id)
-            ->where($this->db->quoteName('id') .'='. (int)$this->id);
+            ->where($this->db->quoteName('id') . '=' . (int)$this->id);
 
         $this->db->setQuery($query);
         $this->db->execute();
@@ -141,27 +140,25 @@ class Entity extends Database\Table
     protected function insertObject()
     {
         if (!(int)$this->gallery_id) {
-            throw new \RuntimeException(\JText::_('LIB_MAGICGALLERY_ERROR_MISSING_GALLERY_ID'));
+            throw new \RuntimeException('Missing gallery ID.');
         }
-        
+
         // Prepare extra data value.
         $title       = (!$this->title) ? 'NULL' : $this->db->quote($this->title);
         $description = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
-        $filesize    = (!$this->filesize) ? 'NULL' : $this->db->quote($this->filesize);
-        $width       = (!$this->width) ? 'NULL' : (int)$this->width;
-        $height      = (!$this->height) ? 'NULL' : (int)$this->height;
-        $mime        = (!$this->mime) ? 'NULL' : $this->db->quote($this->mime);
+        $imageMeta   = ($this->image_meta instanceof Registry) ? $this->db->quote($this->image_meta->toString()) : $this->db->quote('{}');
+        $thumbMeta   = ($this->thumbnail_meta instanceof Registry) ? $this->db->quote($this->thumbnail_meta->toString()) : $this->db->quote('{}');
         $type        = (!$this->type) ? 'image' : $this->db->quote($this->type);
 
         // Get last number of the ordering.
         $query = $this->db->getQuery(true);
         $query
-            ->select('MAX('.$this->db->quoteName('ordering').')')
+            ->select('MAX(' . $this->db->quoteName('ordering') . ')')
             ->from($this->db->quoteName('#__magicgallery_entities'))
-            ->where($this->db->quoteName('gallery_id') .'='.(int)$this->gallery_id);
+            ->where($this->db->quoteName('gallery_id') . '=' . (int)$this->gallery_id);
 
         $this->db->setQuery($query, 0, 1);
-        $max = (int)$this->db->loadResult();
+        $max            = (int)$this->db->loadResult();
         $this->ordering = $max + 1;
 
         // Count default entities for this gallery.
@@ -169,8 +166,8 @@ class Entity extends Database\Table
         $query
             ->select('COUNT(*)')
             ->from($this->db->quoteName('#__magicgallery_entities'))
-            ->where($this->db->quoteName('gallery_id') .'='.(int)$this->gallery_id)
-            ->where($this->db->quoteName('home') .' = '. (int)Constants::STATE_DEFAULT);
+            ->where($this->db->quoteName('gallery_id') . '=' . (int)$this->gallery_id)
+            ->where($this->db->quoteName('home') . ' = ' . (int)Constants::STATE_DEFAULT);
 
         $this->db->setQuery($query, 0, 1);
         $hasDefault = (bool)$this->db->loadResult();
@@ -180,7 +177,7 @@ class Entity extends Database\Table
             $this->home = Constants::STATE_DEFAULT;
         }
 
-        $query       = $this->db->getQuery(true);
+        $query = $this->db->getQuery(true);
 
         $query
             ->insert($this->db->quoteName('#__magicgallery_entities'))
@@ -188,10 +185,10 @@ class Entity extends Database\Table
             ->set($this->db->quoteName('description') . '=' . $description)
             ->set($this->db->quoteName('image') . '=' . $this->db->quote($this->image))
             ->set($this->db->quoteName('thumbnail') . '=' . $this->db->quote($this->thumbnail))
-            ->set($this->db->quoteName('filesize') . '=' . $filesize)
-            ->set($this->db->quoteName('width') . '=' . $width)
-            ->set($this->db->quoteName('height') . '=' . $height)
-            ->set($this->db->quoteName('mime') . '=' . $mime)
+            ->set($this->db->quoteName('image_filesize') . '=' . (int)$this->image_filesize)
+            ->set($this->db->quoteName('thumbnail_filesize') . '=' . (int)$this->thumbnail_filesize)
+            ->set($this->db->quoteName('image_meta') . '=' . $imageMeta)
+            ->set($this->db->quoteName('thumbnail_meta') . '=' . $thumbMeta)
             ->set($this->db->quoteName('type') . '=' . $type)
             ->set($this->db->quoteName('home') . '=' . (int)$this->home)
             ->set($this->db->quoteName('ordering') . '=' . (int)$this->ordering)
@@ -218,7 +215,7 @@ class Entity extends Database\Table
      * $item->removeImage($type);
      * </code>
      *
-     * @param string  $type
+     * @param string $type
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
@@ -228,43 +225,30 @@ class Entity extends Database\Table
      */
     public function removeImage($type)
     {
-        if (!$this->mediaFolder) {
-            throw new \RuntimeException(\JText::_('LIB_MAGICGALLERY_ERROR_MISSING_MEDIA_FOLDER'));
-        }
-
         if ((int)$this->id > 0) {
             switch ($type) {
                 case 'thumbnail':
-                    // Remove an image from the filesystem
-                    $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->thumbnail);
-                    if (\JFile::exists($file)) {
-                        \JFile::delete($file);
-                    }
-
-                    // Remove the image from the DB
+                    // Remove the thumbnail from the DB
                     $query = $this->db->getQuery(true);
                     $query
                         ->update($this->db->quoteName('#__magicgallery_entities'))
-                        ->set($this->db->quoteName('thumbnail') . ' = "" ')
+                        ->set($this->db->quoteName('thumbnail') . ' = ""')
+                        ->set($this->db->quoteName('thumbnail_filesize') . ' = 0')
+                        ->set($this->db->quoteName('thumbnail_meta') . ' = ' . $this->db->quote('{}'))
                         ->where($this->db->quoteName('id') . ' = ' . (int)$this->id);
 
                     $this->db->setQuery($query);
                     $this->db->execute();
-
                     break;
 
                 case 'image':
-                    // Remove an image from the filesystem
-                    $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->image);
-                    if (\JFile::exists($file)) {
-                        \JFile::delete($file);
-                    }
-
                     // Remove the image from the DB
                     $query = $this->db->getQuery(true);
                     $query
                         ->update($this->db->quoteName('#__magicgallery_entities'))
-                        ->set($this->db->quoteName('image') . ' = "" ')
+                        ->set($this->db->quoteName('image') . ' = ""')
+                        ->set($this->db->quoteName('image_filesize') . ' = 0')
+                        ->set($this->db->quoteName('image_meta') . ' = ' . $this->db->quote('{}'))
                         ->where($this->db->quoteName('id') . ' = ' . (int)$this->id);
 
                     $this->db->setQuery($query);
@@ -272,7 +256,6 @@ class Entity extends Database\Table
 
                     break;
             }
-
         }
 
         return $this;
@@ -297,23 +280,7 @@ class Entity extends Database\Table
      */
     public function remove()
     {
-        if (!$this->mediaFolder) {
-            throw new \RuntimeException(\JText::_('LIB_MAGICGALLERY_ERROR_MISSING_MEDIA_FOLDER'));
-        }
-
         if ($this->id > 0) {
-            // Remove the thumbnail from the filesystem.
-            $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->thumbnail);
-            if (\JFile::exists($file)) {
-                \JFile::delete($file);
-            }
-
-            // Remove an image from the filesystem.
-            $file = \JPath::clean($this->mediaFolder . DIRECTORY_SEPARATOR . $this->image);
-            if (\JFile::exists($file)) {
-                \JFile::delete($file);
-            }
-
             // Remove the record from the DB
             $query = $this->db->getQuery(true);
             $query
@@ -536,7 +503,7 @@ class Entity extends Database\Table
     }
 
     /**
-     * Return the path to the media folder.
+     * Return the filesize of the image.
      *
      * <code>
      * $itemId = 1;
@@ -544,38 +511,71 @@ class Entity extends Database\Table
      * $item   = new Magicgallery\Entity\Entity(\JFactory::getDbo());
      * $item->load($itemId);
      *
-     * echo $item->getMediaFolder();
+     * echo $item->getImageFilesize();
      * </code>
      *
-     * @return string
+     * @return int
      */
-    public function getMediaFolder()
+    public function getImageFilesize()
     {
-        return $this->mediaFolder;
+        return (int)$this->image_filesize;
     }
 
     /**
-     * Set the path to the media folder.
+     * Return the filesize of the thumbnail.
      *
      * <code>
      * $itemId = 1;
-     * $mediaFolder = "/.../..";
      *
      * $item   = new Magicgallery\Entity\Entity(\JFactory::getDbo());
      * $item->load($itemId);
      *
-     * $item->setMediaFolder($mediaFolder);
+     * echo $item->getThumbnailFilesize();
      * </code>
      *
-     * @param string $mediaFolder
-     *
-     * @return self
+     * @return int
      */
-    public function setMediaFolder($mediaFolder)
+    public function getThumbnailFilesize()
     {
-        $this->mediaFolder = $mediaFolder;
+        return (int)$this->thumbnail_filesize;
+    }
 
-        return $this;
+    /**
+     * Return the meta data of the image.
+     *
+     * <code>
+     * $itemId = 1;
+     *
+     * $item   = new Magicgallery\Entity\Entity(\JFactory::getDbo());
+     * $item->load($itemId);
+     *
+     * echo $item->getImageMeta()->get('width');
+     * </code>
+     *
+     * @return Registry
+     */
+    public function getImageMeta()
+    {
+        return $this->image_meta;
+    }
+
+    /**
+     * Return the meta data of the thumbnail.
+     *
+     * <code>
+     * $itemId = 1;
+     *
+     * $item   = new Magicgallery\Entity\Entity(\JFactory::getDbo());
+     * $item->load($itemId);
+     *
+     * echo $item->getThumbnailMeta()->get('width');
+     * </code>
+     *
+     * @return Registry
+     */
+    public function getThumbnailMeta()
+    {
+        return $this->thumbnail_meta;
     }
 
     /**
@@ -619,5 +619,69 @@ class Entity extends Database\Table
     public function __toString()
     {
         return (strlen($this->thumbnail) > 0) ? (string)$this->thumbnail : (string)$this->image;
+    }
+
+    /**
+     * Set notification data to object parameters.
+     *
+     * <code>
+     * $data = new stdClass;
+     *
+     * $resource   = new Magicgallery\Entity\Entity(\JFactory::getDbo());
+     * $resource->bind($data);
+     * </code>
+     *
+     * @param array||\stdClass $data
+     * @param array $ignored
+     */
+    public function bind($data, array $ignored = array())
+    {
+        if (is_array($data)) { // Array
+            // Parse parameters of the object if they exists.
+            if (array_key_exists('params', $data) and !in_array('params', $ignored, true)) {
+                $this->params = new Registry($data['params']);
+                unset($data['params']);
+            }
+
+            if (array_key_exists('image_meta', $data)) {
+                $this->image_meta = new Registry($data['image_meta']);
+                unset($data['image_meta']);
+            }
+
+            if (array_key_exists('thumbnail_meta', $data)) {
+                $this->thumbnail_meta = new Registry($data['thumbnail_meta']);
+                unset($data['thumbnail_meta']);
+            }
+
+            foreach ($data as $key => $value) {
+                if (!in_array($key, $ignored, true)) {
+                    $this->$key = $value;
+                }
+            }
+
+        } elseif (is_object($data)) { // Object
+            // Parse parameters of the object if they exists.
+            if (property_exists($data, 'params') and !in_array('params', $ignored, true)) {
+                $this->params = new Registry($data->params);
+                unset($data->params);
+            }
+
+            if (property_exists($data, 'image_meta')) {
+                $this->image_meta = new Registry($data->image_meta);
+                unset($data->image_meta);
+            }
+
+            if (property_exists($data, 'thumbnail_meta')) {
+                $this->thumbnail_meta = new Registry($data->thumbnail_meta);
+                unset($data->thumbnail_meta);
+            }
+
+            $data_ = get_object_vars($data);
+            foreach ($data_ as $key => $value) {
+                if (!in_array($key, $ignored, true)) {
+                    $this->$key = $value;
+                }
+            }
+        }
     }
 }

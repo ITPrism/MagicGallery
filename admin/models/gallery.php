@@ -7,12 +7,19 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
+jimport('Prism.libs.Flysystem.init');
+jimport('Prism.libs.Aws.init');
+jimport('Prism.libs.GuzzleHttp.init');
+
 // no direct access
 defined('_JEXEC') or die;
 
-/**
- * It is a gallery model.
- */
+// Register Observers
+JLoader::register('MagicgalleryObserverGallery', MAGICGALLERY_PATH_COMPONENT_ADMINISTRATOR .'/tables/observers/gallery.php');
+JObserverMapper::addObserverClassToClass('MagicgalleryObserverGallery', 'MagicgalleryTableGallery', array('typeAlias' => 'com_magicgallery.gallery'));
+
 class MagicgalleryModelGallery extends JModelAdmin
 {
     /**
@@ -22,7 +29,7 @@ class MagicgalleryModelGallery extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  MagicgalleryTableGallery  A database object
+     * @return  MagicgalleryTableGallery|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Gallery', $prefix = 'MagicgalleryTable', $config = array())
@@ -36,14 +43,14 @@ class MagicgalleryModelGallery extends JModelAdmin
      * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return  JForm   A JForm object on success, false on failure
+     * @return  JForm|bool   A JForm object on success, false on failure
      * @since   1.6
      */
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.gallery', 'gallery', array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
 
@@ -70,7 +77,6 @@ class MagicgalleryModelGallery extends JModelAdmin
             if ((int)$this->getState($this->getName() . '.id') === 0) {
                 $data->set('catid', $app->input->getInt('catid', $app->getUserState($this->option . '.galleries.filter.category_id')));
             }
-
         }
 
         return $data;
@@ -81,26 +87,24 @@ class MagicgalleryModelGallery extends JModelAdmin
      *
      * @param array $data The data about project
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     *
      * @return   int
      */
     public function save($data)
     {
-        $title       = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $alias       = Joomla\Utilities\ArrayHelper::getValue($data, 'alias');
-        $id          = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $catid       = Joomla\Utilities\ArrayHelper::getValue($data, 'catid');
-        $url         = Joomla\Utilities\ArrayHelper::getValue($data, 'url');
-        $published   = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
-        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
-        $userId      = Joomla\Utilities\ArrayHelper::getValue($data, 'user_id', 0, 'int');
-
-        if (JString::strlen($description) === 0) {
-            $description = null;
-        }
-
-        if (JString::strlen($url) === 0) {
-            $url = null;
-        }
+        $title       = ArrayHelper::getValue($data, 'title');
+        $alias       = ArrayHelper::getValue($data, 'alias');
+        $id          = ArrayHelper::getValue($data, 'id');
+        $catid       = ArrayHelper::getValue($data, 'catid');
+        $url         = ArrayHelper::getValue($data, 'url');
+        $published   = ArrayHelper::getValue($data, 'published');
+        $description = ArrayHelper::getValue($data, 'description');
+        $userId      = ArrayHelper::getValue($data, 'user_id', 0, 'int');
+        $metaDesc    = ArrayHelper::getValue($data, 'metadesc');
+        $metaKeys    = ArrayHelper::getValue($data, 'metakeys');
 
         // Load a record from the database
         $row = $this->getTable();
@@ -113,6 +117,8 @@ class MagicgalleryModelGallery extends JModelAdmin
         $row->set('catid', $catid);
         $row->set('user_id', $userId);
         $row->set('published', $published);
+        $row->set('metadesc', $metaDesc);
+        $row->set('metakeys', $metaKeys);
         $row->set('params', null);
 
         // Encode parameters.
@@ -133,41 +139,47 @@ class MagicgalleryModelGallery extends JModelAdmin
      *
      * @param JTable $table
      *
+     * @throws \RuntimeException
      * @since    1.6
      */
     protected function prepareTable($table)
     {
         // get maximum order number
-        if (!$table->get('id')) {
-
+        if (!$table->get('id') and !$table->get('ordering')) {
             // Set ordering to the last item if not set
-            if (!$table->get('ordering')) {
-                $db    = JFactory::getDbo();
-                $query = $db->getQuery(true);
-                $query
-                    ->select('MAX(ordering)')
-                    ->from('#__magicgallery_galleries');
+            $db    = JFactory::getDbo();
+            $query = $db->getQuery(true);
+            $query
+                ->select('MAX(ordering)')
+                ->from('#__magicgallery_galleries');
 
-                $db->setQuery($query, 0, 1);
-                $max = $db->loadResult();
+            $db->setQuery($query, 0, 1);
+            $max = $db->loadResult();
 
-                $table->set('ordering', $max + 1);
-            }
+            $table->set('ordering', $max + 1);
         }
 
-        // Fix magic quotes.
-        if (get_magic_quotes_gpc()) {
-            $table->set('title', stripcslashes($table->get('title')));
-            $table->set('description', stripcslashes($table->get('description')));
-            $table->set('url', stripcslashes($table->get('url')));
+        if (!$table->get('description')) {
+            $table->get('description', null);
+        }
+
+        if (!$table->get('url')) {
+            $table->get('url', null);
+        }
+
+        if (!$table->get('metadesc')) {
+            $table->set('metadesc', null);
+        }
+
+        if (!$table->get('metakeys')) {
+            $table->set('metakeys', null);
         }
 
         // If does not exist alias, I will generate the new one from the title
         if (!$table->get('alias')) {
             $table->set('alias', $table->get('title'));
         }
-
-        $table->set('alias', JApplicationHelper::stringURLSafe($table->get('alias')));
+        $table->set('alias', Prism\Utilities\StringHelper::stringUrlSafe($table->get('alias')));
     }
 
     /**

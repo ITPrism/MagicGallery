@@ -9,16 +9,21 @@
 
 // no direct access
 defined('_JEXEC') or die;
+/**
+ * @var array $fields
+ */
 ?>
 <div class="panel panel-default">
     <div class="panel-heading"><?php echo JText::_('COM_MAGICGALLERY_RESIZE_OPTIONS'); ?></div>
     <div class="panel-body">
-        <?php foreach ($this->form->getGroup('resize') as $field) { ?>
+        <?php
+        $fields = $this->form->getGroup('resize');
+        foreach ($fields as $field) { ?>
             <div class="control-group">
                 <?php if (!$field->hidden) : ?>
-                    <div class="control-label">
-                        <?php echo $field->label; ?>
-                    </div>
+                <div class="control-label">
+                    <?php echo $field->label; ?>
+                </div>
                 <?php endif; ?>
                 <div class="controls">
                     <?php echo $field->input; ?>

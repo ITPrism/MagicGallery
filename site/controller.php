@@ -31,6 +31,7 @@ class MagicgalleryController extends JControllerLegacy
         $viewName = $this->input->getCmd('view', 'categorylist');
         $this->input->set('view', $viewName);
 
+        JHtml::_('Prism.ui.styles');
         JHtml::stylesheet('com_magicgallery/frontend.style.css', false, true, false);
 
         // Cache some views.

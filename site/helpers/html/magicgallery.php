@@ -46,7 +46,7 @@ abstract class JHtmlMagicgallery
 
         $document = JFactory::getDocument();
 
-        $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/nivo-lightbox.css');
+        $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/nivo-lightbox.min.css');
         $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/nivo/themes/default/default.css');
         $document->addScript(JUri::root() . 'media/' . self::$extension . '/js/nivo/nivo-lightbox.min.js');
 
@@ -75,6 +75,32 @@ abstract class JHtmlMagicgallery
 
         $document->addScript(JUri::root() . 'media/' . self::$extension . '/js/fancybox/jquery.fancybox.pack.js');
         $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/fancybox/jquery.fancybox.css');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
+     * Include jQuery SwipeBox library.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Magicgallery.ui.lightboxSwipebox');
+     * </code>
+     *
+     * @link http://brutaldesign.github.io/swipebox/ SwipeBox documentation
+     */
+    public static function lightboxSwipebox()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+
+        $document->addScript(JUri::root() . 'media/' . self::$extension . '/js/swipebox/js/jquery.swipebox.min.js');
+        $document->addStyleSheet(JUri::root() . 'media/' . self::$extension . '/js/swipebox/css/swipebox.min.css');
 
         self::$loaded[__METHOD__] = true;
     }
@@ -114,7 +140,7 @@ abstract class JHtmlMagicgallery
      * JHtml::_('Magicgallery.galleria');
      * </code>
      *
-     * @link https://github.com/duncanmcdougall/Responsive-Lightbox
+     * @link https://github.com/worseisbetter/galleria
      */
     public static function galleria()
     {
@@ -125,7 +151,7 @@ abstract class JHtmlMagicgallery
 
         $document = JFactory::getDocument();
 
-        $document->addStyleSheet('media/' . self::$extension . '/js/galleria/themes/classic/galleria.classic.css');
+        $document->addStyleSheet('media/' . self::$extension . '/js/galleria/themes/classic/galleria.classic.min.css');
 
         $document->addScript('media/' . self::$extension . '/js/galleria/galleria.min.js');
         $document->addScript('media/' . self::$extension . '/js/galleria/themes/classic/galleria.classic.min.js');
@@ -193,32 +219,23 @@ abstract class JHtmlMagicgallery
      * <code>
      * JHtml::addIncludePath(MAGICGALLERY_PATH_COMPONENT_SITE . '/helpers/html');
      *
-     * JHtml::_('Magicgallery.fileSize', $params);
+     * JHtml::_('Magicgallery.fileSize', 123456);
      * </code>
      *
-     * @param array $params
+     * @param int $filesize
      *
      * @return string
      */
-    public static function fileSize($params)
+    public static function fileSize($filesize)
     {
         $result = '';
-        $value  = (!empty($params['filesize'])) ? abs($params['filesize']) : 0;
 
-        if ($value > 0) {
-            $value /= 1000;
-
-            if ($value > 1000) {
-                $value /= 1000;
-
-                $result  = '<div class="small">';
-                $result .= JText::sprintf('COM_MAGICGALLERY_FILESIZE_MB_D', $value);
-                $result .= '</div>';
-            } else {
-                $result  = '<div class="small">';
-                $result .= JText::sprintf('COM_MAGICGALLERY_FILESIZE_KB_D', $value);
-                $result .= '</div>';
-            }
+        $filesize  = $filesize ? (int)abs($filesize) : 0;
+        if ($filesize > 0) {
+            $filesize   = Prism\Utilities\MathHelper::convertFromBytes($filesize);
+            $result  = '<div class="small">';
+            $result .= JText::sprintf('COM_MAGICGALLERY_FILESIZE_S', $filesize);
+            $result .= '</div>';
         }
 
         return $result;
@@ -276,9 +293,7 @@ abstract class JHtmlMagicgallery
         $output[] = JText::sprintf('COM_MAGICGALLERY_RESOURCES_S', $number);
         $output[] = '</a>';
 
-        if (!$number) {
-            $output[] = '<a href="'.JRoute::_('index.php?option=com_magicgallery&view=entity&layout=edit').'" class="btn btn-success btn-mini"><i class="icon icon-new"></i> ' .JText::sprintf('COM_MAGICGALLERY_ADD_RESOURCE', $number) . '</a>';
-        }
+        $output[] = '<a href="'.JRoute::_('index.php?option=com_magicgallery&view=entity&layout=edit&gid='.$itemId).'" class="btn btn-success btn-mini"><i class="icon icon-new"></i> ' .JText::sprintf('COM_MAGICGALLERY_ADD_RESOURCE', $number) . '</a>';
 
         return implode("\n", $output);
     }
@@ -316,41 +331,37 @@ abstract class JHtmlMagicgallery
      * JHtml::_('Magicgallery.fileInfo', $params);
      * </code>
      *
-     * @param array $params
+     * @param array $filesize
+     * @param string $meta
      *
      * @return string
      */
-    public static function fileInfo($params)
+    public static function fileInfo($filesize, $meta)
     {
         $result = '';
         $title = array();
 
+        $metaData = (is_string($meta) and $meta !== '') ? json_decode($meta, true) : array();
+
         // Image mime type.
-        if (!empty($params['mime_type'])) {
-            $title[] = JText::sprintf('COM_MAGICGALLERY_MIMETYPE_S', htmlentities($params['mime_type'], ENT_QUOTES, 'UTF-8'));
+        if (!empty($metaData['mime'])) {
+            $title[] = JText::sprintf('COM_MAGICGALLERY_MIMETYPE_S', htmlentities($metaData['mime'], ENT_QUOTES, 'UTF-8'));
         }
 
         // Image size.
-        $width   = (!empty($params['width'])) ? (int)abs($params['width']) : 0;
-        $height  = (!empty($params['height'])) ? (int)abs($params['height']) : 0;
+        $width   = array_key_exists('width', $metaData) ? (int)abs($metaData['width']) : 0;
+        $height  = array_key_exists('height', $metaData) ? (int)abs($metaData['height']) : 0;
 
         if ($width > 0 and $height > 0) {
             $title[] = JText::sprintf('COM_MAGICGALLERY_IMAGE_SIZE_S', $width .'x'. $height);
         }
 
         // Filesize
-        $value  = (!empty($params['filesize'])) ? abs($params['filesize']) : 0;
+        $value  = $filesize ? (int)abs($filesize) : 0;
 
         if ($value > 0) {
-            $value /= 1000;
-
-            if ($value > 1000) {
-                $value /= 1000;
-
-                $title[] = JText::sprintf('COM_MAGICGALLERY_FILESIZE_MB_D', $value);
-            } else {
-                $title[]= JText::sprintf('COM_MAGICGALLERY_FILESIZE_KB_D', $value);
-            }
+            $value   = Prism\Utilities\MathHelper::convertFromBytes($value);
+            $title[] = JText::sprintf('COM_MAGICGALLERY_FILESIZE_S', $value);
         }
 
         if (count($title) > 0) {

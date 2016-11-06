@@ -38,7 +38,7 @@ class Version
      *
      * @var integer
      */
-    public $devLevel = '2';
+    public $devLevel = '3';
 
     /**
      * Release Type
@@ -59,7 +59,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '17 July, 2016';
+    public $releaseDate = '04 November, 2016';
 
     /**
      * License
@@ -101,7 +101,7 @@ class Version
      *
      * @var string
      */
-    public $requiredPrismVersion = '1.14';
+    public $requiredPrismVersion = '1.17';
 
     /**
      *  Build long format of the version text.

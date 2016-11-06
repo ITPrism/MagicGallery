@@ -9,6 +9,7 @@
 
 namespace Magicgallery\Gallery;
 
+use Magicgallery\Entity\Entities;
 use Magicgallery\Entity\Entity;
 
 defined('JPATH_PLATFORM') or die;
@@ -25,15 +26,19 @@ class SlideGallery extends GalleryAbstract
      * Add script code to the document.
      *
      * <code>
-     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params, \JFactory::getDocument());
-     * $gallery->addScriptDeclaration();
+     * $gallery = new Magicgallery\Gallery\SlideGallery($items, $params);
+     * $js = $this->gallery
+     *            ->setSelector('js-mg-com-slidegallery')
+     *            ->prepareScriptDeclaration();
+     *
+     * $this->document->addScriptDeclaration($js);
      * </code>
      *
      * @throws \InvalidArgumentException
      *
-     * @return self
+     * @return string
      */
-    public function addScriptDeclaration()
+    public function prepareScriptDeclaration()
     {
         \JHtml::_('jquery.framework');
         \JHtml::_('Magicgallery.slidejs');
@@ -50,9 +55,7 @@ jQuery(document).ready(function() {
             $effects . $play . '
     });
 });';
-        $this->document->addScriptDeclaration($js);
-
-        return $this;
+        return $js;
     }
 
     /**
@@ -74,20 +77,17 @@ jQuery(document).ready(function() {
     {
         $html = array();
 
-        if (count($this->items) > 0) {
+        if ($this->gallery !== null) {
             $html[] = '<div id="' . $this->selector . '">';
 
-            /** @var Gallery $item */
-            foreach ($this->items as $item) {
-                if (!$item->getId()) {
+            $resources = $this->gallery->getEntities();
+            foreach ($resources as $resource) {
+                if ($resource === null or !$resource->id) {
                     continue;
                 }
 
-                $media = $item->getDefaultEntity();
-                /** @var Entity $media */
-
-                if ($media !== null and ($media instanceof Entity)) {
-                    $html[] = '<img src="' . $this->mediaPath . '/' . $media->getImage() . '" />';
+                if (!empty($resource->image)) {
+                    $html[] = '<img src="' . $this->gallery->getMediaUri() . '/' . $resource->image . '" />';
                 }
             }
 

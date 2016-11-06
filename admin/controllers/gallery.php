@@ -35,12 +35,12 @@ class MagicgalleryControllerGallery extends Prism\Controller\Form\Backend
 
         // Gets the data from the form
         $data   = $app->input->post->get('jform', array(), 'array');
-        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, "id", 0, "int");
+        $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
 
         // Redirect options
         $redirectOptions = array(
-            "task" => $this->getTask(),
-            "id"   => $itemId
+            'task' => $this->getTask(),
+            'id'   => $itemId
         );
 
         $model = $this->getModel();
@@ -50,7 +50,7 @@ class MagicgalleryControllerGallery extends Prism\Controller\Form\Backend
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_("COM_MAGICGALLERY_ERROR_FORM_CANNOT_BE_LOADED"));
+            throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
         // Test for valid data.
@@ -63,19 +63,15 @@ class MagicgalleryControllerGallery extends Prism\Controller\Form\Backend
         }
 
         try {
-
-            $redirectOptions["id"] = $model->save($validData);
-
+            $redirectOptions['id'] = $model->save($validData);
         } catch (RuntimeException $e) {
             $this->displayWarning($e->getMessage(), $redirectOptions);
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_magicgallery');
             throw new Exception(JText::_('COM_MAGICGALLERY_ERROR_SYSTEM'));
 
         }
 
         $this->displayMessage(JText::_('COM_MAGICGALLERY_GALLERY_SAVED'), $redirectOptions);
     }
-
 }

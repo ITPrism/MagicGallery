@@ -9,13 +9,14 @@
 	<license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
 	<packager>ITPrism</packager>
 	<packagerurl>http://itprism.com</packagerurl>
-	<version>1.2</version>
-	<creationDate>17 July, 2016</creationDate>
+	<version>1.3</version>
+	<creationDate>04 November, 2016</creationDate>
 	<description>Magic Gallery Library</description>
 	<files>
 		<folder>Category</folder>
 		<folder>Entity</folder>
 		<folder>Gallery</folder>
+		<folder>Helper</folder>
 		<file>init.php</file>
 		<file>Version.php</file>
 	</files>

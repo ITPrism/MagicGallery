@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-	<fieldset name="images" label="COM_MAGICGALLERY_MEDIA" description="COM_MAGICGALLERY_MEDIA_PARAMS">
-        <field name="media_folder" type="text" default="images/magicgallery" class="input-xxlarge" 
-               label="COM_MAGICGALLERY_MEDIA_DIRECTORY" 
-               description="COM_MAGICGALLERY_MEDIA_DIRECTORY_DESC" />
-        <field name="legal_extensions" type="text" default="bmp, gif, jpg, jpeg, png" class="input-xxlarge"
-               label="COM_MAGICGALLERY_LEGAL_EXTENSIONS" 
-               description="COM_MAGICGALLERY_LEGAL_EXTENSIONS_DESC"
-               />
-
-        <field name="legal_types" type="textarea" default="image/jpeg, image/gif, image/png, image/bmp" class="input-xxlarge"
-               label="COM_MAGICGALLERY_LEGAL_MIME_TYPES" 
-               description="COM_MAGICGALLERY_LEGAL_MIME_TYPES_DESC"
-               />
-
-        <field name="max_size" type="text" default="5" class="input-mini"
-               label="COM_MAGICGALLERY_MAX_SIZE_MB" 
-               description="COM_MAGICGALLERY_MAX_SIZE_MB_DESC"
-               />
+	<fieldset name="media" label="COM_MAGICGALLERY_MEDIA" description="COM_MAGICGALLERY_MEDIA_PARAMS">
+        <field name="legal_extensions" type="text" default="bmp, gif, jpg, jpeg, png" class="input-xxlarge" label="COM_MAGICGALLERY_LEGAL_EXTENSIONS" description="COM_MAGICGALLERY_LEGAL_EXTENSIONS_DESC"/>
+        <field name="legal_types" type="textarea" default="image/jpeg, image/gif, image/png, image/bmp" class="input-xxlarge" label="COM_MAGICGALLERY_LEGAL_MIME_TYPES" description="COM_MAGICGALLERY_LEGAL_MIME_TYPES_DESC"/>
+        <field name="max_size" type="text" default="5" label="COM_MAGICGALLERY_MAX_SIZE_MB" description="COM_MAGICGALLERY_MAX_SIZE_MB_DESC"/>
 	</fieldset>
+
+    <fieldset name="filesystem_options" label="COM_MAGICGALLERY_FILESYSTEMS" description="COM_MAGICGALLERY_FILESYSTEMS_PARAMS" addfieldpath="/libraries/Prism/ui/fields">
+        <field name="filesystem" type="list" default="local" label="COM_MAGICGALLERY_FILESYSTEM" description="COM_MAGICGALLERY_FILESYSTEM_DESC">
+            <option value="local">COM_MAGICGALLERY_LOCAL</option>
+            <option value="amazon_s3">COM_MAGICGALLERY_AMAZON_S3</option>
+        </field>
+        <field name="local_media_folder" type="text" default="/media/magicgallery" label="COM_MAGICGALLERY_LOCAL_MEDIA_DIRECTORY" description="COM_MAGICGALLERY_LOCAL_MEDIA_DIRECTORY_DESC" class="xx-large" hint="/media/magicgallery"/>
+        <field name="amazon_bucket" type="text" label="COM_MAGICGALLERY_AMAZON_S3_BUCKET" description="COM_MAGICGALLERY_AMAZON_S3_BUCKET_DESC" class="input-xxlarge"/>
+        <field name="amazon_key" type="text" label="COM_MAGICGALLERY_AMAZON_S3_KEY" description="COM_MAGICGALLERY_AMAZON_S3_KEY_DESC" class="input-xxlarge"/>
+        <field name="amazon_secret" type="text" label="COM_MAGICGALLERY_AMAZON_S3_SECRET" description="COM_MAGICGALLERY_AMAZON_S3_SECRET_DESC" class="input-xxlarge"/>
+        <field name="amazon_region" type="list" default="us-east-1" label="COM_MAGICGALLERY_AMAZON_S3_REGION" description="COM_MAGICGALLERY_AMAZON_S3_REGION_DESC" class="btn-group">
+            <option value="us-east-1">COM_MAGICGALLERY_AMAZON_S3_REGION_US_EAST_1</option>
+            <option value="us-west-1">COM_MAGICGALLERY_AMAZON_S3_REGION_US_WEST_1</option>
+            <option value="us-west-2">COM_MAGICGALLERY_AMAZON_S3_REGION_US_WEST_2</option>
+            <option value="eu-west-1">COM_MAGICGALLERY_AMAZON_S3_REGION_EU_WEST_1</option>
+            <option value="eu-west-2">COM_MAGICGALLERY_AMAZON_S3_REGION_EU_WEST_2</option>
+            <option value="ap-southeast-1">COM_MAGICGALLERY_AMAZON_S3_REGION_AP_SOUTHEAST_1</option>
+            <option value="ap-southeast-2">COM_MAGICGALLERY_AMAZON_S3_REGION_AP_SOUTHEAST_2</option>
+            <option value="ap-northeast-1">COM_MAGICGALLERY_AMAZON_S3_REGION_AP_NORTHEAST_1</option>
+            <option value="sa-east-1">COM_MAGICGALLERY_AMAZON_S3_REGION_SA_EAST_1</option>
+        </field>
+        <field name="remote_media_folder" type="text" default="/media/magicgallery" label="COM_MAGICGALLERY_REMOTE_MEDIA_DIRECTORY" description="COM_MAGICGALLERY_REMOTE_MEDIA_DIRECTORY_DESC" class="input-xxlarge" hint="/media/magicgallery" />
+        <field name="remote_domain" type="text" label="COM_MAGICGALLERY_DOMAIN" description="COM_MAGICGALLERY_REMOTE_DOMAIN_DESC" class="input-xxlarge" hint="https://s3.amazonaws.com/media.itprism.com"/>
+    </fieldset>
 </config>
